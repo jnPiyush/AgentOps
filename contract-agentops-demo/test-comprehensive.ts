@@ -24,7 +24,7 @@ function runTest(name: string, testFn: () => boolean | Promise<boolean>): Promis
         resolve(false);
       }
     } catch (error) {
-      console.log(`   ❌ ERROR: ${error.message}`);
+      console.log(`   ❌ ERROR: ${error instanceof Error ? error.message : String(error)}`);
       testsFailed++;
       resolve(false);
     }
@@ -106,7 +106,7 @@ async function testSuite() {
   // Test 5: Evaluation System
   await runTest('Evaluation System Integrity', () => {
     const result = deploySimulated();
-    return (
+    return Boolean(
       result.evaluation &&
       result.evaluation.test_count > 0 &&
       result.evaluation.passed >= 0 &&

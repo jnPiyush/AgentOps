@@ -1,0 +1,14 @@
+{
+  "clauses": [
+    {"type": "sla", "text": "Provider guarantees 99.95% monthly uptime for all Tier 1 (production) services.", "section": "2.1"},
+    {"type": "sla", "text": "Severity 1 (Critical): Response within 15 minutes, resolution target 4 hours.", "section": "3.1"},
+    {"type": "sla", "text": "Monthly uptime below 95.00%: 50% credit of monthly service fees.", "section": "4.3"},
+    {"type": "payment", "text": "Monthly service fee: $45,000. Payment terms: Net-30.", "section": "9"},
+    {"type": "termination", "text": "Client may terminate without penalty if Provider fails 99.95% uptime for three consecutive months.", "section": "10.2"},
+    {"type": "governing_law", "text": "This SLA shall be governed by the laws of the State of Delaware.", "section": "11"}
+  ],
+  "parties": ["InfraCloud Services Ltd.", "NorthStar Financial Corp."],
+  "dates": ["January 1, 2026", "November 15, 2025"],
+  "values": ["$45,000/month"],
+  "confidence": 0.96
+}

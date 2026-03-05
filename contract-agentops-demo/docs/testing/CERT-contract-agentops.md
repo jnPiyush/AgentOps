@@ -49,10 +49,10 @@
 ### ✅ 5. Agent Registration Test
 - **Status:** PASS
 - **Agents Successfully Registered:**
-  - Contract Intake Agent [asst_sim_698348f9-5c9]
-  - Contract Extraction Agent [asst_sim_78a37d31-01a]
-  - Contract Compliance Agent [asst_sim_e1d8d552-070]
-  - Contract Approval Agent [asst_sim_e7e1aeb4-858]
+  - Contract Intake Agent `asst_sim_698348f9-5c9`
+  - Contract Extraction Agent `asst_sim_78a37d31-01a`
+  - Contract Compliance Agent `asst_sim_e1d8d552-070`
+  - Contract Approval Agent `asst_sim_e7e1aeb4-858`
 
 ### ⚠️ 6. Full Application Stack Test
 - **Status:** PARTIAL

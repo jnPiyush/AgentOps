@@ -1,0 +1,96 @@
+import type { FastifyInstance } from "fastify";
+import { appConfig } from "../config.js";
+import {
+  deployToFoundry,
+  deploySimulated,
+  cleanupAgents,
+  type FoundryDeployConfig,
+  type DeployPipelineResult,
+} from "../services/foundryDeploy.js";
+
+// Track last deployment for cleanup
+let lastDeployment: DeployPipelineResult | null = null;
+
+function getFoundryConfig(): FoundryDeployConfig {
+  return {
+    endpoint: appConfig.foundryEndpoint,
+    projectEndpoint: appConfig.foundryProjectEndpoint,
+    apiKey: appConfig.foundryApiKey,
+    model: appConfig.foundryModel,
+  };
+}
+
+export async function deployRoutes(app: FastifyInstance): Promise<void> {
+  // POST /api/v1/deploy/pipeline - Run full deployment pipeline
+  app.post("/api/v1/deploy/pipeline", async (_request, reply) => {
+    if (appConfig.demoMode === "live") {
+      const cfg = getFoundryConfig();
+      if (!cfg.endpoint || !cfg.apiKey) {
+        return reply.status(400).send({
+          error: "missing_config",
+          message: "FOUNDRY_ENDPOINT and FOUNDRY_API_KEY required for live deployment",
+        });
+      }
+      const result = await deployToFoundry(cfg);
+      lastDeployment = result;
+      return reply.status(201).send(result);
+    }
+
+    // Simulated mode
+    const result = deploySimulated();
+    lastDeployment = result;
+    return reply.status(201).send(result);
+  });
+
+  // GET /api/v1/deploy/status - Get last deployment result
+  app.get("/api/v1/deploy/status", async (_request, reply) => {
+    if (!lastDeployment) {
+      return reply.status(404).send({
+        error: "no_deployment",
+        message: "No deployment has been run yet",
+      });
+    }
+    return reply.send(lastDeployment);
+  });
+
+  // DELETE /api/v1/deploy/agents - Cleanup registered agents
+  app.delete("/api/v1/deploy/agents", async (_request, reply) => {
+    if (!lastDeployment || lastDeployment.agents.length === 0) {
+      return reply.status(404).send({
+        error: "no_agents",
+        message: "No registered agents to clean up",
+      });
+    }
+
+    const agentIds = lastDeployment.agents
+      .filter((a) => a.status === "registered")
+      .map((a) => a.foundry_agent_id);
+
+    if (appConfig.demoMode === "live" && agentIds.length > 0) {
+      const cfg = getFoundryConfig();
+      const result = await cleanupAgents(cfg, agentIds);
+      lastDeployment = null;
+      return reply.send({
+        deleted: result.deleted,
+        errors: result.errors,
+        message: `Cleaned up ${result.deleted} agents from Foundry`,
+      });
+    }
+
+    // Simulated cleanup
+    lastDeployment = null;
+    return reply.send({
+      deleted: agentIds.length,
+      errors: [],
+      message: `Cleaned up ${agentIds.length} simulated agents`,
+    });
+  });
+
+  // GET /api/v1/deploy/mode - Get current deployment mode
+  app.get("/api/v1/deploy/mode", async (_request, reply) => {
+    return reply.send({
+      mode: appConfig.demoMode,
+      foundry_configured: Boolean(appConfig.foundryEndpoint && appConfig.foundryApiKey),
+    });
+  });
+}

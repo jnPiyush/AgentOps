@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+name: contract-agentops-demo
+metadata:
+  template: contract-agentops-demo@1.0.0
+
+services:
+  app:
+    project: .
+    host: appservice
+    language: ts
+
+hooks:
+  preprovision:
+    shell: sh
+    run: echo "Provisioning Azure resources for Contract AgentOps Demo..."
+  postdeploy:
+    shell: sh
+    run: |
+      echo "Deployment complete. Triggering Foundry agent registration pipeline..."
+      APP_URL=$(azd env get-value AZURE_APP_SERVICE_URL 2>/dev/null)
+      if [ -n "$APP_URL" ]; then
+        echo "Registering agents via ${APP_URL}/api/v1/deploy/pipeline ..."
+        curl -s -X POST "${APP_URL}/api/v1/deploy/pipeline" \
+          -H "Content-Type: application/json" \
+          --retry 3 --retry-delay 10 --max-time 120 \
+          -o /tmp/deploy-result.json -w "\nHTTP Status: %{http_code}\n"
+        cat /tmp/deploy-result.json 2>/dev/null || true
+      else
+        echo "WARNING: Could not determine app URL. Run agent registration manually."
+      fi
+      else
+        echo "WARNING: Could not determine app FQDN. Run agent registration manually."
+      fi

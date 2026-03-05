@@ -1,0 +1,11 @@
+{
+  "clause_results": [
+    {"clause_type": "confidentiality", "status": "pass", "policy_ref": "policy-003", "reason": "Confidentiality duration of 5 years post-termination exceeds minimum 2 years"},
+    {"clause_type": "termination", "status": "pass", "policy_ref": "policy-002", "reason": "30-day notice period meets minimum requirement"},
+    {"clause_type": "liability", "status": "pass", "policy_ref": "policy-001", "reason": "Liability cap of $500,000 is reasonable for NDA scope"},
+    {"clause_type": "governing_law", "status": "pass", "policy_ref": "policy-005", "reason": "Governing law (Delaware) is specified"}
+  ],
+  "overall_risk": "low",
+  "flags_count": 0,
+  "policy_references": ["policy-001", "policy-002", "policy-003", "policy-005"]
+}

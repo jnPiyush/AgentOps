@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1920, initial-scale=1">
+  <title>Contract AgentOps Dashboard - Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ===== Navigation Bar ===== -->
+  <nav class="nav-bar" role="navigation" aria-label="Main navigation">
+    <div class="nav-logo">
+      <div class="nav-logo-icon">C</div>
+      Contract AgentOps
+    </div>
+    <div class="stage-progress" aria-label="Stage progress">
+      <div class="stage-dot active" data-stage="0" title="Design"></div>
+      <div class="stage-dot" data-stage="1" title="Build"></div>
+      <div class="stage-dot" data-stage="2" title="Deploy"></div>
+      <div class="stage-dot" data-stage="3" title="Live"></div>
+      <div class="stage-dot" data-stage="4" title="Monitor"></div>
+      <div class="stage-dot" data-stage="5" title="Evaluate"></div>
+      <div class="stage-dot" data-stage="6" title="Drift"></div>
+      <div class="stage-dot" data-stage="7" title="Feedback"></div>
+    </div>
+  </nav>
+
+  <!-- ===== Tab Bar ===== -->
+  <div class="tab-bar" role="tablist" aria-label="AgentOps stages">
+    <div class="tab active" role="tab" data-view="design" tabindex="0" aria-selected="true">
+      <span class="tab-num">1</span> Design
+    </div>
+    <div class="tab" role="tab" data-view="build" tabindex="-1" aria-selected="false">
+      <span class="tab-num">2</span> Build
+    </div>
+    <div class="tab" role="tab" data-view="deploy" tabindex="-1" aria-selected="false">
+      <span class="tab-num">3</span> Deploy
+    </div>
+    <div class="tab" role="tab" data-view="live" tabindex="-1" aria-selected="false">
+      <span class="tab-num">4</span> Live
+    </div>
+    <div class="tab" role="tab" data-view="monitor" tabindex="-1" aria-selected="false">
+      <span class="tab-num">5</span> Monitor
+    </div>
+    <div class="tab" role="tab" data-view="evaluate" tabindex="-1" aria-selected="false">
+      <span class="tab-num">6</span> Evaluate
+    </div>
+    <div class="tab" role="tab" data-view="drift" tabindex="-1" aria-selected="false">
+      <span class="tab-num">7</span> Drift
+    </div>
+    <div class="tab" role="tab" data-view="feedback" tabindex="-1" aria-selected="false">
+      <span class="tab-num">8</span> Feedback
+    </div>
+  </div>
+
+  <!-- ===== Main Content ===== -->
+  <main class="main-content">
+
+    <!-- ========== VIEW 1: Design Canvas ========== -->
+    <section id="view-design" class="view active" role="tabpanel" aria-label="Design Canvas">
+      <div class="view-header">
+        <h1 class="view-title">Design Canvas</h1>
+        <button class="btn btn-outline" onclick="resetLayout()">Reset Layout</button>
+      </div>
+
+      <div class="agent-pipeline">
+        <!-- Intake Agent -->
+        <div class="agent-card" data-agent="intake" onclick="toggleAgentDetail(this)">
+          <div class="agent-card-icon">I</div>
+          <div class="agent-card-name">Intake Agent</div>
+          <div class="agent-card-model">Model: GPT-4o</div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Tools</div>
+            <div class="agent-card-tool">- upload_contract</div>
+            <div class="agent-card-tool">- classify_doc</div>
+            <div class="agent-card-tool">- extract_meta</div>
+          </div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Boundary</div>
+            <div class="agent-card-boundary">Classify only</div>
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">--&gt;</div>
+
+        <!-- Extraction Agent -->
+        <div class="agent-card" data-agent="extraction" onclick="toggleAgentDetail(this)">
+          <div class="agent-card-icon">E</div>
+          <div class="agent-card-name">Extraction Agent</div>
+          <div class="agent-card-model">Model: GPT-4o</div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Tools</div>
+            <div class="agent-card-tool">- extract_clauses</div>
+            <div class="agent-card-tool">- identify_parties</div>
+            <div class="agent-card-tool">- extract_dates</div>
+          </div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Boundary</div>
+            <div class="agent-card-boundary">Extract only</div>
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">--&gt;</div>
+
+        <!-- Compliance Agent -->
+        <div class="agent-card" data-agent="compliance" onclick="toggleAgentDetail(this)">
+          <div class="agent-card-icon">C</div>
+          <div class="agent-card-name">Compliance Agent</div>
+          <div class="agent-card-model">Model: GPT-4o</div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Tools</div>
+            <div class="agent-card-tool">- check_policy</div>
+            <div class="agent-card-tool">- flag_risk</div>
+            <div class="agent-card-tool">- get_rules</div>
+          </div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Boundary</div>
+            <div class="agent-card-boundary">Flag only</div>
+          </div>
+        </div>
+
+        <div class="pipeline-arrow">--&gt;</div>
+
+        <!-- Approval Agent -->
+        <div class="agent-card" data-agent="approval" onclick="toggleAgentDetail(this)">
+          <div class="agent-card-icon">A</div>
+          <div class="agent-card-name">Approval Agent</div>
+          <div class="agent-card-model">Model: GPT-4o</div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Tools</div>
+            <div class="agent-card-tool">- route_approval</div>
+            <div class="agent-card-tool">- escalate_to_human</div>
+            <div class="agent-card-tool">- notify</div>
+          </div>
+          <div class="agent-card-section">
+            <div class="agent-card-section-title">Boundary</div>
+            <div class="agent-card-boundary">Route only</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="agent-inventory">
+        <div class="agent-inventory-item"><strong>Total Agents:</strong> 4</div>
+        <div class="agent-inventory-item"><strong>MCP Tools:</strong> 12</div>
+        <div class="agent-inventory-item"><strong>Model:</strong> GPT-4o</div>
+        <div class="agent-inventory-item"><strong>Pipeline:</strong> Sequential + HITL</div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 2: Build Console ========== -->
+    <section id="view-build" class="view" role="tabpanel" aria-label="Build Console">
+      <div class="view-header">
+        <h1 class="view-title">Build Console</h1>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-outline" onclick="clearConsole()">Clear</button>
+          <button class="btn btn-primary" onclick="runTool()">Run &rarr;</button>
+        </div>
+      </div>
+
+      <div class="console-controls">
+        <label style="font-size:13px;color:var(--color-text-tertiary)">MCP Server:</label>
+        <select class="select" id="mcp-server-select" onchange="updateToolList()">
+          <option>contract-extraction-mcp</option>
+          <option>contract-intake-mcp</option>
+          <option>contract-compliance-mcp</option>
+          <option>contract-approval-mcp</option>
+        </select>
+        <label style="font-size:13px;color:var(--color-text-tertiary)">Tool:</label>
+        <select class="select" id="tool-select">
+          <option>extract_clauses</option>
+          <option>identify_parties</option>
+          <option>extract_dates</option>
+        </select>
+      </div>
+
+      <div class="console-panels">
+        <div>
+          <div class="console-panel-label">Input</div>
+          <div class="code-block" id="console-input">{
+  "text": "This Non-Disclosure Agreement is entered into
+  between Acme Corp ('Discloser') and Beta Inc
+  ('Recipient') effective March 1, 2026.
+  Recipient shall not disclose any Confidential
+  Information for a period of 2 years..."
+}</div>
+        </div>
+        <div>
+          <div class="console-panel-label">Output</div>
+          <div class="code-block" id="console-output" style="color:var(--color-text-disabled)">
+// Click "Run" to execute the tool...</div>
+        </div>
+      </div>
+
+      <div class="console-stats" id="console-stats" style="display:none">
+        <div class="console-stats-item">Latency: <strong id="stat-latency">--</strong></div>
+        <div class="console-stats-item">Tokens: <strong id="stat-tokens">--</strong></div>
+        <div class="console-stats-item">Status: <strong id="stat-status">--</strong></div>
+      </div>
+
+      <div class="tool-registry">
+        <div class="tool-registry-title">Tool Registry (contract-extraction-mcp)</div>
+        <div class="tool-registry-list">
+          <div class="tool-registry-item"><span class="badge badge-pass">[PASS]</span> extract_clauses</div>
+          <div class="tool-registry-item"><span class="badge badge-pass">[PASS]</span> identify_parties</div>
+          <div class="tool-registry-item"><span class="badge badge-pass">[PASS]</span> extract_dates</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 3: Deploy Dashboard ========== -->
+    <section id="view-deploy" class="view" role="tabpanel" aria-label="Deploy Dashboard">
+      <div class="view-header">
+        <h1 class="view-title">Deploy Dashboard</h1>
+        <button class="btn btn-primary" id="deploy-btn" onclick="runDeployPipeline()">Deploy Pipeline &rarr;</button>
+      </div>
+
+      <h2 class="section-header">Deployment Pipeline</h2>
+      <div class="deploy-pipeline" id="deploy-pipeline">
+        <div class="deploy-stage" id="stage-build">
+          <div class="deploy-stage-name">Build</div>
+          <div class="deploy-stage-status badge badge-info">Pending</div>
+          <div class="deploy-stage-time">--</div>
+        </div>
+        <div class="deploy-arrow">&rarr;</div>
+        <div class="deploy-stage" id="stage-test">
+          <div class="deploy-stage-name">Test</div>
+          <div class="deploy-stage-status badge badge-info">Pending</div>
+          <div class="deploy-stage-time">--</div>
+        </div>
+        <div class="deploy-arrow">&rarr;</div>
+        <div class="deploy-stage" id="stage-deploy">
+          <div class="deploy-stage-name">Deploy</div>
+          <div class="deploy-stage-status badge badge-info">Pending</div>
+          <div class="deploy-stage-time">--</div>
+        </div>
+        <div class="deploy-arrow">&rarr;</div>
+        <div class="deploy-stage" id="stage-register">
+          <div class="deploy-stage-name">Register</div>
+          <div class="deploy-stage-status badge badge-info">Pending</div>
+          <div class="deploy-stage-time">--</div>
+        </div>
+      </div>
+
+      <h2 class="section-header">Agent 365 Registration</h2>
+      <table class="data-table" id="agent-registry-table">
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Entra Agent ID</th>
+            <th>Status</th>
+            <th>Scope</th>
+          </tr>
+        </thead>
+        <tbody id="agent-registry-body">
+          <tr><td colspan="4" style="color:var(--color-text-disabled);text-align:center;padding:24px">Click "Deploy Pipeline" to begin registration</td></tr>
+        </tbody>
+      </table>
+
+      <div class="security-grid">
+        <div class="security-card">
+          <div class="security-card-title">Identity & Access</div>
+          <div class="security-item"><span class="badge badge-pass">[PASS]</span> Entra ID assigned</div>
+          <div class="security-item"><span class="badge badge-pass">[PASS]</span> RBAC configured</div>
+          <div class="security-item"><span class="badge badge-pass">[PASS]</span> Conditional access applied</div>
+        </div>
+        <div class="security-card">
+          <div class="security-card-title">Content Safety</div>
+          <div class="security-item"><span class="badge badge-pass">[PASS]</span> Content filters ON</div>
+          <div class="security-item"><span class="badge badge-pass">[PASS]</span> XPIA protection ON</div>
+          <div class="security-item"><span class="badge badge-pass">[PASS]</span> PII redaction ON</div>
+        </div>
+      </div>
+
+      <div class="deploy-summary" id="deploy-summary">4 agents ready | 12 tools registered | 0 errors</div>
+    </section>
+
+    <!-- ========== VIEW 4: Live Workflow ========== -->
+    <section id="view-live" class="view" role="tabpanel" aria-label="Live Workflow">
+      <div class="view-header">
+        <h1 class="view-title">Live Workflow</h1>
+        <select class="select" style="width:160px">
+          <option>NDA.pdf</option>
+          <option>MSA-Enterprise.pdf</option>
+          <option>SOW-Q2.pdf</option>
+        </select>
+      </div>
+
+      <div class="workflow-drop-zone">
+        <div class="drop-area" id="drop-area" onclick="startWorkflow()">
+          Drop Contract Here (or click to start demo)
+        </div>
+      </div>
+
+      <div class="workflow-canvas" id="workflow-canvas">
+        <div class="workflow-node" id="wf-intake">
+          <div class="workflow-node-name">Intake</div>
+          <div class="workflow-node-status">Waiting</div>
+          <div class="workflow-node-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-intake)"></div></div>
+          </div>
+          <div class="workflow-node-tools" id="wf-intake-tools"></div>
+        </div>
+        <div class="workflow-arrow">&rarr;</div>
+        <div class="workflow-node" id="wf-extraction">
+          <div class="workflow-node-name">Extraction</div>
+          <div class="workflow-node-status">Waiting</div>
+          <div class="workflow-node-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-extraction)"></div></div>
+          </div>
+          <div class="workflow-node-tools" id="wf-extraction-tools"></div>
+        </div>
+        <div class="workflow-arrow">&rarr;</div>
+        <div class="workflow-node" id="wf-compliance">
+          <div class="workflow-node-name">Compliance</div>
+          <div class="workflow-node-status">Waiting</div>
+          <div class="workflow-node-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-compliance)"></div></div>
+          </div>
+          <div class="workflow-node-tools" id="wf-compliance-tools"></div>
+        </div>
+        <div class="workflow-arrow">&rarr;</div>
+        <div class="workflow-node" id="wf-approval">
+          <div class="workflow-node-name">Approval</div>
+          <div class="workflow-node-status">Waiting</div>
+          <div class="workflow-node-progress">
+            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-approval)"></div></div>
+          </div>
+          <div class="workflow-node-tools" id="wf-approval-tools"></div>
+        </div>
+      </div>
+
+      <div class="contract-details-bar" id="contract-details" style="display:none">
+        <div class="agent-inventory-item"><strong>Type:</strong> <span id="cd-type">--</span></div>
+        <div class="agent-inventory-item"><strong>Parties:</strong> <span id="cd-parties">--</span></div>
+        <div class="agent-inventory-item"><strong>Pages:</strong> <span id="cd-pages">--</span></div>
+        <div class="agent-inventory-item"><strong>Risk:</strong> <span id="cd-risk">--</span></div>
+      </div>
+
+      <div class="activity-log" id="activity-log">
+        <div style="color:var(--color-text-disabled)">Waiting for contract...</div>
+      </div>
+
+      <!-- HITL Panel -->
+      <div class="hitl-panel" id="hitl-panel" role="dialog" aria-label="Human review required">
+        <div class="hitl-header">
+          <div class="hitl-title">HUMAN REVIEW REQUIRED</div>
+          <span class="badge badge-fail">HIGH</span>
+        </div>
+        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px">
+          Reason: Liability cap exceeds $1M policy threshold
+        </div>
+        <div class="hitl-flagged">
+          <div class="hitl-flag">
+            <span class="hitl-flag-icon">[!]</span>
+            <span>Section 5.2: Liability cap = $2.5M (Policy max: $1M)</span>
+          </div>
+          <div class="hitl-flag">
+            <span class="hitl-flag-icon">[!]</span>
+            <span>Section 8.1: No termination for convenience clause</span>
+          </div>
+        </div>
+        <div class="hitl-summary">
+          <strong>Extracted Summary:</strong><br>
+          Parties: Acme Corp / Beta Inc | Value: $2.5M | Term: 24 months | Auto-renew: Yes
+        </div>
+        <div class="hitl-actions">
+          <button class="btn btn-success" onclick="resolveHitl('approved')">Approve</button>
+          <button class="btn btn-danger" onclick="resolveHitl('rejected')">Reject</button>
+          <button class="btn btn-warning" onclick="resolveHitl('changes')">Request Changes</button>
+          <input class="input hitl-comment" placeholder="Comment (optional)" style="max-width:300px">
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 5: Monitor Panel ========== -->
+    <section id="view-monitor" class="view" role="tabpanel" aria-label="Monitor Panel">
+      <div class="view-header">
+        <h1 class="view-title">Monitor Panel</h1>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="font-size:13px;color:var(--color-text-tertiary)">Contract:</label>
+          <select class="select"><option>NDA.pdf</option><option>MSA-Enterprise.pdf</option></select>
+          <button class="btn btn-outline">Refresh</button>
+        </div>
+      </div>
+
+      <div class="monitor-layout">
+        <!-- Trace Tree -->
+        <div class="card">
+          <div class="card-header">Trace Tree</div>
+          <div class="trace-tree">
+            <div class="trace-agent">
+              <div class="trace-agent-header" onclick="toggleTrace(this)">
+                <span class="trace-toggle">[-]</span>
+                <span class="trace-agent-name" style="color:var(--color-intake)">Intake</span>
+                <span class="trace-agent-time">1.2s</span>
+              </div>
+              <div class="trace-tools">
+                <div class="trace-tool"><span class="trace-tool-time">0.4s</span> classify_doc <span class="badge badge-pass">[PASS]</span></div>
+                <div class="trace-tool"><span class="trace-tool-time">0.8s</span> extract_meta <span class="badge badge-pass">[PASS]</span></div>
+              </div>
+            </div>
+            <div class="trace-agent">
+              <div class="trace-agent-header" onclick="toggleTrace(this)">
+                <span class="trace-toggle">[-]</span>
+                <span class="trace-agent-name" style="color:var(--color-extraction)">Extraction</span>
+                <span class="trace-agent-time">2.8s</span>
+              </div>
+              <div class="trace-tools">
+                <div class="trace-tool"><span class="trace-tool-time">1.9s</span> extract_clauses <span class="badge badge-pass">[PASS]</span></div>
+                <div class="trace-tool"><span class="trace-tool-time">0.5s</span> identify_parties <span class="badge badge-pass">[PASS]</span></div>
+                <div class="trace-tool"><span class="trace-tool-time">0.4s</span> extract_dates <span class="badge badge-pass">[PASS]</span></div>
+              </div>
+            </div>
+            <div class="trace-agent">
+              <div class="trace-agent-header" onclick="toggleTrace(this)">
+                <span class="trace-toggle">[-]</span>
+                <span class="trace-agent-name" style="color:var(--color-compliance)">Compliance</span>
+                <span class="trace-agent-time">1.5s</span>
+              </div>
+              <div class="trace-tools">
+                <div class="trace-tool"><span class="trace-tool-time">0.8s</span> check_policy <span class="badge badge-warn">[WARN]</span></div>
+                <div class="trace-tool"><span class="trace-tool-time">0.7s</span> flag_risk <span class="badge badge-warn">[WARN]</span></div>
+              </div>
+            </div>
+            <div class="trace-agent">
+              <div class="trace-agent-header" onclick="toggleTrace(this)">
+                <span class="trace-toggle">[-]</span>
+                <span class="trace-agent-name" style="color:var(--color-approval)">Approval</span>
+                <span class="trace-agent-time">0.3s</span>
+              </div>
+              <div class="trace-tools">
+                <div class="trace-tool"><span class="trace-tool-time">0.2s</span> route_approval <span class="badge badge-pass">[PASS]</span></div>
+                <div class="trace-tool"><span class="trace-tool-time">0.1s</span> escalate_to_human <span class="badge badge-pass">[PASS]</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="monitor-right">
+          <!-- Latency Breakdown -->
+          <div class="card">
+            <div class="card-header">Latency Breakdown</div>
+            <div class="latency-bar">
+              <div class="latency-label">Intake</div>
+              <div class="latency-fill-wrapper"><div class="latency-fill fast" style="width:21%"></div></div>
+              <div class="latency-time">1.2s</div>
+            </div>
+            <div class="latency-bar">
+              <div class="latency-label">Extraction</div>
+              <div class="latency-fill-wrapper"><div class="latency-fill medium" style="width:48%"></div></div>
+              <div class="latency-time">2.8s</div>
+            </div>
+            <div class="latency-bar">
+              <div class="latency-label">Compliance</div>
+              <div class="latency-fill-wrapper"><div class="latency-fill fast" style="width:26%"></div></div>
+              <div class="latency-time">1.5s</div>
+            </div>
+            <div class="latency-bar">
+              <div class="latency-label">Approval</div>
+              <div class="latency-fill-wrapper"><div class="latency-fill fast" style="width:5%"></div></div>
+              <div class="latency-time">0.3s</div>
+            </div>
+            <div style="margin-top:12px;font-size:13px;color:var(--color-text-tertiary);">Total: 5.8s (agent) + 45s (human)</div>
+          </div>
+
+          <!-- Token Usage -->
+          <div class="card">
+            <div class="card-header">Token Usage</div>
+            <table class="data-table">
+              <thead><tr><th>Agent</th><th>In</th><th>Out</th><th>Cost</th></tr></thead>
+              <tbody>
+                <tr><td>Intake</td><td>1,204</td><td>342</td><td>$0.01</td></tr>
+                <tr><td>Extraction</td><td>3,891</td><td>1,205</td><td>$0.03</td></tr>
+                <tr><td>Compliance</td><td>2,156</td><td>678</td><td>$0.02</td></tr>
+                <tr><td>Approval</td><td>456</td><td>123</td><td>$0.00</td></tr>
+                <tr style="font-weight:600"><td>Total</td><td>7,707</td><td>2,348</td><td>$0.06</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Decision Audit Trail -->
+          <div class="card">
+            <div class="card-header">Decision Audit Trail</div>
+            <table class="data-table">
+              <thead><tr><th>Time</th><th>Agent</th><th>Decision</th><th>Reasoning</th></tr></thead>
+              <tbody>
+                <tr><td>10:04:01</td><td>Intake</td><td>Classified as NDA</td><td>97% conf, keyword match</td></tr>
+                <tr><td>10:04:04</td><td>Extraction</td><td>Extracted 6 clauses</td><td>Structured output, sections 1-8</td></tr>
+                <tr><td>10:04:06</td><td>Compliance</td><td>Flagged Section 5.2</td><td>Liability $2.5M > policy max $1M</td></tr>
+                <tr><td>10:04:06</td><td>Compliance</td><td>Flagged Section 8.1</td><td>Missing termination for convenience</td></tr>
+                <tr><td>10:04:07</td><td>Approval</td><td>Escalated to human</td><td>Risk level: HIGH (2 compliance flags)</td></tr>
+                <tr><td>10:04:52</td><td>Human</td><td>Approved with comment</td><td>"Acceptable for strategic partner"</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 6: Evaluation Lab ========== -->
+    <section id="view-evaluate" class="view" role="tabpanel" aria-label="Evaluation Lab">
+      <div class="view-header">
+        <h1 class="view-title">Evaluation Lab</h1>
+        <button class="btn btn-primary" id="run-suite-btn" onclick="runEvalSuite()">Run Suite &rarr;</button>
+      </div>
+
+      <div class="eval-layout">
+        <!-- Config panel -->
+        <div class="eval-config">
+          <div class="eval-config-label">Test Set</div>
+          <div class="eval-config-value">57 contracts</div>
+          <div class="eval-config-label">Coverage</div>
+          <div class="eval-config-value">95%</div>
+          <div class="eval-config-label">Last Run</div>
+          <div class="eval-config-value" id="eval-last-run">Not yet</div>
+          <div class="eval-config-label">Baseline</div>
+          <div class="eval-config-value">v1.2</div>
+          <div class="eval-config-label">Current</div>
+          <div class="eval-config-value">v1.3</div>
+
+          <div class="quality-gate pass" id="quality-gate">
+            <div class="quality-gate-label">Quality Gate</div>
+            <div class="quality-gate-status">[PASS]</div>
+            <div class="quality-gate-text">READY TO DEPLOY</div>
+          </div>
+        </div>
+
+        <!-- Results -->
+        <div class="eval-results">
+          <div class="eval-overall" id="eval-overall">Overall: -- / -- (click Run Suite)</div>
+
+          <h2 class="section-header">Per-Metric Breakdown</h2>
+          <div class="metric-grid" id="eval-metrics">
+            <div class="metric-card" style="border-left-color:var(--color-extraction)">
+              <div class="metric-label">Extraction</div>
+              <div class="metric-value" id="m-extraction">--</div>
+              <div class="metric-threshold">Threshold: 85%</div>
+            </div>
+            <div class="metric-card" style="border-left-color:var(--color-compliance)">
+              <div class="metric-label">Compliance</div>
+              <div class="metric-value" id="m-compliance">--</div>
+              <div class="metric-threshold">Threshold: 80%</div>
+            </div>
+            <div class="metric-card" style="border-left-color:var(--color-intake)">
+              <div class="metric-label">Classification</div>
+              <div class="metric-value" id="m-classification">--</div>
+              <div class="metric-threshold">Threshold: 90%</div>
+            </div>
+            <div class="metric-card" style="border-left-color:var(--color-warn)">
+              <div class="metric-label">False Flags</div>
+              <div class="metric-value" id="m-false-flags">--</div>
+              <div class="metric-threshold">Threshold: &lt;15%</div>
+            </div>
+            <div class="metric-card" style="border-left-color:var(--color-info)">
+              <div class="metric-label">Latency P95</div>
+              <div class="metric-value" id="m-latency">--</div>
+              <div class="metric-threshold">Threshold: &lt;5s</div>
+            </div>
+          </div>
+
+          <h2 class="section-header">LLM-as-Judge Scores <span style="font-size:13px;font-weight:400;color:var(--color-text-tertiary)">(GPT-4o judge)</span></h2>
+          <div class="metric-grid" id="judge-metrics">
+            <div class="metric-card judge-card" style="border-left-color:var(--color-accent)">
+              <div class="metric-label">Relevance</div>
+              <div class="metric-value" id="j-relevance">--</div>
+              <div class="metric-threshold">Threshold: &gt;=4.0 / 5</div>
+            </div>
+            <div class="metric-card judge-card" style="border-left-color:var(--color-accent)">
+              <div class="metric-label">Groundedness</div>
+              <div class="metric-value" id="j-groundedness">--</div>
+              <div class="metric-threshold">Threshold: &gt;=4.0 / 5</div>
+            </div>
+            <div class="metric-card judge-card" style="border-left-color:var(--color-accent)">
+              <div class="metric-label">Coherence</div>
+              <div class="metric-value" id="j-coherence">--</div>
+              <div class="metric-threshold">Threshold: &gt;=4.0 / 5</div>
+            </div>
+          </div>
+
+          <h2 class="section-header">Baseline Comparison (v1.2 vs v1.3)</h2>
+          <table class="data-table" id="baseline-table">
+            <thead><tr><th>Metric</th><th>v1.2</th><th>v1.3</th><th>Delta</th></tr></thead>
+            <tbody>
+              <tr><td>Extraction</td><td>88.1%</td><td id="b-extraction">--</td><td id="d-extraction" class="metric-delta">--</td></tr>
+              <tr><td>Compliance</td><td>82.3%</td><td id="b-compliance">--</td><td id="d-compliance" class="metric-delta">--</td></tr>
+              <tr><td>False Flags</td><td>12.6%</td><td id="b-false-flags">--</td><td id="d-false-flags" class="metric-delta">--</td></tr>
+              <tr><td>Latency P95</td><td>3.5s</td><td id="b-latency">--</td><td id="d-latency" class="metric-delta">--</td></tr>
+              <tr><td style="color:var(--color-accent)">Relevance</td><td>4.2/5</td><td id="b-relevance">--</td><td id="d-relevance" class="metric-delta">--</td></tr>
+              <tr><td style="color:var(--color-accent)">Groundedness</td><td>4.0/5</td><td id="b-groundedness">--</td><td id="d-groundedness" class="metric-delta">--</td></tr>
+              <tr><td style="color:var(--color-accent)">Coherence</td><td>4.5/5</td><td id="b-coherence">--</td><td id="d-coherence" class="metric-delta">--</td></tr>
+            </tbody>
+          </table>
+
+          <h2 class="section-header">Per-Contract Results</h2>
+          <table class="data-table">
+            <thead><tr><th>Contract</th><th>Classification</th><th>Extraction</th><th>Compliance</th><th>Judge Avg</th><th>Overall</th></tr></thead>
+            <tbody>
+              <tr><td>NDA-001</td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td>4.7/5</td><td><span class="badge badge-pass">[PASS]</span></td></tr>
+              <tr><td>NDA-002</td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-warn">[WARN]</span></td><td>4.5/5</td><td><span class="badge badge-pass">[PASS]</span></td></tr>
+              <tr><td>MSA-003</td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-fail">[FAIL]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td>3.8/5</td><td><span class="badge badge-fail">[FAIL]</span></td></tr>
+              <tr><td>SOW-004</td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td>4.6/5</td><td><span class="badge badge-pass">[PASS]</span></td></tr>
+              <tr><td>NDA-005</td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td><span class="badge badge-pass">[PASS]</span></td><td>4.8/5</td><td><span class="badge badge-pass">[PASS]</span></td></tr>
+              <tr><td colspan="6" style="color:var(--color-text-disabled);text-align:center">...15 more contracts</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 7: Drift Detection ========== -->
+    <section id="view-drift" class="view" role="tabpanel" aria-label="Drift Detection Center">
+      <div class="view-header">
+        <h1 class="view-title">Drift Detection Center</h1>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="font-size:13px;color:var(--color-text-tertiary)">Time Range:</label>
+          <select class="select"><option>Last 30 days</option><option>Last 7 days</option><option>Last 90 days</option></select>
+        </div>
+      </div>
+
+      <div class="drift-charts">
+        <!-- LLM Drift Chart -->
+        <div class="chart-card">
+          <div class="chart-title">LLM Drift: Extraction Accuracy Over Time</div>
+          <div class="line-chart" id="llm-drift-chart" aria-label="Line chart showing extraction accuracy declining from 92% to 81% over 4 weeks, crossing the 85% threshold">
+            <span class="chart-y-label" style="top:0">92%</span>
+            <span class="chart-y-label" style="top:36%">88%</span>
+            <span class="chart-y-label" style="top:72%">84%</span>
+            <span class="chart-y-label" style="bottom:-4px">80%</span>
+            <div class="chart-threshold" style="top:58%">85% threshold</div>
+            <div class="chart-point" style="left:10%;top:0%" title="92%"></div>
+            <div class="chart-point" style="left:36%;top:33%" title="88%"></div>
+            <div class="chart-point" style="left:63%;top:58%" title="84%"></div>
+            <div class="chart-point alert" style="left:90%;top:83%" title="81% - DRIFT DETECTED"></div>
+          </div>
+          <div class="chart-x-labels">
+            <span>Wk 1</span><span>Wk 2</span><span>Wk 3</span><span>Wk 4</span>
+          </div>
+          <div style="margin-top:12px">
+            <span class="badge badge-fail">[!] DRIFT DETECTED</span>
+            <span style="font-size:12px;color:var(--color-text-tertiary);margin-left:8px">Accuracy dropped below 85% threshold</span>
+          </div>
+        </div>
+
+        <!-- Data Drift Chart -->
+        <div class="chart-card">
+          <div class="chart-title">Data Drift: Contract Type Distribution</div>
+          <div class="bar-chart">
+            <div class="bar-row">
+              <div class="bar-label">NDA</div>
+              <div class="bar-track"><div class="bar-fill" style="width:45%"></div></div>
+              <div class="bar-value">45%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">MSA</div>
+              <div class="bar-track"><div class="bar-fill" style="width:30%"></div></div>
+              <div class="bar-value">30%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label">SOW</div>
+              <div class="bar-track"><div class="bar-fill" style="width:10%"></div></div>
+              <div class="bar-value">10%</div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label" style="color:var(--color-approval);font-weight:600">NEW: AI Liability</div>
+              <div class="bar-track"><div class="bar-fill new-type" style="width:15%"></div></div>
+              <div class="bar-value" style="color:var(--color-approval)">15%</div>
+            </div>
+          </div>
+          <div style="margin-top:12px">
+            <span class="badge badge-warn">[!] SHIFT DETECTED</span>
+            <span style="font-size:12px;color:var(--color-text-tertiary);margin-left:8px">New clause type appearing, not in training set</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Model Swap Analysis -->
+      <h2 class="section-header">Model Swap Analysis</h2>
+      <div style="text-align:right;margin-bottom:16px">
+        <button class="btn btn-primary" id="swap-btn" onclick="simulateModelSwap()">Simulate Swap &rarr;</button>
+      </div>
+      <div class="model-swap" id="model-swap-cards">
+        <div class="model-card">
+          <div class="model-card-title">Current: GPT-4o</div>
+          <div class="model-stat"><span class="model-stat-label">Accuracy</span><span class="model-stat-value">91.2%</span></div>
+          <div class="model-stat"><span class="model-stat-label">Latency</span><span class="model-stat-value">2.3s</span></div>
+          <div class="model-stat"><span class="model-stat-label">Cost/1K</span><span class="model-stat-value">$0.060</span></div>
+        </div>
+        <div class="model-card" id="candidate-card">
+          <div class="model-card-title">Candidate: GPT-4o-mini</div>
+          <div class="model-stat"><span class="model-stat-label">Accuracy</span><span class="model-stat-value" id="cand-accuracy">--</span></div>
+          <div class="model-stat"><span class="model-stat-label">Latency</span><span class="model-stat-value" id="cand-latency">--</span></div>
+          <div class="model-stat"><span class="model-stat-label">Cost/1K</span><span class="model-stat-value" id="cand-cost">--</span></div>
+        </div>
+        <div class="model-card verdict-card" id="verdict-card" style="opacity:0.4">
+          <div class="verdict-title" id="verdict-title">VERDICT</div>
+          <div class="model-stat"><span class="model-stat-label">Accuracy</span><span class="model-stat-value" id="v-accuracy">--</span></div>
+          <div class="model-stat"><span class="model-stat-label">Cost</span><span class="model-stat-value" id="v-cost">--</span></div>
+          <div class="model-stat"><span class="model-stat-label">Latency</span><span class="model-stat-value" id="v-latency">--</span></div>
+        </div>
+      </div>
+
+      <!-- Recommended Actions -->
+      <div class="recommended-actions">
+        <div class="card-header">Recommended Actions</div>
+        <div class="action-item"><span class="action-icon warning">[!]</span> Update compliance rules for AI liability clause (data drift)</div>
+        <div class="action-item"><span class="action-icon warning">[!]</span> Retrain extraction prompts on new contract types</div>
+        <div class="action-item"><span class="action-icon info">[i]</span> Consider GPT-4o-mini swap for non-critical extractions</div>
+        <div class="action-item"><span class="action-icon info">[i]</span> Schedule weekly drift monitoring alerts</div>
+      </div>
+    </section>
+
+    <!-- ========== VIEW 8: Feedback & Optimize ========== -->
+    <section id="view-feedback" class="view" role="tabpanel" aria-label="Feedback and Optimize">
+      <div class="view-header">
+        <h1 class="view-title">Feedback & Optimize</h1>
+      </div>
+
+      <div class="feedback-layout">
+        <!-- Recent Feedback -->
+        <div class="feedback-list">
+          <div class="card-header">Recent Feedback</div>
+          <div class="feedback-item">
+            <div class="feedback-item-header">
+              <span class="feedback-icon negative">[!]</span>
+              <span class="feedback-contract">NDA-017</span>
+            </div>
+            <div class="feedback-text">"Missed termination clause in Exhibit B"</div>
+            <div class="feedback-author">-- Jane, Mar 3</div>
+          </div>
+          <div class="feedback-item">
+            <div class="feedback-item-header">
+              <span class="feedback-icon positive">[+]</span>
+              <span class="feedback-contract">MSA-022</span>
+            </div>
+            <div class="feedback-text">"Correct extraction, good summary"</div>
+            <div class="feedback-author">-- Mike, Mar 3</div>
+          </div>
+          <div class="feedback-item">
+            <div class="feedback-item-header">
+              <span class="feedback-icon negative">[!]</span>
+              <span class="feedback-contract">NDA-019</span>
+            </div>
+            <div class="feedback-text">"False flag on standard NDA clause"</div>
+            <div class="feedback-author">-- Sarah, Mar 2</div>
+          </div>
+          <button class="btn btn-outline" style="margin-top:16px;width:100%">Submit New Feedback</button>
+        </div>
+
+        <!-- Feedback Trends -->
+        <div class="feedback-trends">
+          <div class="card-header">Agent Performance (30d)</div>
+          <div class="trend-metric">
+            <span>Intake</span>
+            <span class="badge badge-pass">[PASS] 95%</span>
+          </div>
+          <div class="trend-metric">
+            <span>Extraction</span>
+            <span class="badge badge-pass">[PASS] 91%</span>
+          </div>
+          <div class="trend-metric">
+            <span>Compliance</span>
+            <span class="badge badge-warn">[WARN] 73%</span>
+          </div>
+          <div class="trend-metric">
+            <span>Approval</span>
+            <span class="badge badge-pass">[PASS] 95%</span>
+          </div>
+          <div style="margin-top:16px;padding-top:16px;border-top:1px solid #3A3A3A;font-size:13px">
+            <div style="margin-bottom:8px"><strong style="color:var(--color-text-primary)">This Week:</strong> 45 reviews</div>
+            <div style="margin-bottom:8px"><strong style="color:var(--color-text-primary)">Positive:</strong> 78% <span class="metric-delta positive">(+3%)</span></div>
+            <div><strong style="color:var(--color-text-primary)">Top Issue:</strong> False flags (Compliance Agent)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Improvement Cycle -->
+      <div class="improvement-cycle">
+        <div class="card-header">Improvement Cycle</div>
+        <div class="cycle-steps">
+          <!-- Step 1: Convert -->
+          <div class="cycle-step">
+            <div class="cycle-step-title">Step 1: Convert Feedback</div>
+            <div class="cycle-step-content">5 negative feedbacks ready to convert into eval test cases</div>
+            <button class="btn btn-primary" id="optimize-btn" onclick="optimizeFeedback()">Optimize Now &rarr;</button>
+          </div>
+          <!-- Step 2: Prompt Editor -->
+          <div class="cycle-step">
+            <div class="cycle-step-title">Step 2: Update Prompt</div>
+            <textarea class="textarea" id="prompt-editor" rows="6">When reviewing contracts, you MUST check all exhibits and appendices for clauses, not just the main body. Pay special attention to Exhibit B which often contains liability and termination provisions.</textarea>
+            <button class="btn btn-outline" style="margin-top:8px" onclick="savePrompt()">Save Prompt</button>
+          </div>
+          <!-- Step 3: Re-Evaluate -->
+          <div class="cycle-step">
+            <div class="cycle-step-title">Step 3: Re-Evaluate</div>
+            <div class="re-eval-comparison" id="re-eval-results" style="display:none">
+              <div><div class="re-eval-label">Before</div><div class="re-eval-value">85.0%</div></div>
+              <div><div class="re-eval-label">After</div><div class="re-eval-value">91.2%</div></div>
+              <div><div class="re-eval-label">Delta</div><div class="re-eval-delta">+6.2%</div></div>
+            </div>
+            <button class="btn btn-primary" id="re-eval-btn" onclick="reEvaluate()">Re-Evaluate &rarr;</button>
+            <div id="re-eval-gate" style="margin-top:12px;display:none">
+              <div class="quality-gate pass">
+                <div class="quality-gate-label">Quality Gate</div>
+                <div class="quality-gate-status">[PASS]</div>
+              </div>
+            </div>
+          </div>
+          <!-- Step 4: Deploy -->
+          <div class="cycle-step">
+            <div class="cycle-step-title">Step 4: Deploy</div>
+            <div class="cycle-step-content">
+              <strong>Version:</strong> v1.3 &rarr; v1.4<br>
+              <strong>Changes:</strong> Exhibit scanning added
+            </div>
+            <button class="btn btn-success" id="deploy-v14-btn" onclick="deployUpdate()">Deploy v1.4 &rarr;</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== Status Bar ===== -->
+  <footer class="status-bar" role="contentinfo">
+    <div class="status-item">
+      <div class="status-dot"></div>
+      MCP Status: 8/8 [PASS]
+    </div>
+    <div class="status-item">Model: GPT-4o</div>
+    <div class="status-item">Contracts: 5 loaded</div>
+    <div class="status-item" style="margin-left:auto">Contract AgentOps Demo v1.0</div>
+  </footer>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
