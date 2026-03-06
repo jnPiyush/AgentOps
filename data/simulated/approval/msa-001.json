@@ -1,5 +1,0 @@
-{
-  "risk_level": "high",
-  "action": "escalate_to_human",
-  "reasoning": "MSA has 2 compliance failures: uncapped indemnification and potentially excessive liability cap at 3x annual fees. High-value multi-year agreement requires human review before approval. Recommend legal counsel review indemnification and liability terms."
-}

@@ -1,5 +1,0 @@
-{
-  "risk_level": "medium",
-  "action": "escalate_to_human",
-  "reasoning": "Amendment involves PHI/HIPAA data processing with significant security implications. While compliance additions are positive, the 24-hour breach notification requirement and 50% fee increase warrant management review. Escalating for human decision due to data sensitivity."
-}
