@@ -1,7 +1,0 @@
-{
-  "name": "contract-compliance-mcp",
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": { "build": "tsc", "start": "tsx src/server.ts" },
-  "dependencies": { "@modelcontextprotocol/sdk": "^1.12.0" }
-}
