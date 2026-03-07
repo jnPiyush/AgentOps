@@ -152,11 +152,17 @@ const WorkflowDesigner = (() => {
         <button class="btn btn-outline" onclick="WorkflowDesigner.addAgent()" title="Add a new agent">
           + Add Agent
         </button>
+        <button class="btn btn-outline" onclick="WorkflowDesigner.exportJson()" title="Export workflow as JSON">
+          Export
+        </button>
         <button class="btn btn-outline" onclick="WorkflowDesigner.loadWorkflowDialog()" title="Load saved workflow">
           Load
         </button>
-        <button class="btn btn-primary" onclick="WorkflowDesigner.saveWorkflow()" title="Save workflow">
+        <button class="btn btn-outline" onclick="WorkflowDesigner.saveWorkflow()" title="Save workflow">
           Save
+        </button>
+        <button class="btn btn-primary" onclick="WorkflowDesigner.pushToPipeline()" title="Save and activate this workflow for Build/Deploy/Live">
+          Push to Pipeline &rarr;
         </button>
         <button class="btn btn-outline" onclick="WorkflowDesigner.resetToDefault()" title="Reset to default">
           Reset
@@ -608,6 +614,60 @@ const WorkflowDesigner = (() => {
     }
   }
 
+  // --- Export Workflow as JSON ---
+  function exportJson() {
+    const data = JSON.parse(JSON.stringify(currentWorkflow));
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(currentWorkflow.name || "workflow").replace(/[^a-zA-Z0-9_-]/g, "_")}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("Workflow exported as JSON");
+  }
+
+  // --- Push to Pipeline (Save + Activate for Build/Deploy/Live) ---
+  function pushToPipeline() {
+    // First save locally
+    saveWorkflow();
+
+    const wfCopy = JSON.parse(JSON.stringify(currentWorkflow));
+
+    // Save to backend gateway
+    fetch(`${window.GATEWAY_URL || "http://localhost:8000"}/api/v1/workflows`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: wfCopy.id,
+        name: wfCopy.name,
+        type: wfCopy.type,
+        agents: wfCopy.agents,
+      }),
+    })
+      .then(res => res.json())
+      .then(saved => {
+        const wfId = saved.id || wfCopy.id;
+        // Activate this workflow
+        return fetch(`${window.GATEWAY_URL || "http://localhost:8000"}/api/v1/workflows/${encodeURIComponent(wfId)}/activate`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        }).then(r => r.json());
+      })
+      .then(() => {
+        // Dispatch custom event so other tabs can react
+        window.dispatchEvent(new CustomEvent("workflow-activated", { detail: wfCopy }));
+        showToast(`"${currentWorkflow.name}" pushed to pipeline — Build/Deploy/Live updated`);
+      })
+      .catch(() => {
+        // Even if backend fails, dispatch the event with local data
+        window.dispatchEvent(new CustomEvent("workflow-activated", { detail: wfCopy }));
+        showToast(`"${currentWorkflow.name}" pushed to pipeline (local mode)`);
+      });
+  }
+
   // --- Workflow Metadata ---
   function updateName(name) {
     currentWorkflow.name = name;
@@ -678,6 +738,8 @@ const WorkflowDesigner = (() => {
     closeModal,
     selectColor,
     getCurrentWorkflow,
+    exportJson,
+    pushToPipeline,
     showToast,
   };
 })();

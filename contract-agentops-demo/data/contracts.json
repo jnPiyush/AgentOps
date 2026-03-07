@@ -27,7 +27,7 @@
     "submitted_at": "2026-03-07T06:34:26.433Z",
     "type": "NDA",
     "classification_confidence": 0.95,
-    "completed_at": "2026-03-07T20:30:04.621Z"
+    "completed_at": "2026-03-07T20:47:05.981Z"
   },
   {
     "id": "contract-a3727b2f",
@@ -130,5 +130,39 @@
     "text": "This NDA is between X and Y...",
     "status": "processing",
     "submitted_at": "2026-03-07T20:30:04.553Z"
+  },
+  {
+    "id": "contract-0d15f6b1",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-07T20:46:21.406Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-07T20:46:21.446Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-07T20:46:21.460Z"
+  },
+  {
+    "id": "contract-d3c6fa36",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-07T20:47:05.875Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-07T20:47:05.928Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-07T20:47:05.944Z"
   }
 ]

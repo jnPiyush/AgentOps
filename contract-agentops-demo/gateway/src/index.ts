@@ -14,6 +14,7 @@ import { feedbackRoutes } from "./routes/feedback.js";
 import { promptRoutes } from "./routes/prompts.js";
 import { sampleContractRoutes } from "./routes/sampleContracts.js";
 import { toolRoutes } from "./routes/tools.js";
+import { workflowRoutes } from "./routes/workflows.js";
 import { initStores } from "./stores/contractStore.js";
 import { addWsClient } from "./websocket/workflowWs.js";
 
@@ -86,6 +87,7 @@ export async function startGateway(): Promise<void> {
 	await app.register(deployRoutes);
 	await app.register(promptRoutes);
 	await app.register(sampleContractRoutes);
+	await app.register(workflowRoutes);
 
 	await app.listen({ port: appConfig.gatewayPort, host: "0.0.0.0" });
 	console.log(`Gateway listening on http://localhost:${appConfig.gatewayPort}`);

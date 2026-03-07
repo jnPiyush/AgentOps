@@ -478,5 +478,133 @@
     "action": "approved",
     "reasoning": "Low risk, no flags",
     "timestamp": "2026-03-07T20:30:04.627Z"
+  },
+  {
+    "id": "99ca2ea7-2714-4f7e-9370-09ef12ec25cc",
+    "contract_id": "contract-0d15f6b1",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-07T20:46:21.422Z"
+  },
+  {
+    "id": "6289e38e-c0d3-4f2b-8182-3eeeec45f51d",
+    "contract_id": "contract-0d15f6b1",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-07T20:46:21.430Z"
+  },
+  {
+    "id": "56519362-072d-4efd-ba2f-c382fb076250",
+    "contract_id": "contract-0d15f6b1",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-07T20:46:21.438Z"
+  },
+  {
+    "id": "df57ba5c-05ae-46cc-b067-84c0a463587c",
+    "contract_id": "contract-0d15f6b1",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-07T20:46:21.450Z"
+  },
+  {
+    "id": "8ac9702a-21b1-47da-ba2f-3c55aaf0e14c",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-07T20:46:21.474Z"
+  },
+  {
+    "id": "e2cf2465-70c7-427e-a0a6-b097bcdea4b0",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-07T20:46:21.482Z"
+  },
+  {
+    "id": "3fec8d71-978b-4f8d-9e66-fbff6736a7ea",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-07T20:46:21.490Z"
+  },
+  {
+    "id": "440acbe9-e01c-4710-af13-996b155f9a2f",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-07T20:46:21.502Z"
+  },
+  {
+    "id": "4e8f6fab-22c8-47e3-8cf5-880109d831b6",
+    "contract_id": "contract-d3c6fa36",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-07T20:47:05.902Z"
+  },
+  {
+    "id": "97267b82-ca2d-4651-b801-eb385a35b2db",
+    "contract_id": "contract-d3c6fa36",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-07T20:47:05.911Z"
+  },
+  {
+    "id": "f4de2ff4-8c5e-43ea-8d92-85cc0ace2801",
+    "contract_id": "contract-d3c6fa36",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-07T20:47:05.920Z"
+  },
+  {
+    "id": "fec13141-1640-4087-937b-f4bde2eee295",
+    "contract_id": "contract-d3c6fa36",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-07T20:47:05.932Z"
+  },
+  {
+    "id": "4c4bd2cc-7978-4046-a703-2f7e45ea8517",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-07T20:47:05.957Z"
+  },
+  {
+    "id": "df085c70-b56a-4058-a010-7ea05341d024",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-07T20:47:05.965Z"
+  },
+  {
+    "id": "b3b17c85-b777-4181-b754-9f60b16cd559",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-07T20:47:05.973Z"
+  },
+  {
+    "id": "9b2e5ab1-c2a5-4cc8-8ca4-20df5881c453",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-07T20:47:05.985Z"
   }
 ]

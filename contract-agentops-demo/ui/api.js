@@ -4,6 +4,7 @@
    ============================================================ */
 
 const GATEWAY_URL = "http://localhost:8000";
+window.GATEWAY_URL = GATEWAY_URL;
 let dashboardMode = "simulated"; // 'simulated' | 'real'
 let ws = null; // WebSocket connection for live workflow
 let currentContractId = null; // Track the active contract ID for HITL

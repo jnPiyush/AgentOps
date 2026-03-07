@@ -56,6 +56,10 @@ document.addEventListener("DOMContentLoaded", () => {
 			d.classList.toggle("active", i === index);
 			d.classList.toggle("completed", visitedStages.has(i) && i !== index);
 		});
+		// Sync downstream tabs from active workflow when navigating
+		if (viewNames[index] === "build") syncBuildTab();
+		if (viewNames[index] === "deploy") syncDeployTab();
+		if (viewNames[index] === "live") syncLiveTab();
 	}
 });
 
@@ -63,6 +67,143 @@ document.addEventListener("DOMContentLoaded", () => {
 // Design Canvas is now managed by WorkflowDesigner (workflow-designer.js)
 function toggleAgentDetail() { /* Legacy - handled by WorkflowDesigner */ }
 function resetLayout() { if (typeof WorkflowDesigner !== "undefined") WorkflowDesigner.resetToDefault(); }
+
+// --- Active Workflow Integration ---
+// When the user clicks "Push to Pipeline", this event fires and propagates
+// the designed workflow to Build, Deploy, and Live tabs.
+let activeWorkflow = null;
+
+window.addEventListener("workflow-activated", (e) => {
+	activeWorkflow = e.detail;
+	syncBuildTab();
+	syncDeployTab();
+	syncLiveTab();
+	// Update pipeline status in footer
+	const pipelineEl = document.getElementById("pipeline-status-item");
+	if (pipelineEl && activeWorkflow) {
+		pipelineEl.textContent = `Pipeline: ${activeWorkflow.name} (${activeWorkflow.agents.length} agents)`;
+		pipelineEl.style.color = "var(--color-pass)";
+	}
+});
+
+function getActiveWorkflow() {
+	if (activeWorkflow) return activeWorkflow;
+	if (typeof WorkflowDesigner !== "undefined") return WorkflowDesigner.getCurrentWorkflow();
+	return null;
+}
+
+// --- Sync Build Console from Active Workflow ---
+function syncBuildTab() {
+	const wf = getActiveWorkflow();
+	if (!wf || !wf.agents) return;
+
+	// Build a map of servers used by the workflow agents
+	const serverToolMap = {};
+	for (const agent of wf.agents) {
+		for (const tool of (agent.tools || [])) {
+			// Find which server this tool belongs to
+			for (const [server, stools] of Object.entries(mcpTools)) {
+				if (stools.includes(tool)) {
+					if (!serverToolMap[server]) serverToolMap[server] = [];
+					if (!serverToolMap[server].includes(tool)) serverToolMap[server].push(tool);
+				}
+			}
+		}
+	}
+
+	// Update the MCP server dropdown
+	const serverSelect = document.getElementById("mcp-server-select");
+	if (serverSelect) {
+		const servers = Object.keys(serverToolMap);
+		if (servers.length > 0) {
+			serverSelect.innerHTML = servers.map(s => `<option value="${s}">${s}</option>`).join("");
+			updateToolList();
+		}
+	}
+
+	// Update the tool registry title area to show workflow context
+	const registryTitle = document.querySelector(".tool-registry-title");
+	if (registryTitle) {
+		registryTitle.textContent = `Tool Registry (${wf.name} — ${wf.agents.length} agents)`;
+	}
+}
+
+// --- Sync Deploy Tab from Active Workflow ---
+function syncDeployTab() {
+	const wf = getActiveWorkflow();
+	if (!wf || !wf.agents) return;
+
+	// Update the deploy summary to reflect the active workflow
+	const summary = document.getElementById("deploy-summary");
+	if (summary) {
+		const totalTools = wf.agents.reduce((acc, a) => acc + (a.tools ? a.tools.length : 0), 0);
+		summary.textContent = `${wf.agents.length} agents ready | ${totalTools} tools registered | 0 errors — ${wf.name}`;
+	}
+}
+
+// --- Sync Live Tab from Active Workflow ---
+function syncLiveTab() {
+	const wf = getActiveWorkflow();
+	if (!wf || !wf.agents) return;
+
+	const canvas = document.getElementById("workflow-canvas");
+	if (!canvas) return;
+
+	const isParallel = wf.type === "parallel" || wf.type === "fan-out";
+	const sorted = [...wf.agents].sort((a, b) => a.order - b.order);
+
+	// Agent color mapping
+	const agentColors = {
+		"intake": "var(--color-intake)",
+		"extraction": "var(--color-extraction)",
+		"compliance": "var(--color-compliance)",
+		"approval": "var(--color-approval)",
+	};
+
+	function getColor(agent) {
+		// Try to match known agent names, otherwise use agent's own color
+		const key = agent.name.toLowerCase().replace(/\s*agent\s*/gi, "").trim();
+		return agentColors[key] || agent.color || "var(--color-accent)";
+	}
+
+	let html = "";
+	if (isParallel) {
+		html = `<div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;">`;
+		sorted.forEach(agent => {
+			html += renderLiveNode(agent, getColor(agent));
+		});
+		html += `</div>`;
+	} else {
+		sorted.forEach((agent, idx) => {
+			html += renderLiveNode(agent, getColor(agent));
+			if (idx < sorted.length - 1) {
+				html += `<div class="workflow-arrow">&rarr;</div>`;
+			}
+		});
+	}
+
+	canvas.innerHTML = html;
+}
+
+function renderLiveNode(agent, color) {
+	const nodeId = `wf-${agent.id}`;
+	return `
+		<div class="workflow-node" id="${nodeId}">
+			<div class="workflow-node-name">${escapeHtmlApp(agent.name)}</div>
+			<div class="workflow-node-status">Waiting</div>
+			<div class="workflow-node-progress">
+				<div class="progress-bar"><div class="progress-fill" style="width:0%;background:${color}"></div></div>
+			</div>
+			<div class="workflow-node-tools" id="${nodeId}-tools"></div>
+		</div>
+	`;
+}
+
+function escapeHtmlApp(str) {
+	if (typeof str !== "string") return "";
+	const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
+	return str.replace(/[&<>"']/g, c => map[c]);
+}
 
 // --- View 2: Build Console ---
 const toolOutputs = {
@@ -183,12 +324,19 @@ function runDeployPipeline() {
 	btn.disabled = true;
 	btn.textContent = "Deploying...";
 
-	const agents = [
-		{ name: "Intake Agent", id: "agt-7f3a-intake-001" },
-		{ name: "Extraction Agent", id: "agt-7f3a-extract-002" },
-		{ name: "Compliance Agent", id: "agt-7f3a-comply-003" },
-		{ name: "Approval Agent", id: "agt-7f3a-approve-004" },
-	];
+	// Use active workflow agents if available, else fallback to defaults
+	const wf = getActiveWorkflow();
+	const agents = (wf && wf.agents && wf.agents.length > 0)
+		? wf.agents.sort((a, b) => a.order - b.order).map((a, i) => ({
+			name: a.name,
+			id: `agt-${(wf.id || "7f3a").substring(0, 4)}-${a.name.toLowerCase().replace(/\s+/g, "-").substring(0, 8)}-${String(i + 1).padStart(3, "0")}`,
+		}))
+		: [
+			{ name: "Intake Agent", id: "agt-7f3a-intake-001" },
+			{ name: "Extraction Agent", id: "agt-7f3a-extract-002" },
+			{ name: "Compliance Agent", id: "agt-7f3a-comply-003" },
+			{ name: "Approval Agent", id: "agt-7f3a-approve-004" },
+		];
 
 	stages.forEach((stage, i) => {
 		setTimeout(
@@ -210,6 +358,13 @@ function runDeployPipeline() {
 							tbody.appendChild(row);
 						}, j * 200);
 					});
+
+					// Update summary with workflow-aware count
+					const summary = document.getElementById("deploy-summary");
+					if (summary) {
+						const totalTools = wf ? wf.agents.reduce((acc, a) => acc + (a.tools ? a.tools.length : 0), 0) : 12;
+						summary.textContent = `${agents.length} agents deployed | ${totalTools} tools registered | 0 errors`;
+					}
 				}
 			},
 			(i + 1) * 700,
@@ -225,6 +380,12 @@ function startWorkflow() {
 	workflowRunning = true;
 
 	if (dashboardMode === "real") return startWorkflowReal();
+
+	// If active workflow has been pushed, sync the live tab first
+	const wf = getActiveWorkflow();
+	if (wf && wf.agents && wf.agents.length > 0) {
+		syncLiveTab();
+	}
 
 	const dropArea = document.getElementById("drop-area");
 	dropArea.textContent = "Processing NDA.pdf...";
