@@ -1,0 +1,101 @@
+# Declarative Agent Configuration - Intake Agent
+# Purpose: Contract classification and initial metadata extraction
+# Framework: Microsoft Agent Framework compatible
+# Version: 1.0.0
+
+agent_id: intake
+name: Contract Intake Agent
+version: 1.0.0
+created: 2026-03-07
+
+# Model Configuration (Declarative)
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15  # Pinned version with date
+  temperature: 0.0          # Deterministic for consistent classification
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 30s
+
+# Prompt Management (File-Based - Best Practice)
+prompts:
+  system_prompt: prompts/intake-system.md
+  output_template: templates/intake-result.json
+  few_shot_examples: examples/intake-examples.json
+
+# Tool Bindings (MCP Integration)
+tools:
+  - name: upload_contract
+    mcp_server: contract-intake-mcp
+    description: "Upload contract document for processing"
+    required: true
+    timeout: 10s
+    
+  - name: classify_document
+    mcp_server: contract-intake-mcp  
+    description: "Classify contract by type (NDA, MSA, SOW, etc.)"
+    required: true
+    timeout: 15s
+    
+  - name: extract_metadata
+    mcp_server: contract-intake-mcp
+    description: "Extract parties, dates, jurisdiction metadata"
+    required: false
+    timeout: 10s
+
+# Agent Behavior Configuration
+behavior:
+  role: "Classify contracts by type and extract initial metadata"
+  boundary: "Classify only - no extraction or compliance judgment"  
+  output_schema: schemas/intake-result.json
+  
+  # Quality Gates
+  validation:
+    required_fields: [type, confidence, parties]
+    confidence_threshold: 0.7
+    max_parties: 10
+    
+  # Retry & Error Handling  
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+    
+  # Performance Targets
+  performance:
+    target_latency: 5s
+    max_latency: 15s
+    
+# Workflow Integration
+workflow:
+  input_from: user_upload
+  output_to: [extraction_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: false
+  
+  # Conditional Routing
+  routing:
+    - condition: "output.confidence < 0.7" 
+      action: escalate_to_human
+    - condition: "output.type == 'UNKNOWN'"
+      action: route_to_legal_review
+    - condition: "output.confidence >= 0.7"
+      action: continue_to_extraction
+
+# Observability & Monitoring
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, classification_accuracy]
+  alerts:
+    - condition: "latency > 15s"
+      action: page_oncall
+    - condition: "confidence < 0.5" 
+      action: log_warning
+
+# Security & Compliance
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

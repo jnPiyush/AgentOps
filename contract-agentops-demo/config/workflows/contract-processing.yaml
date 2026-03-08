@@ -1,0 +1,171 @@
+# Declarative Workflow Configuration - Contract Processing Pipeline
+# Purpose: End-to-end contract processing with AI agents
+# Framework: Microsoft Agent Framework + Custom Orchestration
+# Version: 1.2.0
+
+workflow_id: contract-processing-pipeline
+name: Contract Processing Pipeline
+version: 1.2.0
+created: 2026-03-07
+description: "Multi-agent workflow for contract intake, extraction, compliance, and approval"
+
+# Workflow Topology Configuration
+topology:
+  type: sequential_with_hitl  # sequential | parallel | conditional | fan_out | fan_in
+  execution_strategy: fail_fast  # fail_fast | continue_on_error | retry_failed
+  timeout: 300s
+  max_concurrent_agents: 4
+
+# Global Configuration
+config:
+  # Model Fallback Strategy
+  model_fallback:
+    primary: gpt-5.1-2026-01-15
+    fallback: gpt-4o-2026-01-15
+    emergency: gpt-4o-mini-2026-01-15
+    
+  # Observability
+  tracing:
+    enabled: true
+    provider: opentelemetry
+    export_endpoint: "${TRACE_ENDPOINT}"
+    
+  evaluation:
+    enabled: true
+    baseline_comparison: true
+    quality_gates: true
+    
+  # Human-in-the-Loop Configuration
+  human_in_loop:
+    checkpoints: [compliance, approval]
+    timeout: 24h
+    escalation_email: "legal-review@company.com"
+    
+  # Error Handling
+  error_handling:
+    global_retry: 3
+    escalation: human_review
+    dead_letter_queue: enabled
+
+# Agent Pipeline (Declarative Execution Flow)
+pipeline:
+  # Stage 1: Contract Intake
+  - stage_name: intake
+    agent_config: config/agents/intake-agent.yaml
+    condition: null  # Always execute
+    timeout: 30s
+    retry_count: 3
+    
+    # Success/Failure Routing
+    on_success:
+      - action: continue
+        next_stage: extraction
+      - action: audit_log
+        data: "${stage.output}"
+        
+    on_failure:
+      - action: escalate
+        target: human_review
+      - action: log_error
+        
+  # Stage 2: Data Extraction  
+  - stage_name: extraction
+    agent_config: config/agents/extraction-agent.yaml
+    condition: "intake.confidence >= 0.7"  # Conditional execution
+    timeout: 45s
+    retry_count: 2
+    
+    dependencies: [intake]  # Wait for intake completion
+    
+    on_success:
+      - action: continue
+        next_stage: compliance
+      - action: store_results
+        location: "data/extraction/"
+        
+  # Stage 3: Compliance Check
+  - stage_name: compliance
+    agent_config: config/agents/compliance-agent.yaml
+    condition: "extraction.clauses.length > 0"
+    timeout: 60s
+    retry_count: 2
+    
+    # Parallel Human Review (HITL)
+    parallel_review:
+      enabled: true
+      reviewer_pool: ["legal-team@company.com"]
+      timeout: 2h
+      
+    dependencies: [extraction]
+    
+    on_success:
+      - action: continue
+        condition: "compliance.risk_level != 'HIGH'"
+        next_stage: approval
+      - action: escalate
+        condition: "compliance.risk_level == 'HIGH'"
+        target: legal_review
+        
+  # Stage 4: Final Approval
+  - stage_name: approval
+    agent_config: config/agents/approval-agent.yaml
+    condition: "compliance.risk_level in ['LOW', 'MEDIUM']"
+    timeout: 30s
+    retry_count: 1
+    
+    dependencies: [compliance]
+    
+    on_success:
+      - action: finalize
+        notification: "${APPROVAL_WEBHOOK}"
+      - action: archive
+        location: "data/approved/"
+        
+# Quality Gates & Evaluation
+quality_gates:
+  - stage: intake
+    metric: classification_accuracy
+    threshold: 0.85
+    action: fail_pipeline
+    
+  - stage: extraction
+    metric: clause_recall
+    threshold: 0.90
+    action: flag_for_review
+    
+  - stage: overall
+    metric: end_to_end_latency
+    threshold: 180s
+    action: performance_alert
+
+# Monitoring & Alerting
+monitoring:
+  dashboards:
+    - name: workflow_health
+      metrics: [success_rate, avg_latency, error_count]
+      
+  alerts:
+    - name: high_failure_rate
+      condition: "success_rate < 0.95"
+      action: page_oncall
+      
+    - name: compliance_queue_backlog
+      condition: "compliance.queue_depth > 10"
+      action: scale_reviewers
+
+# Data Management
+data:
+  input_validation:
+    max_file_size: 10MB
+    allowed_formats: [pdf, docx, txt]
+    virus_scan: enabled
+    
+  output_storage:
+    primary: "data/workflows/"
+    backup: "${BACKUP_STORAGE_URL}"
+    retention: 7y  # Regulatory compliance
+    
+  privacy:
+    pii_detection: enabled
+    redaction: enabled
+    encryption: enabled
