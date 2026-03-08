@@ -33,7 +33,7 @@ try:
         initialize_tracing
     )
 except ImportError as e:
-    logger.error(f"Failed to import Microsoft Agent Framework: {e}")
+    logger.error("Failed to import Microsoft Agent Framework: %s", e)
     logger.error("Ensure dependencies are installed: pip install -r requirements.txt")
     exit(1)
 
@@ -54,12 +54,12 @@ class ContractProcessingDemo:
         
         # Verify configuration
         try:
-            logger.info(f"Primary Model: {config.primary_model}")
-            logger.info(f"Foundry Endpoint: {config.foundry_endpoint[:50]}...")
-            logger.info(f"Tracing Enabled: {config.tracing_enabled}")
-            logger.info(f"HITL Enabled: {config.hitl_enabled}")
+            logger.info("Primary Model: %s", config.primary_model)
+            logger.info("Foundry Endpoint: %s...", config.foundry_endpoint[:50])
+            logger.info("Tracing Enabled: %s", config.tracing_enabled)
+            logger.info("HITL Enabled: %s", config.hitl_enabled)
         except Exception as e:
-            logger.error(f"Configuration error: {e}")
+            logger.error("Configuration error: %s", e)
             logger.error("Check your .env file and environment variables")
             raise
     
@@ -119,16 +119,16 @@ class ContractProcessingDemo:
         try:
             from agents.microsoft_framework.agents import test_agent_connectivity
             connectivity = await test_agent_connectivity()
-            logger.info(f"Agent connectivity: {connectivity}")
+            logger.info("Agent connectivity: %s", connectivity)
         except Exception as e:
-            logger.warning(f"Connectivity test failed: {e}")
+            logger.warning("Connectivity test failed: %s", e)
         
         # Demo each agent type
         agent_types = ["intake", "extraction", "compliance", "approval"]
         contract_data = self.sample_contracts["service_agreement"]
         
         for agent_type in agent_types:
-            logger.info(f"\n--- Testing {agent_type.title()} Agent ---")
+            logger.info("\n--- Testing %s Agent ---", agent_type.title())
             
             try:
                 agent = AgentFactory.create_agent(agent_type)
@@ -152,11 +152,13 @@ class ContractProcessingDemo:
                 result = await agent.execute(agent_input)
                 duration = (datetime.now() - start_time).total_seconds()
                 
-                logger.info(f"{agent_type} executed in {duration:.2f}s")
-                logger.info(f"Result preview: {str(result)[:200]}...")
+                logger.info("%s executed in %.2fs", agent_type, duration)
+                logger.info("Result preview: %s", str(result)[:200])
                 
+            except (ValueError, RuntimeError, FileNotFoundError) as e:
+                logger.error("%s agent failed: %s", agent_type, str(e))
             except Exception as e:
-                logger.error(f"{agent_type} agent failed: {e}")
+                logger.error("Unexpected error in %s agent: %s", agent_type, str(e))
     
     async def demo_workflow_execution(self):
         """Demonstrate complete workflow execution"""
@@ -167,7 +169,7 @@ class ContractProcessingDemo:
         
         # Execute workflow for each sample contract
         for contract_name, contract_data in self.sample_contracts.items():
-            logger.info(f"\n--- Processing {contract_name} ---")
+            logger.info("\\n--- Processing %s ---", contract_name)
             
             try:
                 start_time = datetime.now()
@@ -181,19 +183,21 @@ class ContractProcessingDemo:
                 duration = (datetime.now() - start_time).total_seconds()
                 
                 # Log results
-                logger.info(f"Workflow completed in {duration:.2f}s")
-                logger.info(f"Status: {context.status.value}")
-                logger.info(f"Steps completed: {context.current_step}/{context.total_steps}")
-                logger.info(f"HITL decisions: {len(context.hitl_decisions)}")
+                logger.info("Workflow completed in %.2fs", duration)
+                logger.info("Status: %s", context.status.value)
+                logger.info("Steps completed: %d/%d", context.current_step, context.total_steps)
+                logger.info("HITL decisions: %d", len(context.hitl_decisions))
                 
                 if context.errors:
-                    logger.error(f"Errors: {context.errors}")
+                    logger.error("Errors: %s", context.errors)
                 
                 # Save results
                 await self.save_workflow_results(context)
                 
+            except (ValueError, RuntimeError) as e:
+                logger.error("Workflow failed for %s: %s", contract_name, str(e))
             except Exception as e:
-                logger.error(f"Workflow failed for {contract_name}: {e}")
+                logger.error("Unexpected workflow error for %s: %s", contract_name, str(e))
     
     async def demo_conditional_workflow(self):
         """Demonstrate conditional workflow routing"""
@@ -207,11 +211,11 @@ class ContractProcessingDemo:
             
             logger.info("Processing high-value contract with conditional routing...")
             # Note: This would use the conditional workflow once fully implemented
-            logger.info(f"Contract value: ${high_value_contract['expected_value']:,.2f}")
-            logger.info(f"Regulatory scope: {high_value_contract.get('regulatory_scope', False)}")
+            logger.info("Contract value: $%.2f", high_value_contract['expected_value'])
+            logger.info("Regulatory scope: %s", high_value_contract.get('regulatory_scope', False))
             
         except Exception as e:
-            logger.error(f"Conditional workflow demo failed: {e}")
+            logger.error("Conditional workflow demo failed: %s", str(e))
     
     async def save_workflow_results(self, context):
         """Save workflow results to file"""
@@ -222,18 +226,20 @@ class ContractProcessingDemo:
         filepath = results_dir / filename
         
         try:
-            with open(filepath, 'w') as f:
+            with open(filepath, 'w', encoding='utf-8') as f:
                 json.dump(context.to_dict(), f, indent=2, default=str)
             
-            logger.info(f"Results saved to {filepath}")
+            logger.info("Results saved to %s", str(filepath))
             
+        except (OSError, IOError) as e:
+            logger.error("Failed to save results: %s", str(e))
         except Exception as e:
-            logger.error(f"Failed to save results: {e}")
+            logger.error("Unexpected error saving results: %s", str(e))
     
     async def run_complete_demo(self):
         """Run complete demonstration"""
         logger.info("🚀 Starting Microsoft Agent Framework Demo")
-        logger.info(f"Timestamp: {datetime.now().isoformat()}")
+        logger.info("Timestamp: %s", datetime.now().isoformat())
         
         try:
             # Individual agents
@@ -248,7 +254,7 @@ class ContractProcessingDemo:
             logger.info("\n✅ Demo completed successfully!")
             
         except Exception as e:
-            logger.error(f"❌ Demo failed: {e}")
+            logger.error("❌ Demo failed: %s", str(e))
             raise
 
 
@@ -261,7 +267,7 @@ async def main():
     except KeyboardInterrupt:
         logger.info("Demo interrupted by user")
     except Exception as e:
-        logger.error(f"Demo failed: {e}")
+        logger.error("Demo failed: %s", str(e))
         raise
 
 

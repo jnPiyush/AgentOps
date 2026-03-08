@@ -93,12 +93,17 @@ def initialize():
     
     # Verify configuration
     try:
-        config.foundry_endpoint
-        config.foundry_api_key
+        if not config.foundry_endpoint:
+            raise ValueError("FOUNDRY_ENDPOINT not configured")
+        if not config.foundry_api_key:
+            raise ValueError("FOUNDRY_API_KEY not configured")
+    except (AttributeError, ValueError) as e:
+        import logging
+        logging.warning("Agent Framework configuration incomplete: %s", e)
+        logging.warning("Set FOUNDRY_ENDPOINT and FOUNDRY_API_KEY environment variables")
     except Exception as e:
         import logging
-        logging.warning(f"Agent Framework configuration incomplete: {e}")
-        logging.warning("Set FOUNDRY_ENDPOINT and FOUNDRY_API_KEY environment variables")
+        logging.error("Unexpected configuration error: %s", str(e))
 
 # Auto-initialize when imported
 initialize()

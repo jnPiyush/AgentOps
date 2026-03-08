@@ -193,7 +193,7 @@ Port the proven vanilla JS workflow designer functionality into the React dashbo
 
 ### Feature 1: Agent CRUD on Canvas
 
-**[Story 1.1]** As a workflow designer, I want to click "Add Agent" and define a new agent's name, role, model, tools, boundary, and output so that I can compose my workflow.
+**Story 1.1:** As a workflow designer, I want to click "Add Agent" and define a new agent's name, role, model, tools, boundary, and output so that I can compose my workflow.
 
 **Acceptance Criteria:**
 - Clicking "Add Agent" opens a modal/panel form
@@ -202,7 +202,7 @@ Port the proven vanilla JS workflow designer functionality into the React dashbo
 - On save, agent appears on canvas in correct position
 - Toast notification confirms action
 
-**[Story 1.2]** As a workflow designer, I want to edit an existing agent by clicking its edit button so that I can refine its configuration.
+**Story 1.2:** As a workflow designer, I want to edit an existing agent by clicking its edit button so that I can refine its configuration.
 
 **Acceptance Criteria:**
 - Clicking edit icon on agent card opens modal pre-filled with current values
