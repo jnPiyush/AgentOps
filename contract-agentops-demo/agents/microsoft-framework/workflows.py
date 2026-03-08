@@ -4,20 +4,20 @@ import asyncio
 import json
 import logging
 import yaml
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Callable, Union, Tuple
+from typing import Dict, Any, List, Optional, Callable, Tuple
 from dataclasses import dataclass, asdict
 from enum import Enum
 
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-# Microsoft Agent Framework imports
-from agent_framework.workflows import SequentialWorkflow, WorkflowStep, WorkflowConfig
-from agent_framework.workflows.conditions import Condition, ConditionalWorkflow
-from agent_framework.orchestration import Orchestrator
-from agent_framework.monitoring import WorkflowMonitor
+# Microsoft Agent Framework imports (currently not available)
+# from agent_framework.workflows import SequentialWorkflow, WorkflowStep, WorkflowConfig
+# from agent_framework.workflows.conditions import Condition, ConditionalWorkflow
+# from agent_framework.orchestration import Orchestrator
+# from agent_framework.monitoring import WorkflowMonitor
 
 from .config import config, initialize_tracing
 from .agents import AgentFactory, DeclarativeContractAgent
@@ -137,7 +137,7 @@ class ContractProcessingStep(WorkflowStep):
         # In production, this would integrate with approval UI/email system
         # For now, simulate or provide API hook
         
-        logging.info(f"HITL checkpoint required for workflow {context.workflow_id}, step {self.step_name}")
+        logging.info("HITL checkpoint required for workflow %s, step %s", context.workflow_id, self.step_name)
         
         # TODO: Implement actual HITL integration
         # - Send notification to legal team
@@ -184,7 +184,7 @@ class ContractProcessingWorkflow:
     def _load_workflow_config(self) -> Dict[str, Any]:
         """Load workflow configuration from YAML"""
         if self.config_path.exists():
-            with open(self.config_path, 'r') as f:
+            with open(self.config_path, 'r', encoding='utf-8') as f:
                 return yaml.safe_load(f)
         
         # Default configuration if YAML not found
@@ -277,7 +277,7 @@ class ContractProcessingWorkflow:
                         step_result = await step.execute(context)
                         context.results.update(step_result)
                         
-                        logging.info(f"Completed step {step.step_name} in workflow {workflow_id}")
+                        logging.info("Completed step %s in workflow %s", step.step_name, workflow_id)
                         
                     except Exception as e:
                         context.errors.append(f"Step {step.step_name}: {str(e)}")
@@ -292,7 +292,7 @@ class ContractProcessingWorkflow:
                 context.update_status(WorkflowStatus.FAILED)
                 span.set_attribute("workflow.status", "failed")
                 span.set_attribute("workflow.error", str(e))
-                logging.error(f"Workflow {workflow_id} failed: {e}")
+                logging.error("Workflow %s failed: %s", workflow_id, e)
                 raise
             
             finally:
@@ -319,7 +319,7 @@ class ContractProcessingWorkflow:
         }
         
         # In production, send to monitoring dashboard/database
-        logging.info(f"Workflow completion: {json.dumps(completion_data, indent=2)}")
+        logging.info("Workflow completion: %s", json.dumps(completion_data, indent=2))
 
 
 class ConditionalContractWorkflow(ConditionalWorkflow):
@@ -346,7 +346,7 @@ class ConditionalContractWorkflow(ConditionalWorkflow):
     def _create_high_value_workflow(self) -> SequentialWorkflow:
         """Specialized workflow for high-value contracts"""
         # Additional approval steps for high-value contracts
-        pass
+        raise NotImplementedError("High-value workflow not yet implemented")
     
     def _create_standard_workflow(self) -> SequentialWorkflow:
         """Standard contract processing workflow"""
@@ -355,7 +355,7 @@ class ConditionalContractWorkflow(ConditionalWorkflow):
     def _create_regulatory_workflow(self) -> SequentialWorkflow:
         """Specialized workflow for regulatory contracts"""
         # Additional compliance steps for regulatory contracts
-        pass
+        raise NotImplementedError("Regulatory workflow not yet implemented")
 
 
 # Quality Gates and Validation Functions

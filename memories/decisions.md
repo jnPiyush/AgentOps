@@ -2,8 +2,4 @@
 - 2026-03-07: Archived the React dashboard from runtime by removing gateway/startup wiring while keeping the folder in the repo for reference.
 - 2026-03-07: Removed dashboard from npm workspaces array; dashboardPort removed from gateway config; CORS simplified to gateway origin only.
 - 2026-03-07: Created biome.json excluding dashboard/, docs/ux/prototypes/, with noForEach/noExplicitAny/noNonNullAssertion demoted to warnings.
-- 2026-03-07: Implemented Interactive Workflow Designer Canvas (#12) using React Context + useReducer pattern for state management instead of Redux (simpler, built-in solution)
-- 2026-03-07: Used direct CSS styling instead of React Flow library for workflow designer (per ADR-006, maintains control over layout and interactions)
-- 2026-03-07: Integrated with gateway API endpoints for workflow CRUD operations with localStorage fallback for offline capability
-- 2026-03-07: Chose comprehensive agent modal with tool selection grouped by MCP servers (8 servers, 21 tools) for better organization
-- 2026-03-07: Implemented drag-and-drop agent positioning using native HTML5 drag API instead of external library (lightweight approach)
+- 2026-03-07: **DECISION REVERSAL - Removed all React implementation**: After implementing Interactive Workflow Designer in React, recognized that vanilla JS UI in ui/ folder already provides perfect working solution. Removed entire dashboard/ directory and React-specific documentation to avoid code duplication and maintain single source of truth. Focus on enhancing existing vanilla JS workflow-designer.js instead.

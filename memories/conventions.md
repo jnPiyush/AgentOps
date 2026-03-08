@@ -2,9 +2,4 @@
 - 2026-03-07: Main quality gates for the app are npm test, npm run typecheck, npm run build, and npm run lint from contract-agentops-demo.
 - 2026-03-07: npm run lint now passes (exit 0) with biome.json config in place. 25 warnings (noForEach, noExplicitAny) are acceptable; 0 errors.
 - 2026-03-07: The primary runtime UI is the static app under contract-agentops-demo/ui, served by the gateway at http://localhost:8000.
-- 2026-03-07: React components should use TypeScript with proper type annotations and interfaces for all props and state
-- 2026-03-07: State management pattern: React Context + useReducer for complex state, useState for simple component state
-- 2026-03-07: File structure: group related components in subdirectories (e.g., components/design/) with co-located CSS files
-- 2026-03-07: API integration: use gateway endpoints with proper error handling and localStorage fallback for offline support
-- 2026-03-07: Form validation: validate on submit with error state display, include accessibility attributes (aria-labels)
-- 2026-03-07: CSS approach: modular CSS files imported in main App.tsx, use CSS custom properties for theming
+- 2026-03-07: **Vanilla JS UI is the single source of truth**: All UI functionality lives in ui/ folder (workflow-designer.js, app.js, styles.css). No React duplication needed. Focus enhancements on existing proven vanilla JS implementation.

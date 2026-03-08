@@ -1,20 +1,18 @@
 """Microsoft Agent Framework - Declarative Contract Agents"""
 
 import asyncio
-import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Callable, Union
-from dataclasses import dataclass
+from typing import Dict, Any, List, Optional
 
 from opentelemetry import trace
 from pydantic import BaseModel, Field
 
-# Microsoft Agent Framework imports
-from agent_framework.openai_client import OpenAIChatClient
-from agent_framework.structured_outputs import StructuredOutput
-from agent_framework.tools import Tool, ToolResult
-from agent_framework.agent import Agent, AgentConfig
+# Microsoft Agent Framework imports (currently not available)
+# from agent_framework.openai_client import OpenAIChatClient
+# from agent_framework.structured_outputs import StructuredOutput
+# from agent_framework.tools import Tool, ToolResult
+# from agent_framework.agent import Agent, AgentConfig
 
 from .config import config, get_model_config, initialize_tracing
 
@@ -260,7 +258,7 @@ async def test_agent_connectivity() -> Dict[str, bool]:
             await asyncio.wait_for(agent.execute(test_input), timeout=10.0)
             results[agent_type] = True
         except Exception as e:
-            logging.error(f"Agent {agent_type} connectivity test failed: {e}")
+            logging.error("Agent %s connectivity test failed: %s", agent_type, e)
             results[agent_type] = False
     
     return results
@@ -271,7 +269,7 @@ def load_agent_from_yaml(yaml_path: Path) -> DeclarativeContractAgent:
     # TODO: Implement YAML-driven agent configuration
     # This would read the YAML configs created earlier and dynamically
     # configure agents based on the declarative specifications
-    pass
+    raise NotImplementedError("YAML configuration loading not yet implemented")
 
 
 if __name__ == "__main__":
