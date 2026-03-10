@@ -59,7 +59,7 @@ inputs:
 
 ### Feature Summary
 
-An end-to-end Contract AgentOps Demo system consisting of 8 MCP servers (TypeScript/@modelcontextprotocol/sdk), 4 AI agents (Microsoft Foundry GPT-4o), a Fastify API gateway (TypeScript) with WebSocket, and a static dashboard UI (vanilla HTML/CSS/JS). The system demonstrates 8 AgentOps lifecycle stages: Design, Build, Deploy, Run, Monitor, Evaluate, Detect (Drift), and Feedback.
+An end-to-end Contract AgentOps Demo system consisting of 8 MCP servers (TypeScript/@modelcontextprotocol/sdk), 4 AI agents (Microsoft Foundry GPT-4o), a Fastify API gateway (TypeScript) with WebSocket, and a static dashboard UI (vanilla HTML/CSS/JS). The system demonstrates 8 AgentOps lifecycle stages: Design, Test, Deploy, Run, Monitor, Evaluate, Detect (Drift), and Feedback.
 
 > **Architecture Update (2026-03-07)**: The React dashboard (`dashboard/`) has been archived. The primary UI is now the static dashboard under `ui/` served by the gateway at `http://localhost:8000`. All port 3000 references in this spec are historical.
 
@@ -104,7 +104,7 @@ graph TB
     subgraph Frontend["Static Dashboard UI (ui/)"]
         direction LR
         V1["Design<br/>Canvas"]
-        V2["Build<br/>Console"]
+        V2["Test<br/>Lab"]
         V3["Deploy<br/>Dash"]
         V4["Live<br/>Workflow"]
         V5["Monitor<br/>Panel"]
@@ -245,7 +245,7 @@ graph TB
 
     subgraph Views["8 Views"]
         DC["DesignCanvas<br/>AgentCard x4 + PipelineConnector"]
-        BC["BuildConsole<br/>McpServerSelector + JsonEditor"]
+        BC["WorkflowTestLab<br/>ScenarioSelector + Results"]
         DD["DeployDashboard<br/>PipelineStages + RegistryTable"]
         LW["LiveWorkflow<br/>WorkflowCanvas + HitlPanel"]
         MP["MonitorPanel<br/>TraceTree + AuditTrail"]
@@ -304,7 +304,7 @@ graph LR
 | GET | `/api/v1/contracts` | List all processed contracts | No |
 | GET | `/api/v1/contracts/{id}` | Get contract details + processing results | No |
 | POST | `/api/v1/contracts/{id}/review` | Submit HITL review decision | Yes -- approval status |
-| POST | `/api/v1/tools/{server}/{tool}` | Execute a single MCP tool (Build Console) | No |
+| POST | `/api/v1/tools/{server}/{tool}` | Execute a single MCP tool (gateway capability for direct calls, not the primary Test tab UX) | No |
 | GET | `/api/v1/tools` | List all MCP servers and their tools | No |
 | POST | `/api/v1/evaluations/run` | Run evaluation suite | Yes -- per-contract progress |
 | GET | `/api/v1/evaluations/results` | Get latest evaluation results | No |
@@ -971,7 +971,7 @@ LOG_LEVEL=INFO
 | 4 AI agents with prompts | US-1.1, US-1.2, US-2.1, US-4.1 |
 | API gateway with WebSocket | (infrastructure) |
 | Simulated mode adapter | (infrastructure) |
-| Design Canvas + Build Console views | US-1.1, US-1.2, US-2.1, US-2.2 |
+| Design Canvas + Workflow Test Lab views | US-1.1, US-1.2, US-2.1, US-2.2 |
 | Live Workflow + Monitor Panel views | US-4.1, US-4.2, US-5.1, US-5.2 |
 | 5 sample contracts with ground truth | (data) |
 | Startup script (`npm start`) | (infrastructure) |

@@ -12,7 +12,7 @@ The current Design Canvas in the React dashboard (`dashboard/src/views/DesignCan
 ### Problem Statement
 - **Static React Canvas**: Users cannot add, remove, or configure agents in the React dashboard  
 - **Working Vanilla Reference**: Full functionality exists in 750-line vanilla JS implementation  
-- **Broken AgentOps Story**: Static design stage breaks the "Design → Build → Deploy → Live" narrative  
+- **Broken AgentOps Story**: Static design stage breaks the "Design → Test → Deploy → Live" narrative  
 - **Persistence Gap**: Gateway API has complete workflow CRUD but React components don't use it  
 
 ### Research Findings

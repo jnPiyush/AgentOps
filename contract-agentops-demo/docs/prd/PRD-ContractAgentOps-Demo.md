@@ -259,15 +259,15 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | US-1.2 | Presenter | to see all 4 agents displayed as cards with their tools and boundaries | the audience understands the agent architecture before processing begins | - [ ] Agent cards show: name, model, tools, boundaries<br>- [ ] Visual connections between agents show the pipeline flow | P0 |
 | US-1.3 | Developer | MCP server to expose `upload_contract`, `classify_document`, `extract_metadata` tools | agents can call intake tools via MCP protocol | - [ ] 3 MCP tools registered and callable<br>- [ ] JSON schema defined for inputs/outputs | P0 |
 
-### Feature 2: Extraction MCP Server + Build Console UI
+### Feature 2: Extraction MCP Server + Workflow Test Lab UI
 
-**Description**: Extract key terms from contracts using AI, show tool testing in build console
+**Description**: Run scenario-based workflow tests against representative contracts and expected outcomes
 **Priority**: P0
 
 | Story ID | As a... | I want... | So that... | Acceptance Criteria | Priority |
 |----------|---------|-----------|------------|---------------------|----------|
-| US-2.1 | Presenter | to see extracted contract data side-by-side with the original PDF | the audience sees AI extraction in action | - [ ] Left pane: original contract text<br>- [ ] Right pane: structured extraction (parties, dates, values, clauses)<br>- [ ] Highlighted matching regions | P0 |
-| US-2.2 | Presenter | to test individual MCP tools interactively in a build console | the audience understands how agents call tools | - [ ] Tool selector dropdown<br>- [ ] Input JSON editor<br>- [ ] Output display with latency timing | P0 |
+| US-2.1 | Presenter | to select realistic contract scenarios with expected workflow outcomes | the audience sees what the workflow is being tested against | - [ ] Scenario selector with representative contract cases<br>- [ ] Scenario brief and expected outcomes visible<br>- [ ] Clear explanation of intended workflow behavior | P0 |
+| US-2.2 | Presenter | to run workflow-level tests instead of raw tool tests | the audience understands whether the designed workflow is actually ready | - [ ] Run single scenario and run-all actions<br>- [ ] Results summary with pass/warn/fail counts<br>- [ ] Stage trace showing the expected workflow path | P0 |
 | US-2.3 | Developer | MCP server to expose `extract_clauses`, `identify_parties`, `extract_dates_values` tools | extraction agent can pull structured data from contracts | - [ ] 3 MCP tools with typed inputs/outputs<br>- [ ] Tools return structured JSON | P0 |
 
 ### Feature 3: Compliance MCP Server + Deploy Dashboard UI
@@ -354,7 +354,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 1. **Act 1 -- Design Canvas**: Presenter shows the 4 agent cards with their tools, models, and boundaries. Explains the agent architecture before any processing.
 
-2. **Act 2 -- Build Console**: Presenter selects the Extraction MCP and tests `extract_clauses` tool interactively. Shows input (raw text) -> output (structured JSON). Audience sees how agents use tools.
+2. **Act 2 -- Workflow Test Lab**: Presenter selects a representative scenario such as a high-risk MSA and runs the workflow test. The dashboard shows expected outcomes, workflow coverage, and pass/warn/fail results. Audience sees whether the designed workflow is fit for purpose.
 
 3. **Act 3 -- Deploy Dashboard**: Presenter triggers a simulated deployment pipeline. Shows stages: Build -> Test -> Deploy -> Register. Agent 365 IDs appear. Agents are now "live."
 
@@ -436,7 +436,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 **Deliverables**:
 - Contract Agent definitions with prompts in `prompts/` directory
 - MCP servers 1-5 with tool implementations
-- React dashboard: Design Canvas + Build Console + Live Workflow + Monitor Panel views
+- Static dashboard: Design Canvas + Workflow Test Lab + Live Workflow + Monitor Panel views
 - 5 sample contract PDFs with ground truth
 - Agent orchestration via Agent Framework SDK
 
@@ -508,7 +508,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 +-----------------------------------------------------------------------------------+
 |                     Contract AgentOps Dashboard (React)                            |
 |  +----------+ +--------+ +--------+ +---------+ +---------+ +------+ +-----+ +-+ |
-|  | Design   | | Build  | | Deploy | | Live    | | Monitor | | Eval | |Drift| |FB||
+|  | Design   | | Test   | | Deploy | | Live    | | Monitor | | Eval | |Drift| |FB||
 |  | Canvas   | | Console| | Dash   | | Workflow| | Panel   | | Lab  | | Ctr | |  ||
 |  +----------+ +--------+ +--------+ +---------+ +---------+ +------+ +-----+ +-+ |
 +-----------------------------------------------------------------------------------+
@@ -534,7 +534,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | # | Server Name | Tools | AgentOps Stage |
 |---|-------------|-------|----------------|
 | 1 | contract-intake-mcp | `upload_contract`, `classify_document`, `extract_metadata` | Design |
-| 2 | contract-extraction-mcp | `extract_clauses`, `identify_parties`, `extract_dates_values` | Build |
+| 2 | contract-extraction-mcp | `extract_clauses`, `identify_parties`, `extract_dates_values` | Test |
 | 3 | contract-compliance-mcp | `check_policy`, `flag_risk`, `get_policy_rules` | Deploy |
 | 4 | contract-workflow-mcp | `route_approval`, `escalate_to_human`, `notify_stakeholder` | Run |
 | 5 | contract-audit-mcp | `log_decision`, `generate_report`, `query_history` | Monitor |

@@ -37,7 +37,7 @@ The current **Design Canvas** in the React dashboard (`DesignCanvas.tsx`) is **c
 - Define agent roles, responsibilities, or tool associations
 - Arrange agents in different workflow topologies (sequential, parallel, conditional)
 - Save, load, or manage multiple workflow designs
-- Push a custom-designed workflow through the full AgentOps lifecycle (Build → Deploy → Live)
+- Push a custom-designed workflow through the full AgentOps lifecycle (Test → Deploy → Live)
 
 Meanwhile, the vanilla JS UI (`ui/workflow-designer.js`) already has a **fully functional** interactive workflow designer with add/edit/delete agents, drag-to-reorder, save/load, and Push to Pipeline. However, the React dashboard — which is the target for the enhanced experience — lacks all of this interactivity.
 
@@ -45,7 +45,7 @@ Meanwhile, the vanilla JS UI (`ui/workflow-designer.js`) already has a **fully f
 
 - **Demo Impact**: A static canvas undermines the "Design" story in the 8-stage AgentOps demo. Audiences cannot see the power of visual workflow design.
 - **User Empowerment**: Users should be able to design custom agentic workflows tailored to their use case, not be locked into a fixed 4-agent pipeline.
-- **End-to-End Story**: The workflow designed on the canvas should flow through Build, Deploy, and Live stages — creating a seamless AgentOps lifecycle demo.
+- **End-to-End Story**: The workflow designed on the canvas should flow through Test, Deploy, and Live stages — creating a seamless AgentOps lifecycle demo.
 - **Competitive Parity**: Tools like n8n, LangGraph Studio, CrewAI, and Flowise all offer visual workflow builders. Our Design Canvas should match or exceed this level of interactivity.
 
 ### What happens if we don't solve this?
@@ -124,7 +124,7 @@ Port the proven vanilla JS workflow designer functionality into the React dashbo
 
 **User Persona 3: Technical Decision Maker (Audience)**
 - **Goals**: See that the platform enables visual workflow design, not just code-based configuration
-- **Pain Points**: Needs to see the "Design → Build → Deploy → Live" story connected end-to-end
+- **Pain Points**: Needs to see the "Design → Test → Deploy → Live" story connected end-to-end
 - **Behaviors**: Watches the presenter design a workflow and activate it; evaluates the UX polish
 
 ---
@@ -134,7 +134,7 @@ Port the proven vanilla JS workflow designer functionality into the React dashbo
 ### Business Goals
 
 1. **Close the design gap**: React dashboard Design Canvas becomes fully interactive, matching the vanilla JS UI
-2. **End-to-end demo flow**: Workflow designed on canvas propagates through Build, Deploy, and Live stages
+2. **End-to-end demo flow**: Workflow designed on canvas propagates through Test, Deploy, and Live stages
 3. **Reusability**: Workflow designer is agent-agnostic — can be adapted for any domain beyond contracts
 
 ### Success Metrics (KPIs)
@@ -145,7 +145,7 @@ Port the proven vanilla JS workflow designer functionality into the React dashbo
 | Workflow types supported | 1 (static sequential) | 5 (sequential, parallel, HITL, fan-out, conditional) | MVP |
 | Drag-to-reorder agents | No | Yes | MVP |
 | Save/Load workflows via gateway API | No (React) | Yes | MVP |
-| Push to Pipeline activates Build/Deploy/Live | No (React) | Yes | MVP |
+| Push to Pipeline activates Test/Deploy/Live | No (React) | Yes | MVP |
 | Export workflow as JSON | No (React) | Yes | Post-MVP |
 
 ---
@@ -165,7 +165,8 @@ Port the proven vanilla JS workflow designer functionality into the React dashbo
 | R7 | **Drag-to-Reorder**: User drags agent cards to change execution order | Arrange workflow sequence |
 | R8 | **Save Workflow**: Saves to gateway API (`POST /api/v1/workflows`) + localStorage fallback | Persistence across sessions |
 | R9 | **Load Workflow**: Load dialog lists saved workflows; user selects one to load into canvas | Resume previous work |
-| R10 | **Push to Pipeline**: Saves + activates workflow → propagates to Build, Deploy, Live tabs | End-to-end AgentOps story |
+| R10 | **Push to Pipeline**: Saves + activates workflow → propagates to Test, Deploy, Live tabs | End-to-end AgentOps story |
+| R10a | **Design Validation**: Save and Push to Pipeline block on structural workflow errors and allow warnings only | Keep authoring rules inside Design |
 
 ### P1 — Should Have
 
@@ -272,13 +273,21 @@ Port the proven vanilla JS workflow designer functionality into the React dashbo
 - "Delete" button per entry allows removing from saved list
 - Dialog is dismissible via Cancel or Escape
 
-**Story 5.3:** As a workflow designer, I want to push my designed workflow to the pipeline so that it activates across Build, Deploy, and Live stages.
+**Story 5.3:** As a workflow designer, I want to push my designed workflow to the pipeline so that it activates across Test, Deploy, and Live stages.
 
 **Acceptance Criteria:**
 - "Push to Pipeline" button saves the workflow AND activates it
 - Calls `POST /api/v1/workflows/:id/activate` on gateway
 - Dispatches `workflow-activated` custom event with workflow data
-- Build, Deploy, and Live tabs update to reflect the active workflow
+- Test, Deploy, and Live tabs update to reflect the active workflow
+
+**Story 5.4:** As a workflow designer, I want validation to happen during authoring, save, and push so that invalid designs are caught before testing or deployment.
+
+**Acceptance Criteria:**
+- Design view surfaces validation findings inline in the inventory/status area
+- Save is blocked when structural errors exist
+- Push to Pipeline is blocked when structural errors exist
+- Warnings remain visible but do not block save or push
 - Toast confirms with workflow name and activation status
 - Works in offline/local mode with event dispatch only
 
@@ -318,7 +327,7 @@ User opens Design Canvas
     → Toast confirms
   → Clicks "Push to Pipeline"
     → Workflow activated
-    → Build/Deploy/Live tabs update
+    → Test/Deploy/Live tabs update
 ```
 
 ### 7.2 Load & Modify Flow

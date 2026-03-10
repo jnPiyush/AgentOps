@@ -94,7 +94,7 @@ Organizations struggle to operationalize AI agents beyond prototypes. This demo 
 | Criterion | Assessment |
 |-----------|------------|
 | Simplicity | [PASS] Each server is small (~100-200 lines TypeScript) |
-| Demo clarity | [PASS] Each stage has its own server -- visible in Build Console |
+| Demo clarity | [PASS] Each stage has its own server -- visible in the workflow test story and supporting tool registry |
 | Isolation | [PASS] Servers start/stop independently |
 | Effort | Medium |
 | Risk | Low -- clear boundaries, independent testing |
@@ -392,7 +392,7 @@ The architecture optimizes for **demo clarity over production robustness**:
 - **Fast setup**: Clone, install, run in under 10 minutes -- no database, no Azure required
 - **Clear demo narrative**: Each MCP server = one stage = one UI view. The 1:1:1 mapping is easy to explain
 - **Reusable architecture**: Swap the domain (contracts -> claims, invoices) by replacing prompts and sample data
-- **Independent testing**: Each MCP server can be tested in isolation via CLI or Build Console view
+- **Independent testing**: Each MCP server can be tested in isolation via CLI, while the dashboard's second stage focuses on workflow scenario testing
 - **Deterministic demos**: Simulated mode produces identical results every time -- reliable for conferences
 
 ### Negative
@@ -420,7 +420,7 @@ Phase 1: Foundation         Phase 2: AgentOps           Phase 3: Polish
 | - API gateway       |      | - Eval Lab view    |      | - Demo script mode |
 | - 4 agents          |      | - Drift view       |      | - README + setup   |
 | - Design Canvas     |      | - Feedback view    |      | - Demo recording   |
-|   Build Console     |      | - Simulated drift  |      +--------------------+
+|  Workflow Test Lab  |      | - Simulated drift  |      +--------------------+
 |   Live Workflow     |      |   data              |
 |   Monitor Panel     |      | - Ground truth      |
 | - WebSocket         |      |   dataset           |
@@ -433,7 +433,7 @@ Phase 1: Foundation         Phase 2: AgentOps           Phase 3: Polish
 | Milestone | Deliverables | Stories |
 |-----------|-------------|---------|
 | M1: Core Pipeline | 5 MCP servers, 4 agents, API gateway, WebSocket, simulated mode | US-1.x, US-2.x, US-4.x, US-5.x |
-| M2: Dashboard Foundation | Design Canvas, Build Console, Live Workflow, Monitor Panel views | US-1.x, US-2.x, US-4.x, US-5.x |
+| M2: Dashboard Foundation | Design Canvas, Workflow Test Lab, Live Workflow, Monitor Panel views | US-1.x, US-2.x, US-4.x, US-5.x |
 | M3: AgentOps Layer | Eval, Drift, Feedback MCP servers + corresponding views | US-6.x, US-7.x, US-8.x |
 | M4: Polish & Deploy | Deploy Dashboard, Governance view, demo script, README | US-3.x, US-9, US-10 |
 

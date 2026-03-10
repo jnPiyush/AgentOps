@@ -17,7 +17,7 @@ Replace the static `DesignCanvas.tsx` component with a fully interactive workflo
 - Workflow type selection (Sequential, Parallel, Sequential+HITL, Fan-out, Conditional)
 - Drag-to-reorder agent execution sequence
 - Save/Load workflows with gateway API + localStorage fallback
-- Push to Pipeline activation for Build → Deploy → Live progression
+- Push to Pipeline activation for Test → Deploy → Live progression
 
 **Success Criteria**:
 - Complete functional parity with vanilla JS workflow designer
@@ -34,7 +34,8 @@ Replace the static `DesignCanvas.tsx` component with a fully interactive workflo
 - **G5**: Integrate with existing gateway API for workflow persistence and activation
 - **G6**: Add file-based JSON persistence in `data/workflows/` for production deployment
 - **G7**: Maintain localStorage fallback for offline/development scenarios
-- **G8**: Dispatch `workflow-activated` events for Build/Deploy/Live tab updates
+- **G8**: Dispatch `workflow-activated` events for Test/Deploy/Live tab updates
+- **G9**: Validate workflow structure during authoring, save, and push actions
 
 ### Non-Goals
 - **NG1**: Visual code editor or agent source code generation
@@ -72,7 +73,7 @@ graph TB
     
     subgraph "Events"
         K --> P[workflow-activated CustomEvent]
-        P --> Q[Build/Deploy/Live tabs]
+        P --> Q[Test/Deploy/Live tabs]
     end
     
     A --> H

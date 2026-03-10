@@ -32,7 +32,7 @@
 
 ### Feature Summary
 
-An 8-view React dashboard that visually demonstrates the full AgentOps lifecycle for a Contract Management scenario. Each view maps to one AgentOps stage (Design, Build, Deploy, Run, Monitor, Evaluate, Detect, Feedback) and connects to purpose-built MCP servers. The dashboard is optimized for live conference demos on large screens.
+An 8-view dashboard that visually demonstrates the full AgentOps lifecycle for a Contract Management scenario. Each view maps to one AgentOps stage (Design, Test, Deploy, Run, Monitor, Evaluate, Detect, Feedback) and connects to purpose-built MCP servers. The dashboard is optimized for live conference demos on large screens.
 
 ### Design Goals
 
@@ -88,7 +88,7 @@ An 8-view React dashboard that visually demonstrates the full AgentOps lifecycle
 
 ```mermaid
 flowchart TD
-    A["Act 1: Design Canvas\nShow agent architecture"] --> B["Act 2: Build Console\nTest MCP tools interactively"]
+    A["Act 1: Design Canvas\nShow agent architecture + validation"] --> B["Act 2: Workflow Test Lab\nRun scenario-based workflow tests"]
     B --> C["Act 3: Deploy Dashboard\nSimulate CI/CD + registration"]
     C --> D["Act 4: Live Workflow\nDrop contract, watch it flow"]
     D --> E{"Contract risk\nlevel?"}
@@ -126,10 +126,10 @@ flowchart TD
    - **System Response**: Agent cards display name, model, tools, boundaries. Connection lines show the flow.
    - **Talking Point**: "Here is our agent team. Each has a specific role, specific tools, and strict boundaries."
 
-2. **Act 2 -- Build Console**
-   - **Presenter Action**: Clicks "Build Console" tab. Selects `extract_clauses` tool from dropdown, pastes sample text, clicks "Run."
-   - **System Response**: Input panel shows raw text; output panel shows structured JSON with latency timer.
-   - **Talking Point**: "Agents call MCP tools. Let me show you one in action."
+2. **Act 2 -- Workflow Test Lab**
+  - **Presenter Action**: Clicks "Test" tab. Selects a scenario such as "High-Risk MSA" and clicks "Run Scenario."
+  - **System Response**: The view shows expected outcomes, workflow coverage, and pass/warn/fail results with a stage trace.
+  - **Talking Point**: "The designer already validates structure. Here we test whether the workflow behaves correctly on realistic contract scenarios."
 
 3. **Act 3 -- Deploy Dashboard**
    - **Presenter Action**: Clicks "Deploy" tab. Clicks "Deploy Pipeline" button.
@@ -237,7 +237,7 @@ flowchart TD
 +=============================================================================+
 | [C] Contract AgentOps          [Stage Progress Bar: 1 2 3 4 5 6 7 8 ]      |
 |                                                                             |
-| [Design] [Build] [Deploy] [Live] [Monitor] [Evaluate] [Drift] [Feedback]   |
+| [Design] [Test] [Deploy] [Live] [Monitor] [Evaluate] [Drift] [Feedback]   |
 |  ^active                                                                    |
 |=============================================================================|
 |                                                                             |
@@ -306,55 +306,44 @@ flowchart TD
 
 ---
 
-### View 2: Build Console
+### View 2: Workflow Test Lab
 
-**Purpose**: Interactively test MCP tools -- show how agents call tools
-**AgentOps Stage**: Build
+**Purpose**: Run workflow-level scenario checks after authoring is complete
+**AgentOps Stage**: Test
 
 ```
 +=============================================================================+
-| BUILD CONSOLE                                          [Clear] [Run ->]     |
+| WORKFLOW TEST LAB                        [Clear Results] [Run All] [Run ->] |
 |=============================================================================|
 |                                                                             |
-| MCP Server: [v contract-extraction-mcp   ]                                 |
-| Tool:       [v extract_clauses           ]                                 |
+| Scenario: [v High-Risk MSA              ]                                  |
+| Real mode validates workflow readiness and shows scenario expectations.     |
 |                                                                             |
-| +----------------------------------+  +----------------------------------+ |
-| | INPUT                            |  | OUTPUT                           | |
-| |                                  |  |                                  | |
-| | {                                |  | {                                | |
-| |   "text": "This Non-Disclosure   |  |   "clauses": [                  | |
-| |   Agreement is entered into      |  |     {                           | |
-| |   between Acme Corp ('Discloser')|  |       "type": "confidentiality",| |
-| |   and Beta Inc ('Recipient')     |  |       "text": "Recipient shall  | |
-| |   effective March 1, 2026.       |  |        not disclose...",         | |
-| |   Recipient shall not disclose   |  |       "section": "3.1"          | |
-| |   any Confidential Information   |  |     },                          | |
-| |   for a period of 2 years..."    |  |     {                           | |
-| |                                  |  |       "type": "termination",    | |
-| | }                                |  |       "text": "This agreement   | |
-| |                                  |  |        terminates after 2 yrs", | |
-| |                                  |  |       "section": "7.1"          | |
-| |                                  |  |     }                           | |
-| |                                  |  |   ],                            | |
-| |                                  |  |   "confidence": 0.94            | |
-| +----------------------------------+  +----------------------------------+ |
+| +------------------------------+  +-------------------------------------+ |
+| | ACTIVE WORKFLOW              |  | WORKFLOW COVERAGE                   | |
+| | 6 agents, 4 stages, 12 tools |  | [PASS] Intake coverage              | |
+| | Readiness: Ready             |  | [PASS] Extraction coverage          | |
+| +------------------------------+  | [PASS] Human checkpoint fit         | |
+|                                   | [WARN] Parallel review fit          | |
+| +------------------------------+  +-------------------------------------+ |
+| | SCENARIO BRIEF               |                                        |
+| | High-risk MSA with liability |  +-------------------------------------+ |
+| | cap, auto-renewal, and       |  | LATEST RESULTS                      | |
+| | cross-border transfer terms  |  | [WARN] High-Risk MSA:               | |
+| | Expected: compliance review, |  | 4 passed, 1 warning, 0 failed       | |
+| | escalation, parallel review  |  | Stage trace: Orchestrator ->        | |
+| +------------------------------+  | Parallel compliance + approval      | |
+|                                   +-------------------------------------+ |
 |                                                                             |
-| Latency: 1.2s | Tokens: 342 in / 198 out | Status: [PASS] Success         |
-|                                                                             |
-| +-----------------------------------------------------------------------+  |
-| | Tool Registry (contract-extraction-mcp)                               |  |
-| | [PASS] extract_clauses    [PASS] identify_parties   [PASS] extract_dt |  |
-| +-----------------------------------------------------------------------+  |
 +=============================================================================+
 ```
 
 **Interactions**:
-- Dropdown to select MCP server and tool
-- JSON input editor with syntax highlighting (editable)
-- "Run" button executes the tool call and populates output panel
-- Latency, token count, and status shown below output
-- Bottom bar shows all tools in the selected MCP server with health status
+- Scenario selector to choose representative contract cases
+- "Run Scenario" checks the active workflow against the selected scenario
+- "Run All" executes the full scenario suite for the current workflow
+- Results panel shows pass/warn/fail findings and stage trace
+- Design-time authoring rules are validated in the Design view, not here
 
 ---
 
@@ -1218,7 +1207,7 @@ App
 - `MetricCard` -- reused in Evaluation Lab (ground-truth), Drift Detection, Feedback Trends
 - `JudgeScoreCard` -- used in Evaluation Lab (LLM-as-judge dimensions: relevance, groundedness, coherence)
 - `StatusBadge` -- reused everywhere (PASS/WARN/FAIL/INFO)
-- `JsonViewer` -- reused in Build Console, Monitor Panel (tool call detail)
+- `JsonViewer` -- reused in Monitor Panel and supporting detail views
 - `ProgressBar` -- reused in Live Workflow, Evaluation Lab, Deploy Dashboard
 
 **State Management**:
