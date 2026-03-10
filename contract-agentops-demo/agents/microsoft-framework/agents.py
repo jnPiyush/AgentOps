@@ -221,10 +221,6 @@ class DeclarativeContractAgent:
                 span.set_attribute("execution.status", "error")
                 span.set_attribute("error.message", str(e))
                 raise
-            except Exception as e:
-                span.set_attribute("execution.status", "unexpected_error")
-                logging.error("Unexpected error in agent execution: %s", str(e))
-                raise RuntimeError(f"Agent execution failed: {str(e)}") from e
     
     def _get_output_schema(self) -> Optional[BaseModel]:
         """Get structured output schema - to be overridden by subclasses"""
@@ -354,9 +350,6 @@ async def test_agent_connectivity() -> Dict[str, bool]:
         except (ValueError, RuntimeError, asyncio.TimeoutError) as e:
             logging.error("Agent %s connectivity test failed: %s", agent_type, e)
             results[agent_type] = False
-        except Exception as e:
-            logging.error("Unexpected error testing agent %s: %s", agent_type, e)
-            results[agent_type] = False
     
     return results
 
@@ -428,7 +421,5 @@ if __name__ == "__main__":
             print("Intake Result:", result)
         except (ValueError, FileNotFoundError) as e:
             print(f"Execution failed: {e}")
-        except Exception as e:
-            print(f"Unexpected execution error: {e}")
     
     asyncio.run(main())

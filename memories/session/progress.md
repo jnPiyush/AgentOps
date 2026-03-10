@@ -1,3 +1,8 @@
+- 2026-03-10: Implemented review follow-up items 1 and 4 for contract-agentops-demo.
+- Hardened Python exception handling in agents/microsoft-framework/agents.py, workflows.py, demo.py, setup.py, and __init__.py by removing broad or redundant catch blocks and keeping only specific recoverable catches.
+- Expanded intake taxonomy to include Consortium and Partnership in prompts/intake-system.md.
+- Updated regression coverage in tests/ai-assets.test.ts and aligned related docs in README.md and docs/data-science/MODEL-CARD-ContractAgentOps-Demo.md.
+- Validation: npm test passes (63/63). Remaining setup.py diagnostics are pre-existing lazy-logging and subprocess check issues, not exception-handling issues.
 - 2026-03-07: Static UI path is now the working runtime. Verified: npm start boots successfully on Windows, GET /api/v1/health is healthy, GET /api/v1/tools returns all 8 MCP servers, npm test passes, and standalone scripts test-comprehensive.ts plus test-deployment.ts pass.
 - 2026-03-07: Cleanup complete — dashboard retired from workspaces, dashboardPort removed, CORS cleaned, biome.json created, all formatting auto-fixed, docs updated with archival notices. Tests 49/49, lint 0 errors. Ready for next phase.
 - 2026-03-07: **REMOVED ALL REACT IMPLEMENTATION**: Deleted entire dashboard/ directory and React-related documentation. Kept only the working vanilla JS UI in ui/ folder. Focused on single, proven implementation that already works perfectly (workflow-designer.js with full CRUD operations, drag-drop, save/load, push to pipeline). Commit 00c1bd5.

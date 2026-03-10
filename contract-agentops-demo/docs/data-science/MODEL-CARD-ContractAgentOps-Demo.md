@@ -34,7 +34,7 @@ The prompt files, templates, examples, and schema definitions are now aligned to
 
 - The historical 20-case `v1.3` result is preserved in `data/evaluations.json`, but it is no longer representative of the active ground-truth corpus and should not be used for release gating. [Confidence: HIGH]
 - The 57-case corpus includes broader contract families such as AI Services, Government Contract, Franchise, Lease, Insurance, and adversarial cases. This wider coverage exposes classification and cross-stage consistency gaps that were hidden in the smaller corpus. [Confidence: HIGH]
-- The intake prompt taxonomy currently enumerates many, but not all, corpus contract families. Corpus entries such as `Consortium` and `Partnership` should be treated as active evaluation pressure and may require taxonomy expansion or normalization rules. [Confidence: MEDIUM]
+- The intake prompt taxonomy now explicitly covers `Consortium` and `Partnership`, but the active corpus still exercises broader cross-stage consistency than the legacy subset. Promotion should continue to rely on full-corpus evaluation rather than taxonomy coverage alone. [Confidence: HIGH]
 
 ## Guardrails And Responsible AI
 

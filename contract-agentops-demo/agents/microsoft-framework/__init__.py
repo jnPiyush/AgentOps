@@ -101,9 +101,6 @@ def initialize():
         import logging
         logging.warning("Agent Framework configuration incomplete: %s", e)
         logging.warning("Set FOUNDRY_ENDPOINT and FOUNDRY_API_KEY environment variables")
-    except (AttributeError, ValueError, ImportError) as e:
-        import logging
-        logging.error("Unexpected configuration error: %s", str(e))
 
 # Auto-initialize when imported
 initialize()

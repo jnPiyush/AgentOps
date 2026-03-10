@@ -27,6 +27,8 @@ Supported contract types:
 - AI Services
 - SaaS Agreement
 - Procurement
+- Consortium
+- Partnership
 - Lease
 - Insurance
 - Government Contract

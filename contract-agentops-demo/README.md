@@ -34,7 +34,7 @@ Each agent specializes in a specific aspect of contract analysis, with built-in 
 
 ### 🤖 Enhanced Agent Prompts
 - **Few-Shot Learning**: Detailed examples for consistent agent behavior
-- **Expanded Taxonomies**: 15 contract types (vs. 7), 20+ clause types
+- **Expanded Taxonomies**: 17 contract types (vs. 7), 20+ clause types
 - **Confidence Calibration**: Guidelines for appropriate confidence levels
 - **Edge Case Handling**: Specific protocols for unusual contract structures
 
@@ -51,7 +51,7 @@ Each agent specializes in a specific aspect of contract analysis, with built-in 
 #### 1. 📥 Intake Agent
 **Purpose**: Contract classification and metadata extraction  
 **Enhanced Capabilities**:
-- 15 contract type taxonomy (Service Agreement, NDA, Employment, AI Services, etc.)
+- 17 contract type taxonomy (Service Agreement, NDA, Employment, AI Services, Consortium, Partnership, etc.)
 - Confidence scoring with calibration guidelines
 - Edge case detection (hybrid contracts, international agreements)
 - Quality validation checklist

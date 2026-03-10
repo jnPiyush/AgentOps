@@ -36,10 +36,10 @@ class MicrosoftAgentFrameworkSetup:
         
         version_info = sys.version_info
         if version_info < (3, 9):
-            logger.error(f"Python 3.9+ required, found {version_info.major}.{version_info.minor}")
+            logger.error("Python 3.9+ required, found %s.%s", version_info.major, version_info.minor)
             return False
         
-        logger.info(f"Python {version_info.major}.{version_info.minor}.{version_info.micro} ✓")
+        logger.info("Python %s.%s.%s [PASS]", version_info.major, version_info.minor, version_info.micro)
         return True
     
     def create_virtual_environment(self):
@@ -53,10 +53,10 @@ class MicrosoftAgentFrameworkSetup:
         try:
             subprocess.run([sys.executable, "-m", "venv", str(self.venv_path)], 
                          check=True, capture_output=True, text=True)
-            logger.info(f"Virtual environment created at {self.venv_path}")
+            logger.info("Virtual environment created at %s", self.venv_path)
             return True
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to create virtual environment: {e}")
+            logger.error("Failed to create virtual environment: %s", e)
             return False
     
     def get_pip_executable(self):
@@ -71,7 +71,7 @@ class MicrosoftAgentFrameworkSetup:
         logger.info("Installing dependencies...")
         
         if not self.requirements_file.exists():
-            logger.error(f"Requirements file not found: {self.requirements_file}")
+            logger.error("Requirements file not found: %s", self.requirements_file)
             return False
         
         pip_exe = self.get_pip_executable()
@@ -85,13 +85,13 @@ class MicrosoftAgentFrameworkSetup:
             subprocess.run([str(pip_exe), "install", "-r", str(self.requirements_file), "--pre"], 
                          check=True, capture_output=True, text=True)
             
-            logger.info("Dependencies installed successfully ✓")
+            logger.info("Dependencies installed successfully [PASS]")
             return True
             
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to install dependencies: {e}")
-            logger.error(f"stdout: {e.stdout}")
-            logger.error(f"stderr: {e.stderr}")
+            logger.error("Failed to install dependencies: %s", e)
+            logger.error("stdout: %s", e.stdout)
+            logger.error("stderr: %s", e.stderr)
             return False
     
     def setup_environment_file(self):
@@ -103,16 +103,16 @@ class MicrosoftAgentFrameworkSetup:
             return True
         
         if not self.env_template.exists():
-            logger.error(f"Environment template not found: {self.env_template}")
+            logger.error("Environment template not found: %s", self.env_template)
             return False
         
         try:
             shutil.copy2(self.env_template, self.env_file)
-            logger.info(f"Environment template copied to {self.env_file}")
-            logger.warning("🔧 IMPORTANT: Edit .env file with your actual configuration values!")
+            logger.info("Environment template copied to %s", self.env_file)
+            logger.warning("IMPORTANT: Edit .env file with your actual configuration values.")
             return True
-        except Exception as e:
-            logger.error(f"Failed to copy environment template: {e}")
+        except shutil.Error as e:
+            logger.error("Failed to copy environment template: %s", e)
             return False
     
     def verify_installation(self):
@@ -148,10 +148,10 @@ except ImportError as e:
         
         try:
             result = subprocess.run([str(python_exe), "-c", test_script], 
-                                  capture_output=True, text=True, timeout=30)
+                                  capture_output=True, text=True, timeout=30, check=False)
             
             if result.returncode == 0:
-                logger.info("Installation verification passed ✓")
+                logger.info("Installation verification passed [PASS]")
                 logger.info(result.stdout)
                 return True
             else:
@@ -162,14 +162,11 @@ except ImportError as e:
         except subprocess.TimeoutExpired:
             logger.error("Installation verification timed out")
             return False
-        except Exception as e:
-            logger.error(f"Installation verification error: {e}")
-            return False
     
     def print_next_steps(self):
         """Print next steps for the user"""
         print("\n" + "="*60)
-        print("🎉 Microsoft Agent Framework Setup Complete!")
+        print("Microsoft Agent Framework Setup Complete!")
         print("="*60)
         print()
         print("Next Steps:")
@@ -194,7 +191,7 @@ except ImportError as e:
     
     def run_setup(self):
         """Run complete setup process"""
-        logger.info("🚀 Starting Microsoft Agent Framework setup...")
+        logger.info("Starting Microsoft Agent Framework setup...")
         
         steps = [
             ("Python version check", self.check_python_version),
@@ -205,9 +202,9 @@ except ImportError as e:
         ]
         
         for step_name, step_func in steps:
-            logger.info(f"\n--- {step_name} ---")
+            logger.info("\n--- %s ---", step_name)
             if not step_func():
-                logger.error(f"Setup failed at: {step_name}")
+                logger.error("Setup failed at: %s", step_name)
                 return False
         
         self.print_next_steps()
@@ -229,9 +226,6 @@ def main():
             
     except KeyboardInterrupt:
         logger.info("Setup interrupted by user")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Setup failed with error: {e}")
         sys.exit(1)
 
 

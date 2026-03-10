@@ -62,6 +62,8 @@ describe("declarative AI asset consistency", () => {
 
 		expect(intakePrompt).toContain("contract_type");
 		expect(intakePrompt).toContain("confidence_score");
+		expect(intakePrompt).toContain("Consortium");
+		expect(intakePrompt).toContain("Partnership");
 		expect(intakePrompt).not.toContain('"type": "CONTRACT_TYPE"');
 
 		expect(extractionPrompt).toContain('"dates": [');

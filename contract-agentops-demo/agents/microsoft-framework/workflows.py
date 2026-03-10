@@ -173,11 +173,6 @@ class ContractProcessingStep(WorkflowStep):
                     span.set_attribute("execution.error", str(e))
                     if attempt < self.retry_count - 1:
                         await asyncio.sleep(2 ** attempt)  # Exponential backoff
-                except Exception as e:
-                    last_error = RuntimeError(f"Unexpected error in step {self.step_name}: {str(e)}")
-                    logging.error("Unexpected error in step %s: %s", self.step_name, str(e))
-                    span.set_attribute("execution.unexpected_error", str(e))
-                    break  # Don't retry on unexpected errors
                     
             # All retries exhausted
             span.set_attribute("execution.status", "failed")
@@ -499,7 +494,5 @@ if __name__ == "__main__":
             
         except (ValueError, RuntimeError, FileNotFoundError) as e:
             print(f"Workflow execution failed: {e}")
-        except Exception as e:
-            print(f"Unexpected workflow error: {e}")
     
     asyncio.run(main())

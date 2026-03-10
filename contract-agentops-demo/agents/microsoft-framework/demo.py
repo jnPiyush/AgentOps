@@ -55,7 +55,7 @@ class ContractProcessingDemo:
             logger.info("Foundry Endpoint: %s...", config.foundry_endpoint[:50])
             logger.info("Tracing Enabled: %s", config.tracing_enabled)
             logger.info("HITL Enabled: %s", config.hitl_enabled)
-        except Exception as e:
+        except (AttributeError, TypeError, ValueError) as e:
             logger.error("Configuration error: %s", e)
             logger.error("Check your .env file and environment variables")
             raise
@@ -153,8 +153,6 @@ class ContractProcessingDemo:
                 
             except (ValueError, RuntimeError, FileNotFoundError) as e:
                 logger.error("%s agent failed: %s", agent_type, str(e))
-            except (ValueError, RuntimeError, FileNotFoundError) as e:
-                logger.error("Unexpected error in %s agent: %s", agent_type, str(e))
     
     async def demo_workflow_execution(self):
         """Demonstrate complete workflow execution"""
@@ -192,8 +190,6 @@ class ContractProcessingDemo:
                 
             except (ValueError, RuntimeError) as e:
                 logger.error("Workflow failed for %s: %s", contract_name, str(e))
-            except (ValueError, RuntimeError) as e:
-                logger.error("Unexpected workflow error for %s: %s", contract_name, str(e))
     
     async def demo_conditional_workflow(self):
         """Demonstrate conditional workflow routing"""
@@ -231,8 +227,6 @@ class ContractProcessingDemo:
             
         except (OSError, IOError) as e:
             logger.error("Failed to save results: %s", str(e))
-        except (OSError, IOError, ValueError) as e:
-            logger.error("Unexpected error saving results: %s", str(e))
     
     async def run_complete_demo(self):
         """Run complete demonstration"""
@@ -251,7 +245,7 @@ class ContractProcessingDemo:
             
             logger.info("\n✅ Demo completed successfully!")
             
-        except Exception as e:
+        except (RuntimeError, ValueError, FileNotFoundError, OSError, TypeError) as e:
             logger.error("❌ Demo failed: %s", str(e))
             raise
 
