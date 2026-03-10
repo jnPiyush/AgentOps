@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	});
 
 	function switchView(index) {
-		const viewNames = ["design", "build", "deploy", "live", "monitor", "evaluate", "drift", "feedback"];
+		const viewNames = ["design", "test", "deploy", "live", "monitor", "evaluate", "drift", "feedback"];
 		// Update tabs
 		tabs.forEach((t, i) => {
 			t.classList.toggle("active", i === index);
@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			d.classList.toggle("completed", visitedStages.has(i) && i !== index);
 		});
 		// Sync downstream tabs from active workflow when navigating
-		if (viewNames[index] === "build") syncBuildTab();
+		if (viewNames[index] === "test") syncTestTab();
 		if (viewNames[index] === "deploy") syncDeployTab();
 		if (viewNames[index] === "live") syncLiveTab();
 	}
@@ -70,12 +70,12 @@ function resetLayout() { if (typeof WorkflowDesigner !== "undefined") WorkflowDe
 
 // --- Active Workflow Integration ---
 // When the user clicks "Push to Pipeline", this event fires and propagates
-// the designed workflow to Build, Deploy, and Live tabs.
+// the designed workflow to Test, Deploy, and Live tabs.
 let activeWorkflow = null;
 
 window.addEventListener("workflow-activated", (e) => {
 	activeWorkflow = e.detail;
-	syncBuildTab();
+	syncTestTab();
 	syncDeployTab();
 	syncLiveTab();
 	// Update pipeline status in footer
@@ -92,39 +92,423 @@ function getActiveWorkflow() {
 	return null;
 }
 
-// --- Sync Build Console from Active Workflow ---
-function syncBuildTab() {
-	const wf = getActiveWorkflow();
-	if (!wf || !wf.agents) return;
+const mcpTools = {
+	"contract-extraction-mcp": ["extract_clauses", "identify_parties", "extract_dates_values"],
+	"contract-intake-mcp": ["upload_contract", "classify_document", "extract_metadata"],
+	"contract-compliance-mcp": ["check_policy", "flag_risk", "get_policy_rules"],
+	"contract-workflow-mcp": ["route_approval", "escalate_to_human", "notify_stakeholder"],
+};
 
-	// Build a map of servers used by the workflow agents
-	const serverToolMap = {};
-	for (const agent of wf.agents) {
-		for (const tool of (agent.tools || [])) {
-			// Find which server this tool belongs to
-			for (const [server, stools] of Object.entries(mcpTools)) {
-				if (stools.includes(tool)) {
-					if (!serverToolMap[server]) serverToolMap[server] = [];
-					if (!serverToolMap[server].includes(tool)) serverToolMap[server].push(tool);
-				}
-			}
+window.mcpTools = mcpTools;
+
+const TEST_SCENARIOS = [
+	{
+		id: "nda-standard",
+		name: "Standard NDA",
+		description: "Check that the workflow can classify a low-risk NDA, extract key clauses, and complete without unnecessary escalation.",
+		inputSummary: "Acme and Beta mutual NDA with confidentiality, parties, effective date, and a standard 2-year term.",
+		expectations: [
+			"Intake should classify a confidentiality-heavy agreement.",
+			"Extraction should capture parties, dates, and confidentiality clauses.",
+			"Workflow should complete without mandatory human approval.",
+		],
+		requiredCapabilities: ["intake", "extraction", "approval"],
+		requiresHumanReview: false,
+		prefersParallel: false,
+	},
+	{
+		id: "msa-high-risk",
+		name: "High-Risk MSA",
+		description: "Stress the workflow with a risky master services agreement that should trigger compliance review and human approval.",
+		inputSummary: "Enterprise MSA with high liability cap, auto-renewal, cross-border data transfer, and aggressive termination language.",
+		expectations: [
+			"Compliance should review policy-sensitive clauses.",
+			"Approval should escalate to a human checkpoint.",
+			"Parallel review is beneficial when multiple specialists are involved.",
+		],
+		requiredCapabilities: ["intake", "extraction", "compliance", "approval"],
+		requiresHumanReview: true,
+		prefersParallel: true,
+	},
+	{
+		id: "amendment-fast-track",
+		name: "Amendment Fast Track",
+		description: "Validate a short amendment path where extraction and approval can be lightweight but still complete.",
+		inputSummary: "Short data-policy amendment updating only retention terms and notice contacts.",
+		expectations: [
+			"Workflow should identify this as a small delta review.",
+			"Extraction should capture the changed clauses quickly.",
+			"Approval path should remain lightweight.",
+		],
+		requiredCapabilities: ["intake", "extraction", "approval"],
+		requiresHumanReview: false,
+		prefersParallel: false,
+	},
+];
+
+const CAPABILITY_RULES = {
+	intake: {
+		label: "Intake",
+		keywords: ["intake", "classify", "metadata", "upload", "document"],
+		tools: ["upload_contract", "classify_document", "extract_metadata"],
+	},
+	extraction: {
+		label: "Extraction",
+		keywords: ["extract", "clause", "party", "date", "metadata"],
+		tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
+	},
+	compliance: {
+		label: "Compliance",
+		keywords: ["compliance", "policy", "risk", "flag", "review"],
+		tools: ["check_policy", "flag_risk", "get_policy_rules"],
+	},
+	approval: {
+		label: "Approval",
+		keywords: ["approval", "route", "stakeholder", "human", "legal"],
+		tools: ["route_approval", "escalate_to_human", "notify_stakeholder"],
+	},
+};
+
+function getWorkflowStagesForTesting(workflow) {
+	const stageMap = new Map();
+	const agents = [...(workflow.agents || [])].sort((a, b) => {
+		return (a.stage ?? 0) - (b.stage ?? 0)
+			|| (a.lane ?? 0) - (b.lane ?? 0)
+			|| (a.order ?? 0) - (b.order ?? 0);
+	});
+
+	agents.forEach((agent) => {
+		const stage = agent.stage ?? agent.order ?? 0;
+		if (!stageMap.has(stage)) {
+			stageMap.set(stage, []);
 		}
+		stageMap.get(stage).push(agent);
+	});
+
+	return [...stageMap.entries()].sort((a, b) => a[0] - b[0]).map(([stage, stageAgents]) => ({
+		stage,
+		agents: stageAgents,
+		isParallel: stageAgents.length > 1,
+	}));
+}
+
+function getWorkflowValidation(workflow) {
+	if (typeof WorkflowDesigner !== "undefined" && typeof WorkflowDesigner.validateWorkflow === "function") {
+		return WorkflowDesigner.validateWorkflow(workflow);
 	}
 
-	// Update the MCP server dropdown
-	const serverSelect = document.getElementById("mcp-server-select");
-	if (serverSelect) {
-		const servers = Object.keys(serverToolMap);
-		if (servers.length > 0) {
-			serverSelect.innerHTML = servers.map(s => `<option value="${s}">${s}</option>`).join("");
-			updateToolList();
-		}
+	return {
+		workflow,
+		findings: [],
+		errors: 0,
+		warnings: 0,
+		infos: 0,
+		isValid: true,
+	};
+}
+
+function getWorkflowText(agent) {
+	return [agent.name, agent.role, agent.boundary, agent.output].filter(Boolean).join(" ").toLowerCase();
+}
+
+function workflowHasCapability(workflow, capabilityId) {
+	const rule = CAPABILITY_RULES[capabilityId];
+	if (!rule) return false;
+
+	return (workflow.agents || []).some((agent) => {
+		const text = getWorkflowText(agent);
+		const matchesKeyword = rule.keywords.some((keyword) => text.includes(keyword));
+		const matchesTool = (agent.tools || []).some((tool) => rule.tools.includes(tool));
+		return matchesKeyword || matchesTool;
+	});
+}
+
+function getResultBadgeClass(status) {
+	if (status === "fail") return "badge-fail";
+	if (status === "warn") return "badge-warn";
+	return "badge-pass";
+}
+
+function updateTestModeNote() {
+	const noteEl = document.getElementById("test-mode-note");
+	if (!noteEl) return;
+
+	noteEl.textContent = dashboardMode === "real"
+		? "Real mode validates workflow readiness and shows scenario expectations. End-to-end live execution still happens in the Live tab."
+		: "Simulated mode runs scenario-based workflow checks. Design rules are enforced in the Design tab before save or push.";
+}
+
+function populateTestScenarioSelect() {
+	const select = document.getElementById("test-scenario-select");
+	if (!select) return;
+
+	const previousValue = select.value;
+	select.innerHTML = TEST_SCENARIOS.map((scenario) => `<option value="${scenario.id}">${scenario.name}</option>`).join("");
+	if (previousValue && TEST_SCENARIOS.some((scenario) => scenario.id === previousValue)) {
+		select.value = previousValue;
+	}
+}
+
+function getSelectedScenario() {
+	const select = document.getElementById("test-scenario-select");
+	const scenarioId = select ? select.value : TEST_SCENARIOS[0].id;
+	return TEST_SCENARIOS.find((scenario) => scenario.id === scenarioId) || TEST_SCENARIOS[0];
+}
+
+function renderTestWorkflowSummary(workflow) {
+	const nameEl = document.getElementById("test-workflow-name");
+	const metaEl = document.getElementById("test-workflow-meta");
+	const readinessEl = document.getElementById("test-readiness-status");
+	const readinessMetaEl = document.getElementById("test-readiness-meta");
+	const checksEl = document.getElementById("test-workflow-checks");
+
+	if (!nameEl || !metaEl || !readinessEl || !readinessMetaEl || !checksEl) {
+		return;
 	}
 
-	// Update the tool registry title area to show workflow context
-	const registryTitle = document.querySelector(".tool-registry-title");
-	if (registryTitle) {
-		registryTitle.textContent = `Tool Registry (${wf.name} — ${wf.agents.length} agents)`;
+	if (!workflow || !workflow.agents || workflow.agents.length === 0) {
+		nameEl.textContent = "No workflow selected";
+		metaEl.textContent = "Create or load a workflow in Design to begin testing.";
+		readinessEl.innerHTML = '<span class="badge badge-fail">Blocked</span>';
+		readinessMetaEl.textContent = "A workflow is required before tests can run.";
+		checksEl.innerHTML = '<div class="test-check-item is-fail"><span class="badge badge-fail">[FAIL]</span><span>Add at least one agent in Design.</span></div>';
+		return;
+	}
+
+	const validation = getWorkflowValidation(workflow);
+	const stages = getWorkflowStagesForTesting(validation.workflow || workflow);
+	const totalTools = (workflow.agents || []).reduce((acc, agent) => acc + ((agent.tools || []).length), 0);
+	const readinessLabel = validation.errors > 0 ? "Blocked" : validation.warnings > 0 ? "Ready with warnings" : "Ready";
+	const readinessBadge = validation.errors > 0 ? "badge-fail" : validation.warnings > 0 ? "badge-warn" : "badge-pass";
+
+	nameEl.textContent = workflow.name || "Untitled workflow";
+	metaEl.textContent = `${workflow.agents.length} agents • ${stages.length} stages • ${totalTools} tools`;
+	readinessEl.innerHTML = `<span class="badge ${readinessBadge}">${readinessLabel}</span>`;
+	readinessMetaEl.textContent = validation.errors > 0
+		? `${validation.errors} blocking errors must be fixed in Design.`
+		: validation.warnings > 0
+			? `${validation.warnings} warnings remain, but testing can continue.`
+			: "Workflow is structurally ready for scenario testing.";
+
+	const findings = validation.findings.slice(0, 5);
+	checksEl.innerHTML = findings.length > 0
+		? findings.map((item) => `
+			<div class="test-check-item is-${item.severity}">
+				<span class="badge ${item.severity === "error" ? "badge-fail" : item.severity === "warning" ? "badge-warn" : "badge-pass"}">[${item.severity === "error" ? "FAIL" : item.severity === "warning" ? "WARN" : "PASS"}]</span>
+				<span>${escapeHtmlApp(item.message)}</span>
+			</div>
+		`).join("")
+		: '<div class="test-check-item is-pass"><span class="badge badge-pass">[PASS]</span><span>No blocking design issues were found.</span></div>';
+}
+
+function updateScenarioDetails() {
+	updateTestModeNote();
+	populateTestScenarioSelect();
+
+	const scenario = getSelectedScenario();
+	const summaryEl = document.getElementById("test-scenario-summary");
+	const briefEl = document.getElementById("test-scenario-brief");
+	const expectedEl = document.getElementById("test-expected-list");
+
+	if (summaryEl) {
+		summaryEl.textContent = scenario.inputSummary;
+	}
+
+	if (briefEl) {
+		briefEl.innerHTML = `
+			<div class="test-scenario-description">${escapeHtmlApp(scenario.description)}</div>
+			<div class="test-scenario-input"><strong>Input:</strong> ${escapeHtmlApp(scenario.inputSummary)}</div>
+		`;
+	}
+
+	if (expectedEl) {
+		expectedEl.innerHTML = scenario.expectations.map((expectation) => `
+			<div class="test-expected-item">
+				<span class="badge badge-info">[INFO]</span>
+				<span>${escapeHtmlApp(expectation)}</span>
+			</div>
+		`).join("");
+	}
+
+	renderTestWorkflowSummary(getActiveWorkflow());
+}
+
+function evaluateWorkflowScenario(workflow, scenario) {
+	const validation = getWorkflowValidation(workflow);
+	const effectiveWorkflow = validation.workflow || workflow;
+	const stages = getWorkflowStagesForTesting(effectiveWorkflow);
+	const assertions = [];
+	const totalTools = (effectiveWorkflow.agents || []).reduce((acc, agent) => acc + ((agent.tools || []).length), 0);
+	const hasHuman = (effectiveWorkflow.agents || []).some((agent) => agent.kind === "human");
+
+	assertions.push({
+		status: validation.errors === 0 ? "pass" : "fail",
+		label: "Design validation",
+		detail: validation.errors === 0
+			? (validation.warnings > 0 ? `${validation.warnings} warnings remain, but the design is testable.` : "No blocking design issues found.")
+			: `${validation.errors} blocking design issues prevent a clean run.`,
+	});
+
+	assertions.push({
+		status: totalTools > 0 ? "pass" : "warn",
+		label: "Tool coverage",
+		detail: totalTools > 0 ? `${totalTools} tools are assigned across the workflow.` : "No tools are assigned yet, so this test is only validating structure.",
+	});
+
+	scenario.requiredCapabilities.forEach((capabilityId) => {
+		const rule = CAPABILITY_RULES[capabilityId];
+		const hasCapability = workflowHasCapability(effectiveWorkflow, capabilityId);
+		assertions.push({
+			status: hasCapability ? "pass" : "fail",
+			label: `${rule.label} coverage`,
+			detail: hasCapability
+				? `Workflow includes an agent or tool capable of ${rule.label.toLowerCase()} work.`
+				: `No agent or tool mapping clearly covers ${rule.label.toLowerCase()} work for this scenario.`,
+		});
+	});
+
+	assertions.push({
+		status: scenario.requiresHumanReview ? (hasHuman ? "pass" : "fail") : (hasHuman ? "warn" : "pass"),
+		label: "Human checkpoint fit",
+		detail: scenario.requiresHumanReview
+			? (hasHuman ? "A human checkpoint exists for escalation-heavy review." : "This scenario expects a human checkpoint but none is defined.")
+			: (hasHuman ? "A human checkpoint exists even though this scenario should usually fast-track." : "Workflow can complete without mandatory human review."),
+	});
+
+	if (scenario.prefersParallel) {
+		const hasParallel = stages.some((stageInfo) => stageInfo.agents.length > 1);
+		assertions.push({
+			status: hasParallel ? "pass" : "warn",
+			label: "Parallel review fit",
+			detail: hasParallel ? "Workflow includes a parallel stage that can support specialist review." : "Workflow is fully sequential; it can still run, but high-risk review may be slower.",
+		});
+	}
+
+	const passCount = assertions.filter((item) => item.status === "pass").length;
+	const warnCount = assertions.filter((item) => item.status === "warn").length;
+	const failCount = assertions.filter((item) => item.status === "fail").length;
+	const verdict = failCount > 0 ? "fail" : warnCount > 0 ? "warn" : "pass";
+
+	return {
+		scenario,
+		workflow: effectiveWorkflow,
+		stages,
+		assertions,
+		passCount,
+		warnCount,
+		failCount,
+		verdict,
+	};
+}
+
+function renderSingleScenarioResult(result) {
+	const summaryEl = document.getElementById("test-results-summary");
+	const listEl = document.getElementById("test-result-list");
+	const traceEl = document.getElementById("test-stage-trace");
+	if (!summaryEl || !listEl || !traceEl) return;
+
+	summaryEl.dataset.hasResults = "true";
+	summaryEl.innerHTML = `
+		<span class="badge ${getResultBadgeClass(result.verdict)}">${result.verdict === "fail" ? "Blocked" : result.verdict === "warn" ? "Review" : "Pass"}</span>
+		<span>${escapeHtmlApp(result.scenario.name)}: ${result.passCount} passed • ${result.warnCount} warnings • ${result.failCount} failed</span>
+	`;
+
+	listEl.innerHTML = result.assertions.map((assertion) => `
+		<div class="test-result-item is-${assertion.status}">
+			<div class="test-result-label"><span class="badge ${getResultBadgeClass(assertion.status)}">[${assertion.status === "fail" ? "FAIL" : assertion.status === "warn" ? "WARN" : "PASS"}]</span><span>${escapeHtmlApp(assertion.label)}</span></div>
+			<div class="test-result-detail">${escapeHtmlApp(assertion.detail)}</div>
+		</div>
+	`).join("");
+
+	traceEl.innerHTML = `
+		<div class="test-panel-title">Stage Trace</div>
+		<div class="test-stage-row">
+			${result.stages.map((stageInfo) => `
+				<div class="test-stage-chip ${stageInfo.isParallel ? "is-parallel" : ""}">
+					<div class="test-stage-chip-label">Stage ${stageInfo.stage + 1}${stageInfo.isParallel ? " • Parallel" : ""}</div>
+					<div class="test-stage-chip-body">${stageInfo.agents.map((agent) => escapeHtmlApp(agent.name)).join(stageInfo.isParallel ? " + " : " -> ")}</div>
+				</div>
+			`).join("<div class=\"workflow-arrow\">&rarr;</div>")}
+		</div>
+	`;
+}
+
+function renderAggregateScenarioResults(results) {
+	const summaryEl = document.getElementById("test-results-summary");
+	const listEl = document.getElementById("test-result-list");
+	const traceEl = document.getElementById("test-stage-trace");
+	if (!summaryEl || !listEl || !traceEl) return;
+
+	const passCount = results.filter((item) => item.verdict === "pass").length;
+	const warnCount = results.filter((item) => item.verdict === "warn").length;
+	const failCount = results.filter((item) => item.verdict === "fail").length;
+	const overallStatus = failCount > 0 ? "fail" : warnCount > 0 ? "warn" : "pass";
+
+	summaryEl.dataset.hasResults = "true";
+	summaryEl.innerHTML = `
+		<span class="badge ${getResultBadgeClass(overallStatus)}">${overallStatus === "fail" ? "Needs fixes" : overallStatus === "warn" ? "Partial" : "Pass"}</span>
+		<span>${passCount} scenarios passed • ${warnCount} need review • ${failCount} failed</span>
+	`;
+
+	listEl.innerHTML = results.map((result) => `
+		<div class="test-result-item is-${result.verdict}">
+			<div class="test-result-label"><span class="badge ${getResultBadgeClass(result.verdict)}">${escapeHtmlApp(result.scenario.name)}</span><span>${result.passCount} passed • ${result.warnCount} warnings • ${result.failCount} failed</span></div>
+			<div class="test-result-detail">${escapeHtmlApp(result.scenario.description)}</div>
+		</div>
+	`).join("");
+
+	traceEl.innerHTML = '<div class="test-result-detail">Run an individual scenario to inspect the stage-by-stage trace.</div>';
+}
+
+function runSelectedTest() {
+	const workflow = getActiveWorkflow();
+	const scenario = getSelectedScenario();
+	if (!workflow || !workflow.agents || workflow.agents.length === 0) {
+		clearTestResults();
+		return;
+	}
+
+	renderSingleScenarioResult(evaluateWorkflowScenario(workflow, scenario));
+}
+
+function runAllTests() {
+	const workflow = getActiveWorkflow();
+	if (!workflow || !workflow.agents || workflow.agents.length === 0) {
+		clearTestResults();
+		return;
+	}
+
+	renderAggregateScenarioResults(TEST_SCENARIOS.map((scenario) => evaluateWorkflowScenario(workflow, scenario)));
+}
+
+function clearTestResults() {
+	const summaryEl = document.getElementById("test-results-summary");
+	const listEl = document.getElementById("test-result-list");
+	const traceEl = document.getElementById("test-stage-trace");
+
+	if (summaryEl) {
+		summaryEl.dataset.hasResults = "false";
+		summaryEl.innerHTML = '<span class="badge badge-info">Ready</span><span>Select a scenario and run a workflow test.</span>';
+	}
+
+	if (listEl) {
+		listEl.innerHTML = "";
+	}
+
+	if (traceEl) {
+		traceEl.innerHTML = '<div class="test-result-detail">Stage trace will appear after you run a scenario.</div>';
+	}
+
+	renderTestWorkflowSummary(getActiveWorkflow());
+	updateScenarioDetails();
+}
+
+function syncTestTab() {
+	populateTestScenarioSelect();
+	updateScenarioDetails();
+	updateTestModeNote();
+	if (!document.getElementById("test-results-summary")?.dataset.hasResults) {
+		clearTestResults();
 	}
 }
 
@@ -149,8 +533,20 @@ function syncLiveTab() {
 	const canvas = document.getElementById("workflow-canvas");
 	if (!canvas) return;
 
-	const isParallel = wf.type === "parallel" || wf.type === "fan-out";
-	const sorted = [...wf.agents].sort((a, b) => a.order - b.order);
+	const sorted = [...wf.agents].sort((a, b) => {
+		return (a.stage ?? 0) - (b.stage ?? 0)
+			|| (a.lane ?? 0) - (b.lane ?? 0)
+			|| (a.order ?? 0) - (b.order ?? 0);
+	});
+	const stageMap = new Map();
+	for (const agent of sorted) {
+		const stage = agent.stage ?? agent.order ?? 0;
+		if (!stageMap.has(stage)) {
+			stageMap.set(stage, []);
+		}
+		stageMap.get(stage).push(agent);
+	}
+	const stages = [...stageMap.entries()].sort((a, b) => a[0] - b[0]);
 
 	// Agent color mapping
 	const agentColors = {
@@ -167,29 +563,35 @@ function syncLiveTab() {
 	}
 
 	let html = "";
-	if (isParallel) {
-		html = `<div style="display:flex;flex-wrap:wrap;gap:16px;justify-content:center;">`;
-		sorted.forEach(agent => {
-			html += renderLiveNode(agent, getColor(agent));
-		});
+	stages.forEach(([stageNumber, agents], idx) => {
+		const isParallelStage = agents.length > 1;
+		html += `<div class="workflow-stage ${isParallelStage ? "workflow-stage-parallel" : "workflow-stage-sequential"}">`;
+		html += `<div class="workflow-stage-label">Stage ${Number(stageNumber) + 1}${isParallelStage ? " • Parallel" : ""}</div>`;
+		if (isParallelStage) {
+			html += `<div class="workflow-stage-grid">`;
+			agents.forEach(agent => {
+				html += renderLiveNode(agent, getColor(agent));
+			});
+			html += `</div>`;
+		} else {
+			html += renderLiveNode(agents[0], getColor(agents[0]));
+		}
 		html += `</div>`;
-	} else {
-		sorted.forEach((agent, idx) => {
-			html += renderLiveNode(agent, getColor(agent));
-			if (idx < sorted.length - 1) {
-				html += `<div class="workflow-arrow">&rarr;</div>`;
-			}
-		});
-	}
+		if (idx < stages.length - 1) {
+			html += `<div class="workflow-arrow">&rarr;</div>`;
+		}
+	});
 
 	canvas.innerHTML = html;
 }
 
 function renderLiveNode(agent, color) {
 	const nodeId = `wf-${agent.id}`;
+	const roleLabel = agent.kind ? String(agent.kind).replace(/^./, c => c.toUpperCase()) : "Agent";
 	return `
 		<div class="workflow-node" id="${nodeId}">
 			<div class="workflow-node-name">${escapeHtmlApp(agent.name)}</div>
+			<div class="workflow-node-role">${escapeHtmlApp(roleLabel)}</div>
 			<div class="workflow-node-status">Waiting</div>
 			<div class="workflow-node-progress">
 				<div class="progress-bar"><div class="progress-fill" style="width:0%;background:${color}"></div></div>
@@ -203,110 +605,6 @@ function escapeHtmlApp(str) {
 	if (typeof str !== "string") return "";
 	const map = { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" };
 	return str.replace(/[&<>"']/g, c => map[c]);
-}
-
-// --- View 2: Build Console ---
-const toolOutputs = {
-	extract_clauses: {
-		output:
-			'{\n  "clauses": [\n    {\n      "type": "confidentiality",\n      "text": "Recipient shall not disclose...",\n      "section": "3.1"\n    },\n    {\n      "type": "termination",\n      "text": "This agreement terminates after 2 yrs",\n      "section": "7.1"\n    }\n  ],\n  "confidence": 0.94\n}',
-		latency: "1.2s",
-		tokens: "342 in / 198 out",
-	},
-	identify_parties: {
-		output:
-			'{\n  "parties": [\n    {\n      "name": "Acme Corp",\n      "role": "Discloser",\n      "type": "Corporation"\n    },\n    {\n      "name": "Beta Inc",\n      "role": "Recipient",\n      "type": "Corporation"\n    }\n  ],\n  "confidence": 0.97\n}',
-		latency: "0.8s",
-		tokens: "210 in / 145 out",
-	},
-	extract_dates_values: {
-		output:
-			'{\n  "dates": [\n    {\n      "type": "effective_date",\n      "value": "2026-03-01",\n      "source": "Preamble"\n    },\n    {\n      "type": "term_end",\n      "value": "2028-03-01",\n      "source": "Section 7.1"\n    }\n  ],\n  "confidence": 0.92\n}',
-		latency: "0.6s",
-		tokens: "180 in / 120 out",
-	},
-};
-
-const mcpTools = {
-	"contract-extraction-mcp": ["extract_clauses", "identify_parties", "extract_dates_values"],
-	"contract-intake-mcp": ["upload_contract", "classify_document", "extract_metadata"],
-	"contract-compliance-mcp": ["check_policy", "flag_risk", "get_policy_rules"],
-	"contract-workflow-mcp": ["route_approval", "escalate_to_human", "notify_stakeholder"],
-};
-
-function renderToolRegistry(server, tools) {
-	const registryTitle = document.querySelector(".tool-registry-title");
-	const registryList = document.querySelector(".tool-registry-list");
-
-	if (registryTitle) {
-		registryTitle.textContent = `Tool Registry (${server})`;
-	}
-
-	if (!registryList) {
-		return;
-	}
-
-	registryList.innerHTML = "";
-	tools.forEach((tool) => {
-		const div = document.createElement("div");
-		div.className = "tool-registry-item";
-		div.innerHTML = `<span class="badge badge-pass">[PASS]</span> ${tool}`;
-		registryList.appendChild(div);
-	});
-}
-
-function updateToolList() {
-	const server = document.getElementById("mcp-server-select").value;
-	const toolSelect = document.getElementById("tool-select");
-	const tools =
-		dashboardMode === "real" && window.realMcpTools ? window.realMcpTools[server] || [] : mcpTools[server] || [];
-	toolSelect.innerHTML = "";
-	tools.forEach((t) => {
-		const opt = document.createElement("option");
-		opt.textContent = t;
-		opt.value = t;
-		toolSelect.appendChild(opt);
-	});
-	renderToolRegistry(server, tools);
-}
-
-function runTool() {
-	if (dashboardMode === "real") {
-		const server = document.getElementById("mcp-server-select").value;
-		const tool = document.getElementById("tool-select").value;
-		return runToolReal(server, tool);
-	}
-
-	const tool = document.getElementById("tool-select").value;
-	const outputEl = document.getElementById("console-output");
-	const statsEl = document.getElementById("console-stats");
-
-	outputEl.textContent = `// Running ${tool}...`;
-	outputEl.style.color = "var(--color-accent)";
-
-	let data = toolOutputs[tool];
-	if (!data) {
-		data = {
-			output: '{\n  "result": "Tool executed successfully",\n  "status": "ok"\n}',
-			latency: "0.5s",
-			tokens: "150 in / 80 out",
-		};
-	}
-
-	setTimeout(() => {
-		outputEl.textContent = data.output;
-		outputEl.style.color = "var(--color-text-secondary)";
-		statsEl.style.display = "flex";
-		document.getElementById("stat-latency").textContent = data.latency;
-		document.getElementById("stat-tokens").textContent = data.tokens;
-		document.getElementById("stat-status").innerHTML = '<span class="badge badge-pass">[PASS] Success</span>';
-	}, 800);
-}
-
-function clearConsole() {
-	document.getElementById("console-output").textContent = '// Click "Run" to execute the tool...';
-	document.getElementById("console-output").style.color = "var(--color-text-disabled)";
-	document.getElementById("console-stats").style.display = "none";
 }
 
 // --- View 3: Deploy Pipeline ---

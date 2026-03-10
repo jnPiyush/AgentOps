@@ -11,6 +11,9 @@ interface WorkflowAgent {
 	boundary: string;
 	output: string;
 	color: string;
+	kind?: "agent" | "orchestrator" | "human" | "merge";
+	stage?: number;
+	lane?: number;
 	order: number;
 }
 

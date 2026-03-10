@@ -20,7 +20,7 @@
     </div>
     <div class="stage-progress" aria-label="Stage progress">
       <div class="stage-dot active" data-stage="0" title="Design"></div>
-      <div class="stage-dot" data-stage="1" title="Build"></div>
+      <div class="stage-dot" data-stage="1" title="Test"></div>
       <div class="stage-dot" data-stage="2" title="Deploy"></div>
       <div class="stage-dot" data-stage="3" title="Live"></div>
       <div class="stage-dot" data-stage="4" title="Monitor"></div>
@@ -39,8 +39,8 @@
     <div class="tab active" role="tab" data-view="design" tabindex="0" aria-selected="true">
       <span class="tab-num">1</span> Design
     </div>
-    <div class="tab" role="tab" data-view="build" tabindex="-1" aria-selected="false">
-      <span class="tab-num">2</span> Build
+    <div class="tab" role="tab" data-view="test" tabindex="-1" aria-selected="false">
+      <span class="tab-num">2</span> Test
     </div>
     <div class="tab" role="tab" data-view="deploy" tabindex="-1" aria-selected="false">
       <span class="tab-num">3</span> Deploy
@@ -86,63 +86,58 @@
       <div class="designer-modal" id="designer-modal"></div>
     </section>
 
-    <!-- ========== VIEW 2: Build Console ========== -->
-    <section id="view-build" class="view" role="tabpanel" aria-label="Build Console">
+    <!-- ========== VIEW 2: Workflow Test Lab ========== -->
+    <section id="view-test" class="view" role="tabpanel" aria-label="Workflow Test Lab">
       <div class="view-header">
-        <h1 class="view-title">Build Console</h1>
+        <h1 class="view-title">Workflow Test Lab</h1>
         <div style="display:flex;gap:8px;">
-          <button class="btn btn-outline" onclick="clearConsole()">Clear</button>
-          <button class="btn btn-primary" onclick="runTool()">Run &rarr;</button>
+          <button class="btn btn-outline" onclick="clearTestResults()">Clear Results</button>
+          <button class="btn btn-outline" onclick="runAllTests()">Run All</button>
+          <button class="btn btn-primary" onclick="runSelectedTest()">Run Scenario &rarr;</button>
         </div>
       </div>
 
-      <div class="console-controls">
-        <label style="font-size:13px;color:var(--color-text-tertiary)">MCP Server:</label>
-        <select class="select" id="mcp-server-select" onchange="updateToolList()">
-          <option>contract-extraction-mcp</option>
-          <option>contract-intake-mcp</option>
-          <option>contract-compliance-mcp</option>
-          <option>contract-workflow-mcp</option>
-        </select>
-        <label style="font-size:13px;color:var(--color-text-tertiary)">Tool:</label>
-        <select class="select" id="tool-select">
-          <option>extract_clauses</option>
-          <option>identify_parties</option>
-          <option>extract_dates_values</option>
-        </select>
+      <div class="test-toolbar">
+        <label style="font-size:13px;color:var(--color-text-tertiary)" for="test-scenario-select">Scenario:</label>
+        <select class="select" id="test-scenario-select" onchange="updateScenarioDetails()"></select>
+        <div class="test-mode-note" id="test-mode-note"></div>
       </div>
 
-      <div class="console-panels">
-        <div>
-          <div class="console-panel-label">Input</div>
-          <div class="code-block" id="console-input">{
-  "text": "This Non-Disclosure Agreement is entered into
-  between Acme Corp ('Discloser') and Beta Inc
-  ('Recipient') effective March 1, 2026.
-  Recipient shall not disclose any Confidential
-  Information for a period of 2 years..."
-}</div>
+      <div class="test-overview">
+        <div class="test-card">
+          <div class="test-card-label">Active Workflow</div>
+          <div class="test-card-title" id="test-workflow-name">No workflow selected</div>
+          <div class="test-card-meta" id="test-workflow-meta">Create or load a workflow in Design to begin testing.</div>
         </div>
-        <div>
-          <div class="console-panel-label">Output</div>
-          <div class="code-block" id="console-output" style="color:var(--color-text-disabled)">
-// Click "Run" to execute the tool...</div>
+        <div class="test-card">
+          <div class="test-card-label">Readiness</div>
+          <div class="test-card-title" id="test-readiness-status"><span class="badge badge-info">Ready</span></div>
+          <div class="test-card-meta" id="test-readiness-meta">Design validation results will appear here.</div>
+        </div>
+        <div class="test-card">
+          <div class="test-card-label">Scenario Focus</div>
+          <div class="test-card-title">Selected Scenario</div>
+          <div class="test-card-meta" id="test-scenario-summary">Choose a scenario to preview expected behavior.</div>
         </div>
       </div>
 
-      <div class="console-stats" id="console-stats" style="display:none">
-        <div class="console-stats-item">Latency: <strong id="stat-latency">--</strong></div>
-        <div class="console-stats-item">Tokens: <strong id="stat-tokens">--</strong></div>
-        <div class="console-stats-item">Status: <strong id="stat-status">--</strong></div>
+      <div class="test-panels">
+        <div class="test-panel">
+          <div class="test-panel-title">Scenario Brief</div>
+          <div id="test-scenario-brief" class="test-scenario-brief"></div>
+          <div id="test-expected-list" class="test-expected-list"></div>
+        </div>
+        <div class="test-panel">
+          <div class="test-panel-title">Workflow Coverage</div>
+          <div id="test-workflow-checks" class="test-check-list"></div>
+        </div>
       </div>
 
-      <div class="tool-registry">
-        <div class="tool-registry-title">Tool Registry (contract-extraction-mcp)</div>
-        <div class="tool-registry-list">
-          <div class="tool-registry-item"><span class="badge badge-pass">[PASS]</span> extract_clauses</div>
-          <div class="tool-registry-item"><span class="badge badge-pass">[PASS]</span> identify_parties</div>
-          <div class="tool-registry-item"><span class="badge badge-pass">[PASS]</span> extract_dates_values</div>
-        </div>
+      <div class="test-panel">
+        <div class="test-panel-title">Latest Results</div>
+        <div id="test-results-summary" class="test-results-summary"><span class="badge badge-info">Ready</span><span>Select a scenario and run a workflow test.</span></div>
+        <div id="test-result-list" class="test-result-list"></div>
+        <div id="test-stage-trace" class="test-stage-trace"><div class="test-result-detail">Stage trace will appear after you run a scenario.</div></div>
       </div>
     </section>
 

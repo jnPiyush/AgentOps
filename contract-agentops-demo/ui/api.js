@@ -24,17 +24,20 @@ function setMode(mode) {
 				checkGatewayHealth();
 				loadToolListReal();
 				loadMonitorContractListReal();
+				if (typeof syncTestTab === "function") syncTestTab();
 			})
 			.catch(() => {
 				checkGatewayHealth();
 				loadToolListReal();
 				loadMonitorContractListReal();
+				if (typeof syncTestTab === "function") syncTestTab();
 			});
 	} else {
 		apiCall("POST", "/api/v1/mode", { mode: "simulated" }).catch(() => {});
 		const dot = document.getElementById("mcp-status-dot");
 		dot.className = "status-dot";
 		document.getElementById("mcp-status-text").textContent = "MCP Status: 8/8 [PASS]";
+		if (typeof syncTestTab === "function") syncTestTab();
 	}
 }
 
@@ -78,7 +81,7 @@ function apiCall(method, path, body) {
 	});
 }
 
-// --- Real Mode: Build Console ---
+// --- Real Mode: Direct Tool Invocation Helper ---
 function runToolReal(server, tool) {
 	const outputEl = document.getElementById("console-output");
 	const statsEl = document.getElementById("console-stats");
@@ -574,31 +577,22 @@ function reEvaluateReal() {
 		});
 }
 
-// --- Real Mode: Build Console Tool List ---
+// --- Real Mode: Shared Tool Registry ---
 function loadToolListReal() {
 	apiCall("GET", "/api/v1/tools")
 		.then((servers) => {
-			// Update server dropdown with real data
-			const serverSelect = document.getElementById("mcp-server-select");
-			serverSelect.innerHTML = "";
-			servers.forEach((server) => {
-				const opt = document.createElement("option");
-				opt.value = server.name;
-				opt.textContent = server.name + (server.status === "online" ? "" : " (offline)");
-				serverSelect.appendChild(opt);
-			});
-
-			// Build real tool map
+			// Build real tool map for validation and testing views
 			window.realMcpTools = {};
 			servers.forEach((server) => {
 				window.realMcpTools[server.name] = server.tools.map((t) => t.name);
 			});
 
-			// Update tool dropdown for first server
-			updateToolList();
+			if (typeof syncTestTab === "function") {
+				syncTestTab();
+			}
 		})
 		.catch(() => {
-			// Keep default simulated tool list on error
+			// Keep the default registry on error
 		});
 }
 

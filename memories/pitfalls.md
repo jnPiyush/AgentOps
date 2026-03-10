@@ -1,3 +1,5 @@
 - 2026-03-07: npm start currently fails because prompt routes are registered in both gateway/src/routes/prompts.ts and gateway/src/routes/feedback.ts.
 - 2026-03-07: Standalone scripts tests/test-comprehensive.ts and tests/test-deployment.ts are not covered by Vitest and fail due to bad relative imports.
 - 2026-03-07: The legacy static UI under contract-agentops-demo/ui is still served by the gateway and contains stale MCP/tool names.
+- 2026-03-10: Do not rely on workflow.type plus flat agent order to implement parallel/fan-out orchestration. That model cannot represent orchestrator-first, parallel branches, and later merge/sequential stages.
+- 2026-03-10: Do not assume dashboard/ is the active UI just because it exists. App.tsx references missing design/runtime files, so direct feature work there will stall unless the missing surfaces are restored first.

@@ -20,6 +20,13 @@ const WorkflowDesigner = (() => {
     { id: "conditional", label: "Conditional",  description: "Agent routes to different agents based on output" },
   ];
 
+  const AGENT_KINDS = [
+    { id: "agent", label: "Agent" },
+    { id: "orchestrator", label: "Orchestrator" },
+    { id: "human", label: "Human Checkpoint" },
+    { id: "merge", label: "Merge Node" },
+  ];
+
   const MODEL_OPTIONS = ["GPT-4o", "GPT-4o-mini", "GPT-4.1", "GPT-4.1-mini", "GPT-4.1-nano", "o3-mini", "o4-mini"];
 
   // All available MCP tools organized by server
@@ -48,6 +55,305 @@ const WorkflowDesigner = (() => {
   let dragState = { dragging: false, agentId: null, startX: 0, startY: 0, offsetX: 0, offsetY: 0 };
   let nextAgentId = 1;
 
+  function compareAgents(a, b) {
+    return (a.stage ?? 0) - (b.stage ?? 0)
+      || (a.lane ?? 0) - (b.lane ?? 0)
+      || (a.order ?? 0) - (b.order ?? 0)
+      || String(a.name || "").localeCompare(String(b.name || ""));
+  }
+
+  function normalizeAgent(agent, fallbackOrder) {
+    const parsedStage = Number.isFinite(Number(agent.stage))
+      ? Number(agent.stage)
+      : (Number.isFinite(Number(agent.order)) ? Number(agent.order) : fallbackOrder);
+    const parsedLane = Number.isFinite(Number(agent.lane)) ? Number(agent.lane) : 0;
+    const kind = AGENT_KINDS.some(item => item.id === agent.kind) ? agent.kind : "agent";
+
+    return {
+      ...agent,
+      kind,
+      stage: Math.max(0, parsedStage),
+      lane: Math.max(0, parsedLane),
+      order: Number.isFinite(Number(agent.order)) ? Number(agent.order) : fallbackOrder,
+      boundary: agent.boundary || "",
+      output: agent.output || "",
+      tools: Array.isArray(agent.tools) ? [...agent.tools] : [],
+    };
+  }
+
+  function normalizeWorkflow(workflow) {
+    const agents = (workflow.agents || []).map((agent, index) => normalizeAgent(agent, index));
+    agents.sort(compareAgents);
+    const stageOrder = [...new Set(agents.map(agent => agent.stage))];
+    const stageIndexMap = new Map(stageOrder.map((stage, index) => [stage, index]));
+
+    for (const agent of agents) {
+      agent.stage = stageIndexMap.get(agent.stage) ?? 0;
+    }
+
+    const stageMap = new Map();
+    for (const agent of agents) {
+      if (!stageMap.has(agent.stage)) {
+        stageMap.set(agent.stage, []);
+      }
+      stageMap.get(agent.stage).push(agent);
+    }
+
+    for (const stageAgents of stageMap.values()) {
+      stageAgents.sort(compareAgents);
+      stageAgents.forEach((agent, laneIndex) => {
+        agent.lane = laneIndex;
+      });
+    }
+
+    agents.sort(compareAgents);
+    agents.forEach((agent, index) => {
+      agent.order = index;
+    });
+
+    return {
+      ...workflow,
+      agents,
+    };
+  }
+
+  function getSortedAgents() {
+    return [...currentWorkflow.agents].sort(compareAgents);
+  }
+
+  function getWorkflowStages(agents = getSortedAgents()) {
+    const stageMap = new Map();
+
+    for (const agent of agents) {
+      const stage = agent.stage ?? 0;
+      if (!stageMap.has(stage)) {
+        stageMap.set(stage, []);
+      }
+      stageMap.get(stage).push(agent);
+    }
+
+    return [...stageMap.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([stage, stageAgents]) => ({
+        stage,
+        agents: [...stageAgents].sort(compareAgents),
+        isParallel: stageAgents.length > 1,
+      }));
+  }
+
+  function validateWorkflow(workflow = currentWorkflow) {
+    const normalizedWorkflow = normalizeWorkflow(JSON.parse(JSON.stringify(workflow || currentWorkflow || {})));
+    const stages = getWorkflowStages(normalizedWorkflow.agents || []);
+    const findings = [];
+    const toolRegistry = window.mcpTools || {};
+    const knownTools = new Set(Object.values(toolRegistry).flat());
+
+    function addFinding(severity, message) {
+      findings.push({ severity, message });
+    }
+
+    if (!String(normalizedWorkflow.name || "").trim()) {
+      addFinding("warning", "Give the workflow a clear name before saving.");
+    }
+
+    if (!Array.isArray(normalizedWorkflow.agents) || normalizedWorkflow.agents.length === 0) {
+      addFinding("error", "Add at least one agent before saving or testing the workflow.");
+    }
+
+    normalizedWorkflow.agents.forEach((agent, index) => {
+      const label = agent.name || `Agent ${index + 1}`;
+      if (!String(agent.name || "").trim()) {
+        addFinding("error", `Agent ${index + 1} is missing a name.`);
+      }
+      if (!String(agent.role || "").trim()) {
+        addFinding("error", `${label} is missing a role.`);
+      }
+      if (!String(agent.model || "").trim()) {
+        addFinding("error", `${label} is missing a model selection.`);
+      }
+      if (!String(agent.boundary || "").trim()) {
+        addFinding("warning", `${label} should define a boundary for safer execution.`);
+      }
+      if (!String(agent.output || "").trim()) {
+        addFinding("warning", `${label} should define an expected output.`);
+      }
+      if (!Array.isArray(agent.tools) || agent.tools.length === 0) {
+        addFinding("warning", `${label} has no tools assigned.`);
+      }
+      if (Array.isArray(agent.tools)) {
+        agent.tools.forEach((tool) => {
+          if (knownTools.size > 0 && !knownTools.has(tool)) {
+            addFinding("error", `${label} references unknown tool "${tool}".`);
+          }
+        });
+      }
+    });
+
+    if (normalizedWorkflow.type === "sequential" || normalizedWorkflow.type === "conditional") {
+      stages.forEach((stageInfo) => {
+        if (stageInfo.agents.length > 1) {
+          addFinding("error", `${WORKFLOW_TYPES.find(t => t.id === normalizedWorkflow.type)?.label || "This workflow"} cannot have parallel agents in Stage ${stageInfo.stage + 1}.`);
+        }
+      });
+
+      normalizedWorkflow.agents.forEach((agent) => {
+        if (agent.kind === "orchestrator" || agent.kind === "merge") {
+          addFinding("error", `${agent.name} uses the ${agent.kind} role, which is not valid for ${normalizedWorkflow.type} workflows.`);
+        }
+      });
+    }
+
+    if (normalizedWorkflow.type === "sequential-hitl") {
+      stages.forEach((stageInfo) => {
+        if (stageInfo.agents.length > 1) {
+          addFinding("error", `Sequential HITL workflows cannot have parallel agents in Stage ${stageInfo.stage + 1}.`);
+        }
+      });
+
+      const humanAgents = normalizedWorkflow.agents.filter((agent) => agent.kind === "human");
+      if (humanAgents.length === 0) {
+        addFinding("error", "Sequential HITL workflows require at least one human checkpoint.");
+      }
+
+      const finalStage = stages[stages.length - 1];
+      if (finalStage && finalStage.agents[0] && finalStage.agents[0].kind !== "human") {
+        addFinding("warning", "The final stage is not a human checkpoint. Review workflows usually end with human approval.");
+      }
+    }
+
+    if (normalizedWorkflow.type === "parallel") {
+      const firstStage = stages[0];
+      const secondStage = stages[1];
+
+      if (!firstStage || firstStage.agents.length !== 1 || firstStage.agents[0].kind !== "orchestrator") {
+        addFinding("error", "Parallel workflows must start with a single orchestrator stage.");
+      }
+
+      if (!secondStage) {
+        addFinding("error", "Parallel workflows need a second stage for parallel branches.");
+      } else if (secondStage.agents.length < 2) {
+        addFinding("warning", "Parallel workflows should have at least two agents in the parallel stage.");
+      }
+    }
+
+    if (normalizedWorkflow.type === "fan-out") {
+      const firstStage = stages[0];
+      const middleStage = stages[1];
+      const lastStage = stages[stages.length - 1];
+
+      if (!firstStage || firstStage.agents.length !== 1 || firstStage.agents[0].kind !== "orchestrator") {
+        addFinding("error", "Fan-out workflows must start with a single orchestrator stage.");
+      }
+
+      if (!middleStage || middleStage.agents.length < 2) {
+        addFinding("error", "Fan-out workflows require at least two parallel branch agents.");
+      }
+
+      if (!lastStage || lastStage.agents.length !== 1 || lastStage.agents[0].kind !== "merge") {
+        addFinding("error", "Fan-out workflows must end with a single merge node.");
+      }
+    }
+
+    const errors = findings.filter((item) => item.severity === "error").length;
+    const warnings = findings.filter((item) => item.severity === "warning").length;
+    const infos = findings.filter((item) => item.severity === "info").length;
+
+    return {
+      workflow: normalizedWorkflow,
+      findings,
+      errors,
+      warnings,
+      infos,
+      isValid: errors === 0,
+    };
+  }
+
+  function getValidationStatus(validation) {
+    if (validation.errors > 0) {
+      return { label: "Blocked", badgeClass: "badge-fail" };
+    }
+
+    if (validation.warnings > 0) {
+      return { label: "Needs Review", badgeClass: "badge-warn" };
+    }
+
+    return { label: "Ready", badgeClass: "badge-pass" };
+  }
+
+  function showValidationAlert(actionLabel, validation) {
+    const errorLines = validation.findings
+      .filter((item) => item.severity === "error")
+      .map((item) => `- ${item.message}`)
+      .join("\n");
+
+    alert(`Cannot ${actionLabel} this workflow yet. Fix the following issues first:\n\n${errorLines}`);
+  }
+
+  function applyWorkflowTypePreset(type) {
+    const agents = getSortedAgents();
+    if (agents.length === 0) {
+      currentWorkflow.type = type;
+      return;
+    }
+
+    if (type === "sequential" || type === "sequential-hitl" || type === "conditional") {
+      agents.forEach((agent, index) => {
+        agent.stage = index;
+        agent.lane = 0;
+        if (agent.kind === "merge" || agent.kind === "orchestrator") {
+          agent.kind = "agent";
+        }
+      });
+
+      if (type === "sequential-hitl") {
+        const reviewAgent = agents[agents.length - 1];
+        if (reviewAgent) {
+          reviewAgent.kind = "human";
+        }
+      }
+    }
+
+    if (type === "parallel") {
+      agents[0].kind = "orchestrator";
+      agents[0].stage = 0;
+      agents[0].lane = 0;
+
+      for (let index = 1; index < agents.length; index += 1) {
+        agents[index].stage = 1;
+        agents[index].lane = index - 1;
+        if (agents[index].kind === "merge") {
+          agents[index].kind = "agent";
+        }
+      }
+    }
+
+    if (type === "fan-out") {
+      agents[0].kind = "orchestrator";
+      agents[0].stage = 0;
+      agents[0].lane = 0;
+
+      if (agents.length === 2) {
+        agents[1].kind = "merge";
+        agents[1].stage = 1;
+        agents[1].lane = 0;
+      } else if (agents.length > 2) {
+        const mergeIndex = agents.length - 1;
+        for (let index = 1; index < mergeIndex; index += 1) {
+          agents[index].stage = 1;
+          agents[index].lane = index - 1;
+          if (agents[index].kind === "merge") {
+            agents[index].kind = "agent";
+          }
+        }
+        agents[mergeIndex].kind = "merge";
+        agents[mergeIndex].stage = 2;
+        agents[mergeIndex].lane = 0;
+      }
+    }
+
+    currentWorkflow = normalizeWorkflow({ ...currentWorkflow, type, agents });
+  }
+
   // --- Initialization ---
   function init() {
     loadSavedWorkflows();
@@ -73,6 +379,9 @@ const WorkflowDesigner = (() => {
           boundary: "Classify only",
           output: "Contract classification and metadata",
           color: AGENT_COLORS[0],
+          kind: "agent",
+          stage: 0,
+          lane: 0,
           order: 0,
         },
         {
@@ -85,6 +394,9 @@ const WorkflowDesigner = (() => {
           boundary: "Extract only",
           output: "Structured clause data with confidence scores",
           color: AGENT_COLORS[1],
+          kind: "agent",
+          stage: 1,
+          lane: 0,
           order: 1,
         },
         {
@@ -97,6 +409,9 @@ const WorkflowDesigner = (() => {
           boundary: "Flag only",
           output: "Policy compliance flags and risk assessment",
           color: AGENT_COLORS[2],
+          kind: "agent",
+          stage: 2,
+          lane: 0,
           order: 2,
         },
         {
@@ -109,12 +424,16 @@ const WorkflowDesigner = (() => {
           boundary: "Route only",
           output: "Routing decision and stakeholder notification",
           color: AGENT_COLORS[3],
+          kind: "human",
+          stage: 3,
+          lane: 0,
           order: 3,
         },
       ],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
+    currentWorkflow = normalizeWorkflow(currentWorkflow);
     nextAgentId = 5;
   }
 
@@ -161,7 +480,7 @@ const WorkflowDesigner = (() => {
         <button class="btn btn-outline" onclick="WorkflowDesigner.saveWorkflow()" title="Save workflow">
           Save
         </button>
-        <button class="btn btn-primary" onclick="WorkflowDesigner.pushToPipeline()" title="Save and activate this workflow for Build/Deploy/Live">
+        <button class="btn btn-primary" onclick="WorkflowDesigner.pushToPipeline()" title="Save and activate this workflow for Test/Deploy/Live">
           Push to Pipeline &rarr;
         </button>
         <button class="btn btn-outline" onclick="WorkflowDesigner.resetToDefault()" title="Reset to default">
@@ -175,45 +494,55 @@ const WorkflowDesigner = (() => {
     const canvas = document.getElementById("designer-canvas");
     if (!canvas) return;
 
-    const sorted = [...currentWorkflow.agents].sort((a, b) => a.order - b.order);
-    const isParallel = currentWorkflow.type === "parallel" || currentWorkflow.type === "fan-out";
+    currentWorkflow = normalizeWorkflow(currentWorkflow);
+    const stages = getWorkflowStages();
 
     let html = "";
 
-    if (sorted.length === 0) {
+    if (stages.length === 0) {
       html = `<div class="designer-empty">
         <div class="designer-empty-icon">+</div>
         <div class="designer-empty-text">No agents yet. Click "Add Agent" to start designing your workflow.</div>
       </div>`;
-    } else if (isParallel) {
-      html = renderParallelLayout(sorted);
     } else {
-      html = renderSequentialLayout(sorted);
+      html = renderStageLayout(stages);
     }
 
     canvas.innerHTML = html;
     bindDragEvents();
   }
 
-  function renderSequentialLayout(agents) {
-    return `<div class="designer-sequential">
-      ${agents.map((agent, idx) => `
-        ${renderAgentCard(agent)}
-        ${idx < agents.length - 1 ? '<div class="pipeline-arrow designer-arrow">&rarr;</div>' : ""}
+  function renderStageLayout(stages) {
+    return `<div class="designer-stage-flow designer-stage-flow-${escapeHtml(currentWorkflow.type)}">
+      ${stages.map((stageInfo, index) => `
+        <div class="designer-stage-shell">
+          ${renderStage(stageInfo)}
+        </div>
+        ${index < stages.length - 1 ? '<div class="pipeline-arrow designer-arrow designer-stage-arrow">&rarr;</div>' : ""}
       `).join("")}
     </div>`;
   }
 
-  function renderParallelLayout(agents) {
-    return `<div class="designer-parallel">
-      <div class="designer-parallel-label">Parallel Execution</div>
-      <div class="designer-parallel-grid">
-        ${agents.map(agent => renderAgentCard(agent)).join("")}
+  function renderStage(stageInfo) {
+    const stageClass = stageInfo.isParallel ? "designer-stage designer-stage-parallel" : "designer-stage designer-stage-sequential";
+    const stageLabel = stageInfo.isParallel
+      ? `Stage ${stageInfo.stage + 1} • Parallel`
+      : `Stage ${stageInfo.stage + 1}`;
+    const layoutClass = stageInfo.isParallel ? "designer-parallel-grid" : "designer-sequential";
+
+    return `<div class="${stageClass}">
+      <div class="designer-stage-label">${escapeHtml(stageLabel)}</div>
+      <div class="${layoutClass}">
+        ${stageInfo.agents.map((agent, idx) => `
+          ${renderAgentCard(agent)}
+          ${!stageInfo.isParallel && idx < stageInfo.agents.length - 1 ? '<div class="pipeline-arrow designer-arrow">&rarr;</div>' : ""}
+        `).join("")}
       </div>
     </div>`;
   }
 
   function renderAgentCard(agent) {
+    const kindLabel = AGENT_KINDS.find(kind => kind.id === agent.kind)?.label || "Agent";
     return `
       <div class="agent-card designer-agent-card" data-agent-id="${agent.id}"
            draggable="true" style="border-color: ${agent.color}">
@@ -224,6 +553,11 @@ const WorkflowDesigner = (() => {
         </div>
         <div class="agent-card-icon" style="background: ${agent.color}">${escapeHtml(agent.icon)}</div>
         <div class="agent-card-name">${escapeHtml(agent.name)}</div>
+        <div class="designer-agent-meta-row">
+          <span class="designer-agent-badge designer-agent-badge-kind">${escapeHtml(kindLabel)}</span>
+          <span class="designer-agent-badge">S${Number(agent.stage) + 1}</span>
+          <span class="designer-agent-badge">L${Number(agent.lane) + 1}</span>
+        </div>
         <div class="agent-card-model">Model: ${escapeHtml(agent.model)}</div>
         <div class="agent-card-section">
           <div class="agent-card-section-title">Role</div>
@@ -252,13 +586,36 @@ const WorkflowDesigner = (() => {
     const allTools = currentWorkflow.agents.reduce((acc, a) => acc + a.tools.length, 0);
     const models = [...new Set(currentWorkflow.agents.map(a => a.model))].join(", ") || "--";
     const wfType = WORKFLOW_TYPES.find(t => t.id === currentWorkflow.type);
+    const validation = validateWorkflow(currentWorkflow);
+    const validationStatus = getValidationStatus(validation);
+    const topFindings = validation.findings.slice(0, 4);
 
     inv.innerHTML = `
       <div class="agent-inventory-item"><strong>Total Agents:</strong> ${currentWorkflow.agents.length}</div>
+      <div class="agent-inventory-item"><strong>Stages:</strong> ${getWorkflowStages().length}</div>
       <div class="agent-inventory-item"><strong>MCP Tools:</strong> ${allTools}</div>
       <div class="agent-inventory-item"><strong>Model:</strong> ${models}</div>
       <div class="agent-inventory-item"><strong>Pipeline:</strong> ${wfType ? wfType.label : currentWorkflow.type}</div>
       ${currentWorkflow.id ? `<div class="agent-inventory-item"><strong>Workflow ID:</strong> <span style="font-family:var(--font-mono);font-size:12px">${escapeHtml(String(currentWorkflow.id).substring(0,12))}</span></div>` : ""}
+      <div class="designer-validation-summary">
+        <div class="designer-validation-header">
+          <div class="agent-inventory-item"><strong>Design Validation:</strong> <span class="badge ${validationStatus.badgeClass}">${validationStatus.label}</span></div>
+          <div class="designer-validation-meta">${validation.errors} errors • ${validation.warnings} warnings</div>
+        </div>
+        <div class="designer-validation-list">
+          ${topFindings.length > 0 ? topFindings.map((item) => `
+            <div class="designer-validation-item is-${item.severity}">
+              <span class="badge badge-${item.severity === "error" ? "fail" : item.severity === "warning" ? "warn" : "pass"}">[${item.severity === "error" ? "FAIL" : item.severity === "warning" ? "WARN" : "PASS"}]</span>
+              <span>${escapeHtml(item.message)}</span>
+            </div>
+          `).join("") : `
+            <div class="designer-validation-item is-pass">
+              <span class="badge badge-pass">[PASS]</span>
+              <span>Workflow is ready to save, test, and deploy.</span>
+            </div>
+          `}
+        </div>
+      </div>
     `;
   }
 
@@ -312,8 +669,15 @@ const WorkflowDesigner = (() => {
     const targetAgent = currentWorkflow.agents.find(a => a.id === targetId);
     if (sourceAgent && targetAgent) {
       const tempOrder = sourceAgent.order;
+      const tempStage = sourceAgent.stage;
+      const tempLane = sourceAgent.lane;
       sourceAgent.order = targetAgent.order;
+      sourceAgent.stage = targetAgent.stage;
+      sourceAgent.lane = targetAgent.lane;
       targetAgent.order = tempOrder;
+      targetAgent.stage = tempStage;
+      targetAgent.lane = tempLane;
+      currentWorkflow = normalizeWorkflow(currentWorkflow);
       render();
       showToast("Agent order updated");
     }
@@ -337,7 +701,10 @@ const WorkflowDesigner = (() => {
       tools: [],
       boundary: "",
       output: "",
+      kind: "agent",
       color: AGENT_COLORS[(currentWorkflow.agents.length) % AGENT_COLORS.length],
+      stage: currentWorkflow.agents.length,
+      lane: 0,
       order: currentWorkflow.agents.length,
     };
     openAgentModal(newAgent, true);
@@ -355,10 +722,7 @@ const WorkflowDesigner = (() => {
     if (!confirm(`Remove "${agent.name}" from the workflow?`)) return;
 
     currentWorkflow.agents = currentWorkflow.agents.filter(a => a.id !== agentId);
-    // Re-order remaining
-    currentWorkflow.agents
-      .sort((a, b) => a.order - b.order)
-      .forEach((a, i) => { a.order = i; });
+    currentWorkflow = normalizeWorkflow(currentWorkflow);
     render();
     showToast(`"${agent.name}" removed`);
   }
@@ -443,6 +807,27 @@ const WorkflowDesigner = (() => {
             </div>
           </div>
 
+          <div class="designer-form-row">
+            <div class="designer-form-group" style="flex:1">
+              <label class="designer-label">Execution Role</label>
+              <select class="select designer-input" id="modal-agent-kind">
+                ${AGENT_KINDS.map(kind => `
+                  <option value="${kind.id}" ${kind.id === (agent.kind || "agent") ? "selected" : ""}>${kind.label}</option>
+                `).join("")}
+              </select>
+            </div>
+            <div class="designer-form-group" style="flex:1">
+              <label class="designer-label">Stage</label>
+              <input type="number" class="input designer-input" id="modal-agent-stage"
+                     value="${Number.isFinite(Number(agent.stage)) ? Number(agent.stage) : 0}" min="0" step="1" />
+            </div>
+            <div class="designer-form-group" style="flex:1">
+              <label class="designer-label">Lane</label>
+              <input type="number" class="input designer-input" id="modal-agent-lane"
+                     value="${Number.isFinite(Number(agent.lane)) ? Number(agent.lane) : 0}" min="0" step="1" />
+            </div>
+          </div>
+
           <div class="designer-form-group">
             <label class="designer-label">Agent Color</label>
             <div class="designer-color-picker">
@@ -481,6 +866,9 @@ const WorkflowDesigner = (() => {
     const model = document.getElementById("modal-agent-model").value;
     const boundary = document.getElementById("modal-agent-boundary").value.trim();
     const output = document.getElementById("modal-agent-output").value.trim();
+    const kind = document.getElementById("modal-agent-kind").value;
+    const stage = Math.max(0, Number(document.getElementById("modal-agent-stage").value || 0));
+    const lane = Math.max(0, Number(document.getElementById("modal-agent-lane").value || 0));
     const color = document.getElementById("modal-agent-color").value;
 
     // Gather selected tools
@@ -492,7 +880,7 @@ const WorkflowDesigner = (() => {
     if (!icon) { alert("Agent icon is required (1-2 characters)."); return; }
     if (!role) { alert("Agent role/responsibility is required."); return; }
 
-    const agentData = { id: agentId, name, icon, role, model, tools, boundary, output, color };
+    const agentData = { id: agentId, name, icon, role, model, tools, boundary, output, color, kind, stage, lane };
 
     if (isNew) {
       agentData.order = currentWorkflow.agents.length;
@@ -507,12 +895,23 @@ const WorkflowDesigner = (() => {
       showToast(`"${name}" updated`);
     }
 
+    currentWorkflow = normalizeWorkflow(currentWorkflow);
     closeModal();
     render();
   }
 
   // --- Workflow Persistence (localStorage) ---
   function saveWorkflow() {
+    currentWorkflow = normalizeWorkflow(currentWorkflow);
+    const validation = validateWorkflow(currentWorkflow);
+
+    if (!validation.isValid) {
+      render();
+      showValidationAlert("save", validation);
+      showToast("Fix design errors before saving");
+      return false;
+    }
+
     currentWorkflow.updatedAt = new Date().toISOString();
     if (!currentWorkflow.id || currentWorkflow.id === "default") {
       currentWorkflow.id = "wf-" + Date.now().toString(36);
@@ -529,7 +928,10 @@ const WorkflowDesigner = (() => {
 
     persistWorkflows();
     render();
-    showToast(`Workflow "${currentWorkflow.name}" saved`);
+    showToast(validation.warnings > 0
+      ? `Workflow "${currentWorkflow.name}" saved with ${validation.warnings} warning${validation.warnings === 1 ? "" : "s"}`
+      : `Workflow "${currentWorkflow.name}" saved`);
+    return true;
   }
 
   function loadWorkflowDialog() {
@@ -576,7 +978,7 @@ const WorkflowDesigner = (() => {
   function loadWorkflow(workflowId) {
     const wf = savedWorkflows.find(w => w.id === workflowId);
     if (!wf) return;
-    currentWorkflow = JSON.parse(JSON.stringify(wf));
+    currentWorkflow = normalizeWorkflow(JSON.parse(JSON.stringify(wf)));
     // Recalculate nextAgentId
     const maxId = currentWorkflow.agents.reduce((max, a) => {
       const num = parseInt(a.id.replace("agent-", ""), 10);
@@ -608,7 +1010,7 @@ const WorkflowDesigner = (() => {
   function loadSavedWorkflows() {
     try {
       const data = localStorage.getItem("agentops-workflows");
-      if (data) savedWorkflows = JSON.parse(data);
+      if (data) savedWorkflows = JSON.parse(data).map(workflow => normalizeWorkflow(workflow));
     } catch (_e) {
       savedWorkflows = [];
     }
@@ -629,10 +1031,12 @@ const WorkflowDesigner = (() => {
     showToast("Workflow exported as JSON");
   }
 
-  // --- Push to Pipeline (Save + Activate for Build/Deploy/Live) ---
+  // --- Push to Pipeline (Save + Activate for Test/Deploy/Live) ---
   function pushToPipeline() {
     // First save locally
-    saveWorkflow();
+    if (!saveWorkflow()) {
+      return;
+    }
 
     const wfCopy = JSON.parse(JSON.stringify(currentWorkflow));
 
@@ -659,7 +1063,7 @@ const WorkflowDesigner = (() => {
       .then(() => {
         // Dispatch custom event so other tabs can react
         window.dispatchEvent(new CustomEvent("workflow-activated", { detail: wfCopy }));
-        showToast(`"${currentWorkflow.name}" pushed to pipeline — Build/Deploy/Live updated`);
+        showToast(`"${currentWorkflow.name}" pushed to pipeline — Test/Deploy/Live updated`);
       })
       .catch(() => {
         // Even if backend fails, dispatch the event with local data
@@ -671,10 +1075,11 @@ const WorkflowDesigner = (() => {
   // --- Workflow Metadata ---
   function updateName(name) {
     currentWorkflow.name = name;
+    renderInventory();
   }
 
   function updateType(type) {
-    currentWorkflow.type = type;
+    applyWorkflowTypePreset(type);
     render();
   }
 
@@ -738,6 +1143,7 @@ const WorkflowDesigner = (() => {
     closeModal,
     selectColor,
     getCurrentWorkflow,
+    validateWorkflow,
     exportJson,
     pushToPipeline,
     showToast,

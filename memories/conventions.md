@@ -3,3 +3,6 @@
 - 2026-03-07: npm run lint now passes (exit 0) with biome.json config in place. 25 warnings (noForEach, noExplicitAny) are acceptable; 0 errors.
 - 2026-03-07: The primary runtime UI is the static app under contract-agentops-demo/ui, served by the gateway at http://localhost:8000.
 - 2026-03-07: **Vanilla JS UI is the single source of truth**: All UI functionality lives in ui/ folder (workflow-designer.js, app.js, styles.css). No React duplication needed. Focus enhancements on existing proven vanilla JS implementation.
+- 2026-03-10: Runtime workflow design behavior must be implemented in contract-agentops-demo/ui first. The dashboard/ folder exists in the repo but is incomplete and should be treated as a future alignment target, not the active source of workflow UX.
+- 2026-03-10: Workflow orchestration semantics are modeled per agent with kind/stage/lane. The workflow type alone is not enough to represent orchestrator -> parallel -> sequential execution.
+- 2026-03-10: Design-tab validation is the correct home for workflow structure rules. Save/push should block only on design errors, while the second tab should focus on scenario testing rather than tool registry browsing.

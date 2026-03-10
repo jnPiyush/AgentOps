@@ -17,6 +17,9 @@ export interface WorkflowAgent {
 	boundary: string;
 	output: string;
 	color: string;
+	kind?: "agent" | "orchestrator" | "human" | "merge";
+	stage?: number;
+	lane?: number;
 	order: number;
 }
 
@@ -127,6 +130,9 @@ function workflowReducer(state: WorkflowState, action: WorkflowAction): Workflow
 			const newAgent: WorkflowAgent = {
 				...action.payload,
 				id: `agent-${Date.now()}`,
+				kind: action.payload.kind ?? "agent",
+				stage: action.payload.stage ?? state.workflow.agents.length,
+				lane: action.payload.lane ?? 0,
 				order: state.workflow.agents.length,
 			};
 			return {
@@ -222,6 +228,9 @@ export function WorkflowProvider({ children }: { children: ReactNode }) {
 		const newAgent: WorkflowAgent = {
 			...agent,
 			id: `agent-${Date.now()}`,
+			kind: agent.kind ?? "agent",
+			stage: agent.stage ?? state.workflow.agents.length,
+			lane: agent.lane ?? 0,
 			order: state.workflow.agents.length,
 		};
 		
