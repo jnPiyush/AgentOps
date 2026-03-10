@@ -1,11 +1,26 @@
 [
   {
     "input": {
-      "clauses": ["data transfer outside approved jurisdictions", "liability cap of $10,000,000"]
+      "clauses": [
+        "data transfer outside approved jurisdictions",
+        "liability cap of $10,000,000"
+      ]
     },
     "expected": {
+      "overall_score": 0.42,
+      "policy_violations": [
+        "Liability cap exceeds policy maximum",
+        "Cross-border data transfer lacks approved safeguard"
+      ],
+      "recommendations": [
+        "Reduce liability cap to approved threshold",
+        "Add SCCs or equivalent approved transfer mechanism"
+      ],
       "risk_level": "HIGH",
-      "approval_required": true
+      "approval_required": true,
+      "blocking_issues": [
+        "Unapproved cross-border data transfer"
+      ]
     }
   }
 ]

@@ -224,7 +224,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 #### Data Requirements
 
-- **Evaluation data**: 5 sample contracts with ground truth annotations (20 total eval cases)
+- **Evaluation data**: Active ground-truth corpus of 57 contract scenarios spanning core, adversarial, international, AI-specific, and multi-party agreements
 - **Grounding data**: Company policy index (10 policy rules), clause library (50 standard clauses)
 - **Data sensitivity**: Fully synthetic -- safe for public demos
 - **Volume**: ~5-20 requests per demo run (not a scale concern)
@@ -334,7 +334,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 | Story ID | As a... | I want... | So that... | Acceptance Criteria | Priority |
 |----------|---------|-----------|------------|---------------------|----------|
-| US-6.1 | Presenter | to run an evaluation suite of 20 test cases and see pass/fail results | the audience sees automated quality validation in action | - [ ] "Run Suite" button triggers evaluation<br>- [ ] Per-contract pass/fail with drill-in<br>- [ ] Aggregate metrics: accuracy, precision, recall, F1 | P1 |
+| US-6.1 | Presenter | to run the active evaluation suite and see pass/fail results across the full corpus | the audience sees automated quality validation in action on representative scenarios | - [ ] "Run Suite" button triggers evaluation<br>- [ ] Per-contract pass/fail with drill-in<br>- [ ] Aggregate metrics: accuracy, precision, recall, F1 | P1 |
 | US-6.2 | Presenter | to compare current agent version vs. baseline side-by-side | the audience sees version-over-version improvement tracking | - [ ] Baseline (v1) vs. current (v2) metrics table<br>- [ ] Delta indicators (green up, red down) | P1 |
 | US-6.3 | Presenter | to see a quality gate pass/fail decision | the audience understands that agents must pass quality checks before deployment | - [ ] Quality gate card: PASS (green) or FAIL (red)<br>- [ ] Criteria shown: accuracy threshold, false-flag rate, latency P95 | P1 |
 | US-6.4 | Developer | MCP server to expose `run_evaluation`, `compare_baseline`, `evaluate_single`, `get_quality_metrics`, `check_quality_gate`, `judge_output` tools | evaluation engine can run comprehensive quality analysis including LLM-as-judge | - [ ] 6 MCP tools for evaluation pipeline<br>- [ ] Ground truth comparison logic<br>- [ ] LLM-as-judge scoring (relevance, groundedness, coherence) | P1 |
@@ -348,7 +348,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | Story ID | As a... | I want... | So that... | Acceptance Criteria | Priority |
 |----------|---------|-----------|------------|---------------------|----------|
 | US-7.1 | Presenter | to see LLM drift visualized as accuracy degradation over time | the audience understands that LLM quality is not static -- it drifts | - [ ] Line chart: accuracy over weeks (simulated)<br>- [ ] Drift threshold line with "DRIFT DETECTED" alert<br>- [ ] Trend direction indicator | P1 |
-| US-7.2 | Presenter | to see data drift when new contract types appear that were not in training | the audience sees how changing input distributions affect agents | - [ ] Distribution chart: contract types over time<br>- [ ] New type highlighted (e.g., "AI Liability clause -- 15% of recent contracts")<br>- [ ] "SHIFT DETECTED" alert | P1 |
+| US-7.2 | Presenter | to see data drift when new contract types appear that were not in training | the audience sees how changing input distributions affect agents | - [ ] Distribution chart: contract types over time<br>- [ ] New type highlighted (e.g., "AI Services -- 15% of recent contracts")<br>- [ ] "SHIFT DETECTED" alert | P1 |
 | US-7.3 | Presenter | to simulate a model swap (GPT-4o to GPT-4o-mini) and see impact | the audience sees the cost-quality tradeoff in concrete terms | - [ ] Side-by-side: accuracy, latency, cost per model<br>- [ ] Verdict card: "ACCEPTABLE" or "DEGRADED" based on threshold | P1 |
 | US-7.4 | Developer | MCP server to expose `detect_llm_drift`, `detect_data_drift`, `simulate_model_swap`, `get_drift_timeline`, `recommend_action` tools | drift detection engine can analyze agent quality over time | - [ ] 5 MCP tools for drift analysis<br>- [ ] Simulated historical data for demo | P1 |
 
@@ -386,9 +386,9 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 5. **Act 5 -- Monitor Panel**: Presenter switches to the monitor view. Shows traces for the NDA just processed -- every agent step, every tool call, latency bars. Expands the Compliance Agent trace to show its reasoning.
 
-6. **Act 6 -- Evaluation Lab**: Presenter clicks "Run Suite." 20 test contracts are evaluated. Results: 17 pass, 3 fail. Quality gate: PASS (85% > 80% threshold). Baseline comparison shows +3.1% vs. v1. LLM-as-judge scores: relevance 4.6/5, groundedness 4.3/5, coherence 4.8/5. Judge flags MSA-003 extraction as low-groundedness (2.1/5).
+6. **Act 6 -- Evaluation Lab**: Presenter clicks "Run Suite." The active 57-case corpus is evaluated. Results: 39 pass, 18 fail. Quality gate: FAIL. The lab shows extraction 87.5%, compliance 83.5%, classification 91.5%, false-flag rate 9.9%, latency P95 2.3s, and judge scores relevance 4.1/5, groundedness 4.0/5, coherence 4.4/5.
 
-7. **Act 7 -- Drift Detection**: Presenter opens the drift view. LLM drift chart shows accuracy declining: 92% -> 88% -> 81% over 4 weeks (simulated). "DRIFT DETECTED" alert. Data drift: new "AI Liability" clause type appearing in 15% of recent contracts. Model swap: GPT-4o-mini saves 60% cost with only 3% accuracy drop.
+7. **Act 7 -- Drift Detection**: Presenter opens the drift view. LLM drift chart shows accuracy declining from 92% to 81% over five weekly checkpoints, crossing the 85% threshold. "DRIFT DETECTED" alert. Data drift shows a new "AI Services" contract type appearing in 15% of recent contracts. Model swap analysis shows GPT-4o-mini saves 60% cost with a 3.1% accuracy drop that remains inside the demo threshold.
 
 8. **Act 8 -- Feedback Loop**: Presenter submits feedback: "Missed termination clause in Exhibit B." Clicks "Optimize Now" -- negative feedback becomes a test case. Clicks "Re-Evaluate" -- updated suite runs. Opens prompt editor, adds instruction for exhibit scanning. Re-evaluates -- accuracy improves to 91%. Shows the loop closing.
 
@@ -474,7 +474,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 - MCP servers 6-8 with tool implementations
 - Static dashboard: Evaluation Lab + Drift Detection Center + Feedback Loop views
 - Simulated drift data (4-week degradation curve)
-- Evaluation ground truth dataset (20 test cases)
+- Evaluation ground truth dataset (57-case active corpus)
 - Prompt editor with re-evaluation flow
 
 **Stories**: US-6.1 through US-8.5

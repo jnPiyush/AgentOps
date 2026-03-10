@@ -1,11 +1,30 @@
 [
   {
     "input": {
-      "document_text": "Acme will provide consulting services to Beta for 12 months with a liability cap of $250,000."
+      "document_text": "Section 2.1 Services: Acme will provide consulting services to Beta for 12 months. Section 4.2 Liability: Total liability is capped at $250,000. The agreement starts on 2026-01-01 and ends on 2026-12-31."
     },
     "expected": {
-      "clauses": ["services", "liability_cap"],
-      "values": [250000]
+      "clauses": [
+        {
+          "type": "scope",
+          "text": "Acme will provide consulting services to Beta for 12 months.",
+          "section": "Section 2.1"
+        },
+        {
+          "type": "liability",
+          "text": "Total liability is capped at $250,000.",
+          "section": "Section 4.2"
+        }
+      ],
+      "parties": ["Acme", "Beta"],
+      "dates": ["2026-01-01", "2026-12-31"],
+      "values": [
+        {
+          "label": "liability_cap",
+          "value": 250000
+        }
+      ],
+      "confidence": 0.93
     }
   }
 ]

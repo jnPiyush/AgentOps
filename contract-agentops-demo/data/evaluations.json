@@ -20,5 +20,506 @@
       "groundedness": 4,
       "coherence": 4.4
     }
+  },
+  {
+    "id": "eval-995170ba",
+    "version": "v1.3",
+    "run_at": "2026-03-10T17:11:23.991Z",
+    "total_cases": 57,
+    "passed": 39,
+    "accuracy": 68.4,
+    "per_metric": {
+      "extraction_accuracy": 87.5,
+      "compliance_accuracy": 83.5,
+      "classification_accuracy": 91.5,
+      "false_flag_rate": 9.9,
+      "latency_p95_s": 2.3
+    },
+    "per_contract": {
+      "NDA-001": {
+        "contract_id": "NDA-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 5,
+        "overall": "pass"
+      },
+      "NDA-002": {
+        "contract_id": "NDA-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.4,
+        "overall": "pass"
+      },
+      "MSA-001": {
+        "contract_id": "MSA-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.8,
+        "overall": "pass"
+      },
+      "MSA-002": {
+        "contract_id": "MSA-002",
+        "classification": "pass",
+        "extraction": "fail",
+        "compliance": "fail",
+        "judge_avg": 4.5,
+        "overall": "fail"
+      },
+      "SOW-001": {
+        "contract_id": "SOW-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.9,
+        "overall": "pass"
+      },
+      "SOW-002": {
+        "contract_id": "SOW-002",
+        "classification": "fail",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.6,
+        "overall": "fail"
+      },
+      "AMD-001": {
+        "contract_id": "AMD-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4,
+        "overall": "pass"
+      },
+      "AMD-002": {
+        "contract_id": "AMD-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.7,
+        "overall": "pass"
+      },
+      "SLA-001": {
+        "contract_id": "SLA-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.1,
+        "overall": "pass"
+      },
+      "SLA-002": {
+        "contract_id": "SLA-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "fail",
+        "judge_avg": 4.8,
+        "overall": "fail"
+      },
+      "NDA-003": {
+        "contract_id": "NDA-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.2,
+        "overall": "pass"
+      },
+      "MSA-003": {
+        "contract_id": "MSA-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.9,
+        "overall": "pass"
+      },
+      "SOW-003": {
+        "contract_id": "SOW-003",
+        "classification": "fail",
+        "extraction": "fail",
+        "compliance": "pass",
+        "judge_avg": 4.3,
+        "overall": "fail"
+      },
+      "NDA-004": {
+        "contract_id": "NDA-004",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 5,
+        "overall": "pass"
+      },
+      "MSA-004": {
+        "contract_id": "MSA-004",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.4,
+        "overall": "pass"
+      },
+      "SLA-003": {
+        "contract_id": "SLA-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "fail",
+        "judge_avg": 3.8,
+        "overall": "fail"
+      },
+      "AMD-003": {
+        "contract_id": "AMD-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.5,
+        "overall": "pass"
+      },
+      "NDA-005": {
+        "contract_id": "NDA-005",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.9,
+        "overall": "pass"
+      },
+      "MSA-005": {
+        "contract_id": "MSA-005",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.6,
+        "overall": "pass"
+      },
+      "SOW-004": {
+        "contract_id": "SOW-004",
+        "classification": "fail",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4,
+        "overall": "fail"
+      },
+      "MSA-006": {
+        "contract_id": "MSA-006",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.7,
+        "overall": "pass"
+      },
+      "NDA-006": {
+        "contract_id": "NDA-006",
+        "classification": "pass",
+        "extraction": "fail",
+        "compliance": "fail",
+        "judge_avg": 4.1,
+        "overall": "fail"
+      },
+      "SOW-005": {
+        "contract_id": "SOW-005",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.8,
+        "overall": "pass"
+      },
+      "LIC-001": {
+        "contract_id": "LIC-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.2,
+        "overall": "pass"
+      },
+      "LIC-002": {
+        "contract_id": "LIC-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.9,
+        "overall": "pass"
+      },
+      "LIC-003": {
+        "contract_id": "LIC-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.3,
+        "overall": "pass"
+      },
+      "EMP-001": {
+        "contract_id": "EMP-001",
+        "classification": "fail",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 5,
+        "overall": "fail"
+      },
+      "EMP-002": {
+        "contract_id": "EMP-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "fail",
+        "judge_avg": 4.4,
+        "overall": "fail"
+      },
+      "EMP-003": {
+        "contract_id": "EMP-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.8,
+        "overall": "pass"
+      },
+      "JV-001": {
+        "contract_id": "JV-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.5,
+        "overall": "pass"
+      },
+      "JV-002": {
+        "contract_id": "JV-002",
+        "classification": "pass",
+        "extraction": "fail",
+        "compliance": "pass",
+        "judge_avg": 3.9,
+        "overall": "fail"
+      },
+      "FRN-001": {
+        "contract_id": "FRN-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.6,
+        "overall": "pass"
+      },
+      "FRN-002": {
+        "contract_id": "FRN-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4,
+        "overall": "pass"
+      },
+      "ADV-001": {
+        "contract_id": "ADV-001",
+        "classification": "fail",
+        "extraction": "pass",
+        "compliance": "fail",
+        "judge_avg": 4.7,
+        "overall": "fail"
+      },
+      "ADV-002": {
+        "contract_id": "ADV-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.1,
+        "overall": "pass"
+      },
+      "ADV-003": {
+        "contract_id": "ADV-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.8,
+        "overall": "pass"
+      },
+      "ADV-004": {
+        "contract_id": "ADV-004",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.2,
+        "overall": "pass"
+      },
+      "ADV-005": {
+        "contract_id": "ADV-005",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.9,
+        "overall": "pass"
+      },
+      "INTL-001": {
+        "contract_id": "INTL-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.3,
+        "overall": "pass"
+      },
+      "INTL-002": {
+        "contract_id": "INTL-002",
+        "classification": "pass",
+        "extraction": "fail",
+        "compliance": "fail",
+        "judge_avg": 5,
+        "overall": "fail"
+      },
+      "INTL-003": {
+        "contract_id": "INTL-003",
+        "classification": "fail",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.4,
+        "overall": "fail"
+      },
+      "AI-001": {
+        "contract_id": "AI-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.8,
+        "overall": "pass"
+      },
+      "AI-002": {
+        "contract_id": "AI-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.5,
+        "overall": "pass"
+      },
+      "AI-003": {
+        "contract_id": "AI-003",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.9,
+        "overall": "pass"
+      },
+      "MULTI-001": {
+        "contract_id": "MULTI-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.6,
+        "overall": "pass"
+      },
+      "MULTI-002": {
+        "contract_id": "MULTI-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "fail",
+        "judge_avg": 4,
+        "overall": "fail"
+      },
+      "SAAS-001": {
+        "contract_id": "SAAS-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.7,
+        "overall": "pass"
+      },
+      "SAAS-002": {
+        "contract_id": "SAAS-002",
+        "classification": "fail",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.1,
+        "overall": "fail"
+      },
+      "SAAS-003": {
+        "contract_id": "SAAS-003",
+        "classification": "pass",
+        "extraction": "fail",
+        "compliance": "pass",
+        "judge_avg": 4.8,
+        "overall": "fail"
+      },
+      "PROC-001": {
+        "contract_id": "PROC-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.2,
+        "overall": "pass"
+      },
+      "PROC-002": {
+        "contract_id": "PROC-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.9,
+        "overall": "pass"
+      },
+      "RE-001": {
+        "contract_id": "RE-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "fail",
+        "judge_avg": 4.3,
+        "overall": "fail"
+      },
+      "RE-002": {
+        "contract_id": "RE-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 5,
+        "overall": "pass"
+      },
+      "INS-001": {
+        "contract_id": "INS-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.4,
+        "overall": "pass"
+      },
+      "INS-002": {
+        "contract_id": "INS-002",
+        "classification": "fail",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.8,
+        "overall": "fail"
+      },
+      "GOV-001": {
+        "contract_id": "GOV-001",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 4.5,
+        "overall": "pass"
+      },
+      "GOV-002": {
+        "contract_id": "GOV-002",
+        "classification": "pass",
+        "extraction": "pass",
+        "compliance": "pass",
+        "judge_avg": 3.9,
+        "overall": "pass"
+      }
+    },
+    "quality_gate": "FAIL",
+    "judge_scores": {
+      "relevance": 4.1,
+      "groundedness": 4,
+      "coherence": 4.4
+    }
+  },
+  {
+    "id": "eval-v13-20260310",
+    "version": "v1.3",
+    "run_at": "2026-03-10T10:43:00.000Z",
+    "total_cases": 57,
+    "passed": 39,
+    "accuracy": 68.4,
+    "per_metric": {
+      "extraction_accuracy": 87.5,
+      "compliance_accuracy": 83.5,
+      "classification_accuracy": 91.5,
+      "false_flag_rate": 9.9,
+      "latency_p95_s": 2.3
+    },
+    "per_contract": {},
+    "quality_gate": "FAIL",
+    "judge_scores": {
+      "relevance": 4.1,
+      "groundedness": 4,
+      "coherence": 4.4
+    }
   }
 ]

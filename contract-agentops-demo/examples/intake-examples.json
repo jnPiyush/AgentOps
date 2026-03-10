@@ -1,12 +1,20 @@
 [
   {
     "input": {
-      "document_text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc.",
-      "document_name": "nda-example.txt"
+      "document_text": "MASTER SERVICES AGREEMENT between Acme Corp and Beta Inc effective January 1, 2026 with a total contract value of USD 250000 under New York law.",
+      "document_name": "msa-example.txt"
     },
     "expected": {
-      "contract_type": "NDA",
-      "parties": ["Acme Corp", "Beta Inc"]
+      "contract_id": "",
+      "title": "MASTER SERVICES AGREEMENT",
+      "parties": ["Acme Corp", "Beta Inc"],
+      "contract_type": "MSA",
+      "effective_date": "2026-01-01",
+      "expiry_date": null,
+      "value": 250000,
+      "currency": "USD",
+      "jurisdiction": "New York",
+      "confidence_score": 0.95
     }
   }
 ]

@@ -40,10 +40,10 @@ describe("contract-drift-mcp engine", () => {
 			expect(typeof result.distribution).toBe("object");
 		});
 
-		it("detects AI_Liability as new type", async () => {
+		it("detects AI Services as new type", async () => {
 			const result = await detectDataDrift();
 			expect(result.shift_detected).toBe(true);
-			expect(result.new_types).toContain("AI_Liability");
+			expect(result.new_types).toContain("AI Services");
 		});
 
 		it("includes known types in distribution", async () => {
@@ -51,6 +51,12 @@ describe("contract-drift-mcp engine", () => {
 			const types = Object.keys(result.distribution);
 			expect(types).toContain("NDA");
 			expect(types).toContain("MSA");
+		});
+
+		it("keeps the distribution normalized", async () => {
+			const result = await detectDataDrift();
+			const total = Object.values(result.distribution).reduce((sum, value) => sum + value, 0);
+			expect(total).toBeCloseTo(1, 5);
 		});
 	});
 

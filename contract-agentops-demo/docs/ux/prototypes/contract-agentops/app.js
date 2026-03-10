@@ -580,7 +580,7 @@ function runEvalSuite() {
 
 	var totalDelay = judgeDelay + (judgeMetrics.length + 1) * 200 + 200;
 	setTimeout(() => {
-		document.getElementById("eval-overall").textContent = "Overall: 17/20 passed (85.0%) | Judge Avg: 4.6/5";
+		document.getElementById("eval-overall").textContent = "Overall: 39/57 passed (68.4%) | Judge Avg: 4.2/5";
 		document.getElementById("eval-last-run").textContent = "Just now";
 		var gate = document.getElementById("quality-gate");
 		gate.style.animation = "scaleIn 0.3s ease";

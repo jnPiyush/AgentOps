@@ -37,23 +37,23 @@
 			{ "week": "2026-W05", "accuracy": 0.85 }
 		],
 		"distribution": {
-			"NDA": 0.35,
-			"MSA": 0.25,
-			"SOW": 0.15,
-			"Amendment": 0.1,
+			"NDA": 0.3,
+			"MSA": 0.22,
+			"SOW": 0.14,
+			"Amendment": 0.09,
 			"SLA": 0.1,
-			"AI_Liability": 0.05
+			"AI Services": 0.15
 		},
 		"alerts": [
 			{
 				"type": "data_drift",
-				"message": "New contract type 'AI Liability' appearing in 5% of contracts",
+				"message": "New contract type 'AI Services' appearing in 7% of contracts",
 				"severity": "info",
 				"detected_at": "2026-01-15T00:00:00Z"
 			},
 			{
 				"type": "data_drift",
-				"message": "AI Liability contracts increased to 15% - model not trained on this type",
+				"message": "AI Services contracts increased to 15% - expand evaluation and policy coverage for this type",
 				"severity": "warning",
 				"detected_at": "2026-01-29T00:00:00Z"
 			}

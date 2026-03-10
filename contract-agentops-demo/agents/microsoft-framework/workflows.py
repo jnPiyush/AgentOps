@@ -418,10 +418,14 @@ class ConditionalContractWorkflow(ConditionalWorkflow):
 # Quality Gates and Validation Functions
 def validate_extraction_quality(result: Dict[str, Any]) -> bool:
     """Quality gate for extraction results"""
-    if not result or "confidence_score" not in result:
+    if not result:
         return False
-    
-    return result["confidence_score"] >= 0.8
+
+    confidence = result.get("confidence", result.get("confidence_score"))
+    if confidence is None:
+        return False
+
+    return float(confidence) >= 0.8
 
 
 def validate_compliance_assessment(result: Dict[str, Any]) -> bool:

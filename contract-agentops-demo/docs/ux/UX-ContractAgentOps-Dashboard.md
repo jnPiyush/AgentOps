@@ -149,8 +149,8 @@ flowchart TD
 
 6. **Act 6 -- Evaluation Lab**
    - **Presenter Action**: Clicks "Evaluate" tab. Clicks "Run Suite."
-   - **System Response**: Progress bar fills. Ground-truth results: 17/20 pass. LLM-as-judge scores appear: relevance 4.6/5, groundedness 4.3/5, coherence 4.8/5. Quality gate: PASS (both deterministic and judge thresholds met). Baseline comparison: +3.1%.
-   - **Talking Point**: "We don't just deploy -- we evaluate with both deterministic metrics AND an LLM judge. The judge scores relevance, groundedness, and coherence on every output."
+  - **System Response**: Progress bar fills. Ground-truth results: 39/57 pass. LLM-as-judge scores appear: relevance 4.1/5, groundedness 4.0/5, coherence 4.4/5. Quality gate: FAIL because the end-to-end pass rate is below release threshold even though judge scores remain acceptable.
+  - **Talking Point**: "We don't just deploy -- we evaluate with both deterministic metrics and a judge layer, and we keep the failing baseline visible until the full corpus passes."
 
 7. **Act 7 -- Drift Detection**
    - **Presenter Action**: Clicks "Drift" tab.
@@ -560,6 +560,8 @@ flowchart TD
 **Purpose**: Run eval suites, compare baselines, quality gate pass/fail
 **AgentOps Stage**: Evaluate
 
+Current-state note: the values below reflect the latest stored 57-case evaluation baseline from `data/evaluations.json`, not the earlier legacy 20-case run.
+
 ```
 +=============================================================================+
 | EVALUATION LAB                                             [Run Suite ->]   |
@@ -567,33 +569,28 @@ flowchart TD
 |                                                                             |
 | +--- Test Suite Config ---+  +------------ Results -----------------------+|
 | |                         |  |                                             ||
-| | Test Set: 20 contracts  |  | Overall: 17/20 passed (85.0%)              ||
+| | Test Set: 57 contracts  |  | Overall: 39/57 passed (68.4%)              ||
 | | Coverage: 95%           |  |                                             ||
 | | Last Run: 2 min ago     |  | +--- Ground-Truth Metrics ---------------+ ||
 | |                         |  | | Metric       | Score  | Threshold | St  | ||
-| | Baseline: v1.2          |  | | Extraction   | 91.2%  | 85%       |PASS | ||
+| | Baseline: corpus=57     |  | | Extraction   | 87.5%  | 85%       |PASS | ||
 | | Current:  v1.3          |  | | Compliance   | 87.5%  | 80%       |PASS | ||
-| |                         |  | | Classification| 95.0% | 90%       |PASS | ||
-| | +-------------------+   |  | | False Flags  |  8.5%  | <15%      |PASS | ||
-| | |  Quality Gate     |   |  | | Latency P95  |  3.1s  | <5s       |PASS | ||
-| | |  [PASS] READY     |   |  | +-------------------------------------------+||
-| | |  TO DEPLOY        |   |  |                                             ||
+| |                         |  | | Classification| 91.5% | 90%       |PASS | ||
+| | +-------------------+   |  | | False Flags  |  9.9%  | <15%      |PASS | ||
+| | |  Quality Gate     |   |  | | Latency P95  |  2.3s  | <5s       |PASS | ||
+| | |  [FAIL] BLOCKED   |   |  | +-------------------------------------------+||
+| | |  FULL-CORPUS GATE |   |  |                                             ||
 | | +-------------------+   |  | +--- LLM-as-Judge Scores (GPT-4o) -------+ ||
 | |                         |  | | Dimension    | Score  | Threshold | St  | ||
-| +-------------------------+  | | Relevance    | 4.6/5  | >=4.0     |PASS | ||
-|                               | | Groundedness | 4.3/5  | >=4.0     |PASS | ||
-|                               | | Coherence    | 4.8/5  | >=4.0     |PASS | ||
+| +-------------------------+  | | Relevance    | 4.1/5  | >=4.0     |PASS | ||
+|                               | | Groundedness | 4.0/5  | >=3.8     |PASS | ||
+|                               | | Coherence    | 4.4/5  | >=4.0     |PASS | ||
 |                               | +-------------------------------------------+||
 |                               |                                             ||
-|                               | +--- Baseline Comparison (v1.2 vs v1.3) --+ ||
-|                               | | Metric       | v1.2   | v1.3   | Delta | ||
-|                               | | Extraction   | 88.1%  | 91.2%  | +3.1% | ||
-|                               | | Compliance   | 82.3%  | 87.5%  | +5.2% | ||
-|                               | | False Flags  | 12.6%  |  8.5%  | -4.1% | ||
-|                               | | Latency P95  |  3.5s  |  3.1s  | -0.4s | ||
-|                               | | Relevance    | 4.2/5  | 4.6/5  | +0.4  | ||
-|                               | | Groundedness | 4.0/5  | 4.3/5  | +0.3  | ||
-|                               | | Coherence    | 4.5/5  | 4.8/5  | +0.3  | ||
+|                               | +--- Gate Interpretation ----------------+ ||
+|                               | | Judge thresholds pass, but end-to-end  | ||
+|                               | | corpus accuracy is below 80%, so the   | ||
+|                               | | release gate remains blocked.          | ||
 |                               | +-------------------------------------------+||
 |                               +---------------------------------------------+|
 |                                                                             |
@@ -601,11 +598,11 @@ flowchart TD
 | | Per-Contract Results (click to drill in)                               |  |
 | |------------------------------------------------------------------------|  |
 | | Contract     | Classification | Extraction | Compliance | Judge Avg | Overall |
-| | NDA-001      | [PASS]         | [PASS]     | [PASS]     | 4.7/5     | [PASS]  |
-| | NDA-002      | [PASS]         | [PASS]     | [WARN]     | 4.5/5     | [PASS]  |
-| | MSA-003      | [PASS]         | [FAIL]     | [PASS]     | 3.8/5     | [FAIL]  |
-| | SOW-004      | [PASS]         | [PASS]     | [PASS]     | 4.6/5     | [PASS]  |
-| | ...18 more                                                             |  |
+| | NDA-001      | [PASS]         | [PASS]     | [PASS]     | 5.0/5     | [PASS]  |
+| | MSA-002      | [PASS]         | [FAIL]     | [FAIL]     | 4.5/5     | [FAIL]  |
+| | SOW-003      | [FAIL]         | [FAIL]     | [PASS]     | 4.3/5     | [FAIL]  |
+| | SAAS-003     | [PASS]         | [FAIL]     | [PASS]     | 4.8/5     | [FAIL]  |
+| | ...53 more                                                             |  |
 | +-----------------------------------------------------------------------+  |
 +=============================================================================+
 ```
@@ -626,6 +623,8 @@ flowchart TD
 **Purpose**: Visualize LLM drift, data drift, and model swap impact
 **AgentOps Stage**: Detect
 
+Current-state note: the values below reflect the latest stored drift artifact from `data/drift.json`.
+
 ```
 +=============================================================================+
 | DRIFT DETECTION CENTER                        [Time Range: v Last 30 days]  |
@@ -635,14 +634,14 @@ flowchart TD
 | |                                          |  |                            ||
 | | Extraction Accuracy Over Time            |  | Contract Type Distribution ||
 | |                                          |  |                            ||
-| |  92% *                                   |  | NDA  [========    ] 45%    ||
-| |       \                                  |  | MSA  [======      ] 30%    ||
-| |  88%   *                                 |  | SOW  [==          ] 10%    ||
-| |         \                                |  | NEW: AI Liability          ||
+| |  92% *                                   |  | NDA  [======      ] 30%    ||
+| |       \                                  |  | MSA  [=====       ] 22%    ||
+| |  88%   *                                 |  | SOW  [===         ] 14%    ||
+| |         \                                |  | NEW: AI Services           ||
 | |  84%     *                               |  |      [===         ] 15%   ||
 | |           \                              |  |                            ||
 | |  81%       *  <-- [!] DRIFT DETECTED     |  | [!] SHIFT DETECTED         ||
-| |  ....threshold: 85%....                  |  | New clause type appearing  ||
+| |  ....threshold: 85%....                  |  | New contract type appears  ||
 | |                                          |  | in 15% of recent contracts ||
 | |  Wk1    Wk2    Wk3    Wk4               |  | Not in training set        ||
 | +------------------------------------------+  +----------------------------+|
@@ -660,7 +659,7 @@ flowchart TD
 | +---------------------------------------------------------------------------+|
 |                                                                             |
 | +--- Recommended Actions --------------------------------------------------+|
-| | 1. [!] Update compliance rules for AI liability clause (data drift)      ||
+| | 1. [!] Expand policy and evaluation coverage for AI Services contracts   ||
 | | 2. [!] Retrain extraction prompts on new contract types                  ||
 | | 3. [i] Consider GPT-4o-mini swap for non-critical extractions            ||
 | | 4. [i] Schedule weekly drift monitoring alerts                           ||
@@ -724,11 +723,11 @@ flowchart TD
 | | +-------------------------+     | [Save Prompt]                      |    ||
 | | | [Re-Evaluate ->]        |     +------------------------------------+    ||
 | | |                         |                                               ||
-| | | Before:  85.0% (17/20)  |     Step 4: Deploy                           ||
-| | | After:   91.2% (18/20)  |     +------------------------------------+    ||
-| | | Delta:   +6.2% [PASS]   |     | Version: v1.3 -> v1.4              |    ||
+| | | Before:  68.4% (39/57)  |     Step 4: Deploy                           ||
+| | | After:   pending rerun  |     +------------------------------------+    ||
+| | | Delta:   TBD            |     | Version: v1.3 -> next candidate     |    ||
 | | |                         |     | Changes: Exhibit scanning added    |    ||
-| | | Quality Gate: [PASS]    |     |                                    |    ||
+| | | Quality Gate: [FAIL]    |     |                                    |    ||
 | | +-------------------------+     | [Deploy v1.4 ->]                   |    ||
 | |                                 +------------------------------------+    ||
 | +---------------------------------------------------------------------------+|

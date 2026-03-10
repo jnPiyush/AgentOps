@@ -27,7 +27,7 @@ Each agent specializes in a specific aspect of contract analysis, with built-in 
 - **Comprehensive Rule Support**: Thresholds, patterns, lookups, and regex conditions
 
 ### 🔍 Advanced Evaluation Framework
-- **50+ Test Cases**: Expanded from 20 to include adversarial scenarios, edge cases, international contracts
+- **57 Ground-Truth Cases**: Expanded from the original 20-case baseline to include adversarial scenarios, international contracts, AI services agreements, and multi-party cases
 - **AI-Specific Contract Support**: Specialized evaluation for AI services agreements, ML liability clauses
 - **Multi-Party Scenarios**: Complex contract structures with multiple stakeholders
 - **Ground Truth Dataset**: Comprehensive baseline for system accuracy measurement
@@ -41,7 +41,7 @@ Each agent specializes in a specific aspect of contract analysis, with built-in 
 ## 🏗️ Architecture
 
 ### Gateway Service
-- **Express.js API server** handling contract uploads and orchestration
+- **Fastify-based TypeScript gateway** handling contract uploads, orchestration, and operator APIs
 - **Pipeline orchestrator** with retry logic and error recovery
 - **Result caching and validation** system
 - **Testing endpoints** for comprehensive system validation
@@ -83,7 +83,7 @@ Each agent specializes in a specific aspect of contract analysis, with built-in 
 ### MCP Servers
 
 #### Contract Evaluation MCP
-- **50+ ground truth test cases** for system validation
+- **57 ground-truth test cases** for system validation
 - **Performance benchmarking** with accuracy metrics
 - **Adversarial testing** for robustness validation
 - **International contract support** for global scenarios
@@ -179,7 +179,7 @@ Tests coverage:
 npm test
 ```
 Tests coverage:
-- ✅ 50+ ground truth test cases
+- ✅ 57 ground-truth test cases
 - ✅ Agent accuracy measurements
 - ✅ Performance benchmarking
 - ✅ Adversarial scenario validation
@@ -204,13 +204,25 @@ curl -X POST http://localhost:8000/api/v1/contracts \
 curl http://localhost:8000/api/v1/evaluations/results
 ```
 
+## Data Science Docs
+
+Current DS documentation lives under `docs/data-science/`:
+
+- `docs/data-science/MODEL-CARD-ContractAgentOps-Demo.md`
+- `docs/data-science/EVAL-ContractAgentOps-Demo.md`
+- `docs/data-science/DRIFT-ContractAgentOps-Demo.md`
+- `docs/data-science/AGENTOPS-ContractAgentOps-Demo.md`
+
 ## 📊 System Metrics & Monitoring
 
-### Performance Benchmarks
-- **Intake Agent**: 95% accuracy on contract classification
-- **Extraction Agent**: 92% precision on clause identification  
-- **Compliance Agent**: 98% accuracy on policy violation detection
-- **Approval Agent**: 97% appropriate routing accuracy
+### Current Evaluation Snapshot
+- **Latest representative run**: `v1.3`, `39 / 57` passed, quality gate `FAIL`
+- **Extraction accuracy**: `87.5%`
+- **Compliance accuracy**: `83.5%`
+- **Classification accuracy**: `91.5%`
+- **False-flag rate**: `9.9%`
+- **Latency P95**: `2.3s`
+- **Judge scores**: relevance `4.1/5`, groundedness `4.0/5`, coherence `4.4/5`
 
 ### System Health Monitoring
 - Pipeline processing latency tracking
@@ -288,7 +300,7 @@ POLICY_REFRESH_INTERVAL=300000  # 5 minutes
 - **Added**: Severity-based violation classification system
 
 ### 3. Evaluation Framework
-- **Expanded**: Test cases from 20 to 50+ including adversarial scenarios
+- **Expanded**: Ground-truth corpus from the original 20-case baseline to the current 57-case suite
 - **Added**: AI-specific contract evaluation (ML liability, data processing)
 - **Added**: International contract support (multi-jurisdiction)
 - **Added**: Edge case validation (hybrid contracts, unusual structures)

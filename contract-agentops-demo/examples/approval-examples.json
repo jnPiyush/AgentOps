@@ -2,11 +2,22 @@
   {
     "input": {
       "risk_level": "HIGH",
-      "policy_violations": ["High liability cap", "Unapproved data transfer"]
+      "policy_violations": ["High liability cap", "Unapproved data transfer"],
+      "blocking_issues": ["Unapproved cross-border data transfer"]
     },
     "expected": {
       "decision": "CONDITIONAL",
-      "escalation_required": true
+      "confidence": 0.9,
+      "reasoning": "The contract can proceed only after the high-risk issues are remediated and reviewed.",
+      "conditions": [
+        "Reduce liability cap to policy threshold",
+        "Add approved cross-border transfer safeguards"
+      ],
+      "escalation_required": true,
+      "next_actions": [
+        "Send contract to legal reviewer",
+        "Re-run compliance after redlines"
+      ]
     }
   }
 ]
