@@ -39,7 +39,7 @@ config:
   human_in_loop:
     checkpoints: [compliance, approval]
     timeout: 24h
-    escalation_email: "legal-review@company.com"
+    escalation_email: "${LEGAL_REVIEW_EMAIL}"
     
   # Error Handling
   error_handling:

@@ -48,7 +48,7 @@ tools:
 behavior:
   role: "Classify contracts by type and extract initial metadata"
   boundary: "Classify only - no extraction or compliance judgment"  
-  output_schema: schemas/intake-result.json
+  output_schema: config/schemas/intake-result.json
   
   # Quality Gates
   validation:

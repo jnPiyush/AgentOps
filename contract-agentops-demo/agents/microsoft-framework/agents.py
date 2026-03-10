@@ -89,6 +89,28 @@ class ApprovalDecision(BaseModel):
     next_actions: List[str] = Field(description="Required next actions")
 
 
+class ExtractedClause(BaseModel):
+    """Structured output for extracted clauses."""
+    type: str = Field(description="Clause type")
+    text: str = Field(description="Clause text")
+    section: str = Field(description="Contract section identifier")
+
+
+class ExtractedValue(BaseModel):
+    """Structured output for extracted monetary or numeric values."""
+    label: str = Field(description="Value label")
+    value: float | str = Field(description="Extracted value")
+
+
+class ExtractionResult(BaseModel):
+    """Structured output for extraction evaluation."""
+    clauses: List[ExtractedClause] = Field(description="Structured clauses extracted from the contract")
+    parties: List[str] = Field(description="Contracting parties found in the document")
+    dates: List[str] = Field(description="Relevant contract dates")
+    values: List[ExtractedValue] = Field(description="Extracted values such as fees or caps")
+    confidence: float = Field(description="Extraction confidence (0.0-1.0)")
+
+
 # Agent Base Class with Framework Integration
 class DeclarativeContractAgent:
     """Base class for Microsoft Agent Framework contract agents"""
@@ -114,6 +136,39 @@ class DeclarativeContractAgent:
             client=self.client,
             tools=self.tools,
             system_prompt=self.system_prompt
+        )
+
+    def apply_model_settings(self, model_settings: Dict[str, Any]) -> None:
+        """Apply declarative YAML model settings to the runtime agent."""
+        timeout_value = model_settings.get("timeout")
+        parsed_timeout = self.model_config["timeout"]
+        if isinstance(timeout_value, str) and timeout_value.endswith("s"):
+            try:
+                parsed_timeout = int(timeout_value[:-1])
+            except ValueError:
+                parsed_timeout = self.model_config["timeout"]
+        elif isinstance(timeout_value, (int, float)):
+            parsed_timeout = int(timeout_value)
+
+        self.model_config = {
+            **self.model_config,
+            "model": model_settings.get("name", self.model_config["model"]),
+            "temperature": model_settings.get("temperature", self.model_config["temperature"]),
+            "max_tokens": model_settings.get("max_tokens", self.model_config["max_tokens"]),
+            "timeout": parsed_timeout,
+        }
+        self.client = self._create_client()
+        self.agent_config = AgentConfig(
+            name=self.agent_name,
+            model=self.model_config["model"],
+            temperature=self.model_config["temperature"],
+            max_tokens=self.model_config["max_tokens"],
+        )
+        self.agent = Agent(
+            agent_config=self.agent_config,
+            client=self.client,
+            tools=self.tools,
+            system_prompt=self.system_prompt,
         )
         
     def _create_client(self) -> OpenAIChatClient:
@@ -212,7 +267,7 @@ class ContractExtractionAgent(DeclarativeContractAgent):
         ]
     
     def _get_output_schema(self) -> BaseModel:
-        return ContractMetadata
+        return ExtractionResult
 
 
 class ContractComplianceAgent(DeclarativeContractAgent):
@@ -342,6 +397,7 @@ def load_agent_from_yaml(yaml_path: Path) -> DeclarativeContractAgent:
         read_json_asset(str(examples_ref))
 
     agent = AgentFactory.create_agent(agent_id)
+    agent.apply_model_settings(agent_definition.get("model", {}))
     agent.config_definition = agent_definition
     agent.asset_references = {
         "yaml": str(resolved_yaml_path),

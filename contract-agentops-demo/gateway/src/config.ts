@@ -9,11 +9,13 @@ export type DemoMode = "live" | "simulated";
 
 export interface AppConfig {
 	demoMode: DemoMode;
+	readonly deployAdminKey: string;
 	readonly foundryApiKey: string;
 	readonly foundryEndpoint: string;
 	readonly foundryProjectEndpoint: string;
 	readonly foundryModel: string;
 	readonly foundryModelSwap: string;
+	readonly legalReviewEmail: string;
 	readonly gatewayPort: number;
 	readonly mcpBasePort: number;
 	readonly logLevel: string;
@@ -26,11 +28,13 @@ function envOrDefault(key: string, fallback: string): string {
 
 export const appConfig: AppConfig = {
 	demoMode: envOrDefault("DEMO_MODE", "simulated") as DemoMode,
+	deployAdminKey: envOrDefault("DEPLOY_ADMIN_KEY", ""),
 	foundryApiKey: envOrDefault("FOUNDRY_API_KEY", ""),
 	foundryEndpoint: envOrDefault("FOUNDRY_ENDPOINT", ""),
 	foundryProjectEndpoint: envOrDefault("FOUNDRY_PROJECT_ENDPOINT", ""),
 	foundryModel: envOrDefault("FOUNDRY_MODEL", "gpt-4o"),
 	foundryModelSwap: envOrDefault("FOUNDRY_MODEL_SWAP", "gpt-4o-mini"),
+	legalReviewEmail: envOrDefault("LEGAL_REVIEW_EMAIL", "legal-review@company.com"),
 	gatewayPort: Number.parseInt(envOrDefault("GATEWAY_PORT", "8000"), 10),
 	mcpBasePort: Number.parseInt(envOrDefault("MCP_BASE_PORT", "9001"), 10),
 	logLevel: envOrDefault("LOG_LEVEL", "INFO"),

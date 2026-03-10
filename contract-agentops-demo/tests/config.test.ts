@@ -28,6 +28,7 @@ describe("gateway config", () => {
 		expect(appConfig.gatewayPort).toBe(8000);
 		expect(appConfig.demoMode).toMatch(/^(simulated|live)$/);
 		expect(appConfig.dataDir).toContain("data");
+		expect(appConfig.legalReviewEmail).toBeTruthy();
 	});
 });
 

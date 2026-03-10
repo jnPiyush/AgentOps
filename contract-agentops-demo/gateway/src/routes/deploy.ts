@@ -11,6 +11,37 @@ import {
 // Track last deployment for cleanup
 let lastDeployment: DeployPipelineResult | null = null;
 
+function ensureDeployAdminAccess(headerValue: string | undefined): {
+	allowed: boolean;
+	statusCode?: 401 | 503;
+	error?: string;
+	message?: string;
+} {
+	if (appConfig.demoMode !== "live") {
+		return { allowed: true };
+	}
+
+	if (!appConfig.deployAdminKey) {
+		return {
+			allowed: false,
+			statusCode: 503,
+			error: "deploy_admin_not_configured",
+			message: "DEPLOY_ADMIN_KEY must be configured for live deployment routes",
+		};
+	}
+
+	if (headerValue !== appConfig.deployAdminKey) {
+		return {
+			allowed: false,
+			statusCode: 401,
+			error: "unauthorized",
+			message: "Missing or invalid deploy admin key",
+		};
+	}
+
+	return { allowed: true };
+}
+
 function getFoundryConfig(): FoundryDeployConfig {
 	return {
 		endpoint: appConfig.foundryEndpoint,
@@ -22,7 +53,15 @@ function getFoundryConfig(): FoundryDeployConfig {
 
 export async function deployRoutes(app: FastifyInstance): Promise<void> {
 	// POST /api/v1/deploy/pipeline - Run full deployment pipeline
-	app.post("/api/v1/deploy/pipeline", async (_request, reply) => {
+	app.post("/api/v1/deploy/pipeline", async (request, reply) => {
+		const access = ensureDeployAdminAccess(request.headers["x-admin-key"] as string | undefined);
+		if (!access.allowed) {
+			return reply.status(access.statusCode ?? 401).send({
+				error: access.error,
+				message: access.message,
+			});
+		}
+
 		if (appConfig.demoMode === "live") {
 			const cfg = getFoundryConfig();
 			if (!cfg.endpoint || !cfg.apiKey) {
@@ -43,7 +82,15 @@ export async function deployRoutes(app: FastifyInstance): Promise<void> {
 	});
 
 	// GET /api/v1/deploy/status - Get last deployment result
-	app.get("/api/v1/deploy/status", async (_request, reply) => {
+	app.get("/api/v1/deploy/status", async (request, reply) => {
+		const access = ensureDeployAdminAccess(request.headers["x-admin-key"] as string | undefined);
+		if (!access.allowed) {
+			return reply.status(access.statusCode ?? 401).send({
+				error: access.error,
+				message: access.message,
+			});
+		}
+
 		if (!lastDeployment) {
 			return reply.status(404).send({
 				error: "no_deployment",
@@ -54,7 +101,15 @@ export async function deployRoutes(app: FastifyInstance): Promise<void> {
 	});
 
 	// DELETE /api/v1/deploy/agents - Cleanup registered agents
-	app.delete("/api/v1/deploy/agents", async (_request, reply) => {
+	app.delete("/api/v1/deploy/agents", async (request, reply) => {
+		const access = ensureDeployAdminAccess(request.headers["x-admin-key"] as string | undefined);
+		if (!access.allowed) {
+			return reply.status(access.statusCode ?? 401).send({
+				error: access.error,
+				message: access.message,
+			});
+		}
+
 		if (!lastDeployment || lastDeployment.agents.length === 0) {
 			return reply.status(404).send({
 				error: "no_agents",

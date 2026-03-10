@@ -297,7 +297,7 @@ export function buildWorkflowPackage(workflow: WorkflowDefinition): WorkflowPack
 			enabled: hasApprovalAgent || workflow.type.includes("hitl"),
 			reviewer_role: "legal-reviewer",
 			timeout_hours: 24,
-			escalation_email: "legal-review@company.com",
+			escalation_email: appConfig.legalReviewEmail,
 			checkpoints: hasApprovalAgent ? ["approval"] : [],
 		},
 		manifest_references: [
