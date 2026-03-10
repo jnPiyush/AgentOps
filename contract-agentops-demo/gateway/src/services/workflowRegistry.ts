@@ -118,7 +118,7 @@ const roleAssetMap: Record<string, RoleAssetDefinition> = {
 	},
 };
 
-let initialized = false;
+let initPromise: Promise<void> | null = null;
 let activePackageCache: WorkflowPackage | null = null;
 
 function normalizeText(value: string): string {
@@ -166,7 +166,8 @@ function inferRoleKey(agent: WorkflowAgent): string {
 		return "approval";
 	}
 
-	return agent.kind === "human" ? "human" : agent.kind === "merge" ? "merge" : agent.kind === "orchestrator" ? "orchestrator" : "custom";
+	const nonAgentKind: Partial<Record<string, string>> = { human: "human", merge: "merge", orchestrator: "orchestrator" };
+	return nonAgentKind[agent.kind ?? ""] ?? "custom";
 }
 
 function buildRuntimeAgentBinding(agent: WorkflowAgent): RuntimeAgentBinding {
@@ -216,7 +217,7 @@ async function writeJsonFile(filePath: string, value: unknown): Promise<void> {
 }
 
 function ensureInitialized(): void {
-	if (!initialized) {
+	if (!initPromise) {
 		throw new Error("Workflow registry not initialized. Call initWorkflowRegistry() first.");
 	}
 }
@@ -313,12 +314,13 @@ export function buildWorkflowPackage(workflow: WorkflowDefinition): WorkflowPack
 }
 
 export async function initWorkflowRegistry(): Promise<void> {
-	if (initialized) {
-		return;
+	if (!initPromise) {
+		initPromise = (async () => {
+			await workflowStore.load();
+			activePackageCache = await readJsonFile<WorkflowPackage>(activePackagePath);
+		})();
 	}
-	await workflowStore.load();
-	activePackageCache = await readJsonFile<WorkflowPackage>(activePackagePath);
-	initialized = true;
+	return initPromise;
 }
 
 export function listWorkflows(): WorkflowDefinition[] {
@@ -352,7 +354,7 @@ export function getActiveWorkflow(): WorkflowDefinition | undefined {
 
 export function getActiveWorkflowPackage(): WorkflowPackage | null {
 	ensureInitialized();
-	return activePackageCache ? { ...activePackageCache, agents: activePackageCache.agents.map((agent) => ({ ...agent, tools: [...agent.tools], declarative: { ...agent.declarative } })) } : null;
+	return activePackageCache ? structuredClone(activePackageCache) : null;
 }
 
 export async function saveWorkflowDefinition(input: {

@@ -3,10 +3,7 @@
 import json
 from pathlib import Path
 from typing import Any, Optional
-try:
-    from pydantic_settings import BaseSettings
-except ImportError:
-    from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from pydantic import Field
 
 
