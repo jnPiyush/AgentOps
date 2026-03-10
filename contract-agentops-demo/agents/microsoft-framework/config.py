@@ -1,7 +1,8 @@
 """Microsoft Agent Framework Configuration"""
 
+import json
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 try:
     from pydantic_settings import BaseSettings
 except ImportError:
@@ -15,6 +16,7 @@ class AgentFrameworkConfig(BaseSettings):
     # Microsoft Foundry Configuration
     foundry_endpoint: str = Field(..., env="FOUNDRY_ENDPOINT")
     foundry_api_key: str = Field(..., env="FOUNDRY_API_KEY")
+    foundry_project_endpoint: Optional[str] = Field(None, env="FOUNDRY_PROJECT_ENDPOINT")
     
     # Model Configuration (Pinned Versions)
     primary_model: str = Field("gpt-5.1-2026-01-15", env="PRIMARY_MODEL")
@@ -30,8 +32,13 @@ class AgentFrameworkConfig(BaseSettings):
     project_root: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent)
     prompts_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "prompts")
     templates_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "templates")
+    examples_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "examples")
     config_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "config")
+    schemas_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "config" / "schemas")
+    agents_config_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "config" / "agents")
+    workflows_config_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "config" / "workflows")
     data_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "data")
+    runtime_dir: Path = Field(default_factory=lambda: Path(__file__).parent.parent.parent / "data" / "runtime")
     
     # MCP Server Configuration
     mcp_servers: dict = Field(default_factory=lambda: {
@@ -84,13 +91,40 @@ def get_model_config(model_type: str = "primary") -> dict:
         "model": models.get(model_type, config.primary_model),
         "api_key": config.foundry_api_key,
         "endpoint": config.foundry_endpoint,
+        "project_endpoint": config.foundry_project_endpoint or config.foundry_endpoint,
         "temperature": config.temperature,
         "max_tokens": config.max_tokens,
         "timeout": config.timeout_seconds
     }
 
 
-def initialize_tracing() -> None:
+def resolve_asset_path(relative_path: str) -> Path:
+    """Resolve a repo-relative declarative asset path."""
+    path = Path(relative_path)
+    if path.is_absolute():
+        return path
+    return config.project_root / path
+
+
+def read_text_asset(relative_path: str) -> str:
+    """Read a UTF-8 text asset from the repo."""
+    asset_path = resolve_asset_path(relative_path)
+    return asset_path.read_text(encoding="utf-8")
+
+
+def read_json_asset(relative_path: str) -> Any:
+    """Read a JSON asset from the repo."""
+    asset_path = resolve_asset_path(relative_path)
+    with asset_path.open("r", encoding="utf-8") as asset_file:
+        return json.load(asset_file)
+
+
+def get_active_workflow_package_path() -> Path:
+    """Get the active workflow package path materialized by the gateway."""
+    return config.runtime_dir / "active-workflow.json"
+
+
+def initialize_tracing() -> Optional[object]:
     """Initialize OpenTelemetry tracing"""
     if not config.tracing_enabled:
         return

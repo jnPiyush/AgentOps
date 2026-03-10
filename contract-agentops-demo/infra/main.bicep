@@ -17,6 +17,9 @@ param foundryEndpoint string
 @secure()
 param foundryApiKey string
 
+@description('Azure AI Foundry project endpoint URL')
+param foundryProjectEndpoint string
+
 @description('Model deployment name')
 param foundryModel string = 'gpt-4o'
 
@@ -56,6 +59,7 @@ module appService './modules/app-service.bicep' = {
     appServicePlanId: appServicePlan.outputs.id
     foundryEndpoint: foundryEndpoint
     foundryApiKey: foundryApiKey
+    foundryProjectEndpoint: foundryProjectEndpoint
     foundryModel: foundryModel
     demoMode: demoMode
   }

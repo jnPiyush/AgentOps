@@ -1,0 +1,12 @@
+{
+  "contract_id": "CONT-2026-001",
+  "title": "Master Services Agreement",
+  "parties": ["Acme Corp", "Beta Inc"],
+  "contract_type": "MSA",
+  "effective_date": "2026-01-01",
+  "expiry_date": "2027-01-01",
+  "value": 250000,
+  "currency": "USD",
+  "jurisdiction": "New York",
+  "confidence_score": 0.95
+}

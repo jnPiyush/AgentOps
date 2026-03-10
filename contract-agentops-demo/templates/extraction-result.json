@@ -1,0 +1,11 @@
+{
+  "clauses": [
+    { "type": "termination", "text": "Either party may terminate with 30 days notice.", "section": "7.1" }
+  ],
+  "parties": ["Acme Corp", "Beta Inc"],
+  "dates": ["2026-01-01", "2027-01-01"],
+  "values": [
+    { "label": "liability_cap", "value": 250000 }
+  ],
+  "confidence": 0.93
+}

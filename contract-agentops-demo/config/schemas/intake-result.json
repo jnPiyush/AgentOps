@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contract-agentops/intake-result",
+  "title": "IntakeResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract_id", "title", "parties", "contract_type", "confidence_score"],
+  "properties": {
+    "contract_id": { "type": "string" },
+    "title": { "type": "string" },
+    "parties": { "type": "array", "items": { "type": "string" } },
+    "contract_type": { "type": "string" },
+    "effective_date": { "type": ["string", "null"] },
+    "expiry_date": { "type": ["string", "null"] },
+    "value": { "type": ["number", "null"] },
+    "currency": { "type": ["string", "null"] },
+    "jurisdiction": { "type": ["string", "null"] },
+    "confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+  }
+}

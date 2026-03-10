@@ -1,0 +1,71 @@
+# Declarative Agent Configuration - Extraction Agent
+# Purpose: Clause, party, date, and value extraction
+# Framework: Microsoft Agent Framework compatible
+# Version: 1.0.0
+
+agent_id: extraction
+name: Contract Extraction Agent
+version: 1.0.0
+created: 2026-03-10
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.0
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 45s
+
+prompts:
+  system_prompt: prompts/extraction-system.md
+  output_template: templates/extraction-result.json
+  few_shot_examples: examples/extraction-examples.json
+
+tools:
+  - name: extract_clauses
+    mcp_server: contract-extraction-mcp
+    description: Extract clauses from a contract
+    required: true
+    timeout: 20s
+  - name: identify_parties
+    mcp_server: contract-extraction-mcp
+    description: Identify contracting parties
+    required: true
+    timeout: 15s
+  - name: extract_dates_values
+    mcp_server: contract-extraction-mcp
+    description: Extract dates and monetary values
+    required: true
+    timeout: 15s
+
+behavior:
+  role: "Extract structured clauses, entities, parties, dates, and monetary values"
+  boundary: "Extract only - no policy judgement or approval routing"
+  output_schema: config/schemas/extraction-result.json
+  validation:
+    required_fields: [clauses, parties, dates, values, confidence]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 8s
+    max_latency: 20s
+
+workflow:
+  input_from: [intake_agent, user_upload]
+  output_to: [compliance_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: false
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, extraction_accuracy]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

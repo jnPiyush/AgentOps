@@ -1,0 +1,11 @@
+[
+  {
+    "input": {
+      "clauses": ["data transfer outside approved jurisdictions", "liability cap of $10,000,000"]
+    },
+    "expected": {
+      "risk_level": "HIGH",
+      "approval_required": true
+    }
+  }
+]

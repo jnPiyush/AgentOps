@@ -1,0 +1,160 @@
+name: Contract AgentOps Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      demo_mode:
+        description: "Deployment mode"
+        required: true
+        type: choice
+        default: simulated
+        options:
+          - simulated
+          - live
+      environment_name:
+        description: "azd environment name"
+        required: true
+        type: string
+        default: contract-agentops-prod
+      azure_location:
+        description: "Azure region"
+        required: true
+        type: string
+        default: eastus2
+      foundry_model:
+        description: "Foundry deployment name"
+        required: true
+        type: string
+        default: gpt-4o
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contract-agentops-deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: contract-agentops-demo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: contract-agentops-demo/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs: validate
+    defaults:
+      run:
+        working-directory: contract-agentops-demo
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      FOUNDRY_ENDPOINT: ${{ secrets.FOUNDRY_ENDPOINT }}
+      FOUNDRY_PROJECT_ENDPOINT: ${{ secrets.FOUNDRY_PROJECT_ENDPOINT }}
+      FOUNDRY_API_KEY: ${{ secrets.FOUNDRY_API_KEY }}
+      FOUNDRY_MODEL: ${{ github.event.inputs.foundry_model }}
+      AZD_ENV_NAME: ${{ github.event.inputs.environment_name }}
+      AZURE_LOCATION: ${{ github.event.inputs.azure_location }}
+      DEMO_MODE: ${{ github.event.inputs.demo_mode }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: contract-agentops-demo/package-lock.json
+
+      - name: Install Azure Developer CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ! command -v azd >/dev/null 2>&1; then
+            curl -fsSL https://aka.ms/install-azd.sh | bash
+            echo "$HOME/.azd/bin" >> "$GITHUB_PATH"
+            export PATH="$HOME/.azd/bin:$PATH"
+          fi
+          azd version
+
+      - name: Verify Azure CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          az version
+
+      - name: Azure login with service principal
+        shell: bash
+        run: |
+          set -euo pipefail
+          az login --service-principal \
+            --username "$AZURE_CLIENT_ID" \
+            --password "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID"
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+
+      - name: Prepare azd environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.azd/bin:$PATH"
+          azd env select "$AZD_ENV_NAME" || azd env new "$AZD_ENV_NAME"
+          azd env set AZURE_LOCATION "$AZURE_LOCATION"
+          azd env set FOUNDRY_ENDPOINT "$FOUNDRY_ENDPOINT"
+          azd env set FOUNDRY_PROJECT_ENDPOINT "$FOUNDRY_PROJECT_ENDPOINT"
+          azd env set FOUNDRY_API_KEY "$FOUNDRY_API_KEY"
+          azd env set FOUNDRY_MODEL "$FOUNDRY_MODEL"
+          azd env set DEMO_MODE "$DEMO_MODE"
+
+      - name: Provision infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.azd/bin:$PATH"
+          azd provision --no-prompt
+
+      - name: Deploy application
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.azd/bin:$PATH"
+          azd deploy --no-prompt
+
+      - name: Verify deployed application
+        shell: pwsh
+        run: |
+          $appUrl = azd env get-value AZURE_APP_SERVICE_URL
+          ./scripts/deploy/verify-deployment.ps1 -AppUrl $appUrl

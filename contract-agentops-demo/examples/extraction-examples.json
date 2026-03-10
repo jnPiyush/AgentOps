@@ -1,0 +1,11 @@
+[
+  {
+    "input": {
+      "document_text": "Acme will provide consulting services to Beta for 12 months with a liability cap of $250,000."
+    },
+    "expected": {
+      "clauses": ["services", "liability_cap"],
+      "values": [250000]
+    }
+  }
+]

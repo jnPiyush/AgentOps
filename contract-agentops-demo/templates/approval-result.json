@@ -1,0 +1,8 @@
+{
+  "decision": "CONDITIONAL",
+  "confidence": 0.9,
+  "reasoning": "Contract can proceed if the compliance recommendation is completed.",
+  "conditions": ["Add data processing addendum"],
+  "escalation_required": false,
+  "next_actions": ["Send contract back to legal reviewer", "Re-run compliance check"]
+}

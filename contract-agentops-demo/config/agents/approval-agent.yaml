@@ -1,0 +1,71 @@
+# Declarative Agent Configuration - Approval Agent
+# Purpose: Approval routing and human review escalation
+# Framework: Microsoft Agent Framework compatible
+# Version: 1.0.0
+
+agent_id: approval
+name: Contract Approval Agent
+version: 1.0.0
+created: 2026-03-10
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.0
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 30s
+
+prompts:
+  system_prompt: prompts/approval-system.md
+  output_template: templates/approval-result.json
+  few_shot_examples: examples/approval-examples.json
+
+tools:
+  - name: route_approval
+    mcp_server: contract-workflow-mcp
+    description: Determine approval path for a contract
+    required: true
+    timeout: 10s
+  - name: escalate_to_human
+    mcp_server: contract-workflow-mcp
+    description: Escalate a contract for human review
+    required: true
+    timeout: 10s
+  - name: notify_stakeholder
+    mcp_server: contract-workflow-mcp
+    description: Notify the next stakeholder in the approval flow
+    required: false
+    timeout: 10s
+
+behavior:
+  role: "Make approval decisions or route contracts for human review based on risk"
+  boundary: "Approval routing only - does not change policy rules or extraction output"
+  output_schema: config/schemas/approval-result.json
+  validation:
+    required_fields: [decision, confidence, reasoning, conditions, escalation_required, next_actions]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 6s
+    max_latency: 15s
+
+workflow:
+  input_from: [compliance_agent]
+  output_to: [audit_log, human_review]
+  execution_mode: sequential
+  human_in_loop: true
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, escalation_rate]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

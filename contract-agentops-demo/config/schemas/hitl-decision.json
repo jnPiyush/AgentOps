@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contract-agentops/hitl-decision",
+  "title": "HitlDecision",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["workflow_instance_id", "decision", "reviewer", "timestamp"],
+  "properties": {
+    "workflow_instance_id": { "type": "string" },
+    "decision": { "type": "string", "enum": ["PROCEED", "REJECT", "MODIFY"] },
+    "reviewer": { "type": "string" },
+    "timestamp": { "type": "string" },
+    "comments": { "type": ["string", "null"] },
+    "modifications": { "type": ["object", "null"] }
+  }
+}

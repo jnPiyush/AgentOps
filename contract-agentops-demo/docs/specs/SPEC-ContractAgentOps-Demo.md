@@ -1,1204 +1,443 @@
----
-inputs:
-  feature_name:
-    description: "Name of the feature being specified"
-    required: true
-    default: "Contract AgentOps Demo"
-  issue_number:
-    description: "GitHub issue number for this feature"
-    required: true
-    default: ""
-  epic_id:
-    description: "Parent Epic issue number"
-    required: false
-    default: ""
-  author:
-    description: "Spec author (agent or person)"
-    required: false
-    default: "Solution Architect Agent"
-  date:
-    description: "Specification date (YYYY-MM-DD)"
-    required: false
-    default: "2026-03-04"
----
-
 # Technical Specification: Contract AgentOps Demo
 
-**Feature**: Contract AgentOps Demo - Full System
-**Epic**: Contract AgentOps Demo
+**Feature**: Contract AgentOps Demo
 **Status**: Draft
 **Author**: Solution Architect Agent
-**Date**: 2026-03-04
+**Date**: 2026-03-10
 **Related PRD**: [PRD-ContractAgentOps-Demo.md](../prd/PRD-ContractAgentOps-Demo.md)
 **Related ADR**: [ADR-ContractAgentOps-Demo.md](../adr/ADR-ContractAgentOps-Demo.md)
 **Related UX**: [UX-ContractAgentOps-Dashboard.md](../ux/UX-ContractAgentOps-Dashboard.md)
-
-> **Acceptance Criteria**: Defined in the PRD user stories - see [PRD-ContractAgentOps-Demo.md](../prd/PRD-ContractAgentOps-Demo.md#5-user-stories--features). Engineers should track AC completion against the originating Story issue.
-
----
-
-## Table of Contents
-
-1. [Overview](#1-overview)
-2. [Architecture Diagrams](#2-architecture-diagrams)
-3. [API Design](#3-api-design)
-4. [Data Model Diagrams](#4-data-model-diagrams)
-5. [Service Layer Diagrams](#5-service-layer-diagrams)
-6. [Security Diagrams](#6-security-diagrams)
-7. [Performance](#7-performance)
-8. [Testing Strategy](#8-testing-strategy)
-9. [Implementation Notes](#9-implementation-notes)
-10. [Rollout Plan](#10-rollout-plan)
-11. [Risks & Mitigations](#11-risks--mitigations)
-12. [Monitoring & Observability](#12-monitoring--observability)
-13. [AI/ML Specification](#13-aiml-specification) *(if applicable)*
 
 ---
 
 ## 1. Overview
 
-### Feature Summary
+This specification defines the engineering baseline for the Contract AgentOps Demo after the architecture consolidation. It resolves three decisions that were still ambiguous in the repository state:
 
-An end-to-end Contract AgentOps Demo system consisting of 8 MCP servers (TypeScript/@modelcontextprotocol/sdk), 4 AI agents (Microsoft Foundry GPT-4o), a Fastify API gateway (TypeScript) with WebSocket, and a static dashboard UI (vanilla HTML/CSS/JS). The system demonstrates 8 AgentOps lifecycle stages: Design, Test, Deploy, Run, Monitor, Evaluate, Detect (Drift), and Feedback.
+| Topic | Decision | Confidence |
+|-------|----------|------------|
+| Runtime operating model | Mixed runtime: TypeScript control plane plus Python Microsoft Agent Framework executor | [Confidence: HIGH] |
+| Runtime contract | The gateway owns workflow definition, validation, activation, and execution requests; the MAF executor owns orchestration and in-flight workflow state | [Confidence: HIGH] |
+| Declarative source of truth | Prompts, schemas, agent configs, workflow manifests, evaluation datasets, and policy assets are repo-local declarative artifacts consumed by the runtime, not inferred from code | [Confidence: HIGH] |
 
-> **Architecture Update (2026-03-07)**: The React dashboard (`dashboard/`) has been archived. The primary UI is now the static dashboard under `ui/` served by the gateway at `http://localhost:8000`. All port 3000 references in this spec are historical.
+### Intended Outcome
 
-### Technical Scope
+Engineering should be able to implement the runtime without re-deciding:
 
-| Component | Technology | Count |
-|-----------|------------|-------|
-| MCP Servers | TypeScript + @modelcontextprotocol/sdk | 8 servers, 30+ tools |
-| AI Agents | Semantic Kernel JS / Foundry REST API + GPT-4o | 4 agents (Intake, Extraction, Compliance, Approval) |
-| API Gateway | TypeScript + Fastify + ws (WebSocket) | 1 gateway |
-| Dashboard | Static HTML/CSS/JS (vanilla, no build step) | 8 views, served by gateway |
-| Data Store | In-memory JSON with file persistence | 6 JSON files |
-| Prompts | Markdown files in `prompts/` | 4 agent prompts + system instructions |
-| LLM (Judge) | Microsoft Foundry GPT-4o (LLM-as-judge) | Evaluation scoring |
-
-### Out of Scope (Per ADR)
-
-- Production database, authentication, multi-tenancy
-- Real Azure Document Intelligence OCR
-- Real CI/CD pipeline execution
-- Mobile-responsive optimization
-
-### Success Criteria
-
-- All 8 MCP servers healthy and responding on ports 9001-9008
-- 4 AI agents process contracts end-to-end in both live and simulated modes
-- Dashboard renders all 8 views with real-time WebSocket updates
-- Evaluation suite achieves >= 85% accuracy on 20 ground-truth contract cases
-- Full pipeline (4 agents) completes in < 30 seconds in live mode
-- Single `npm start` command launches entire system
-- Simulated mode works without any Azure credentials
-- HITL escalation triggers correctly for high-risk contracts
+| Concern | Outcome |
+|---------|---------|
+| Where the workflow is authored | Static dashboard through the TypeScript gateway |
+| What gets activated | A versioned workflow package |
+| What executes the package | Python Microsoft Agent Framework runtime |
+| Where tools live | TypeScript MCP servers |
+| What Foundry does | Model hosting, tracing, evaluation, safety, and agent-service-aligned control-plane capabilities |
 
 ---
 
-## 2. Architecture Diagrams
+## 2. Goals And Non-Goals
 
-### 2.1 High-Level System Architecture
+### Goals
 
-```mermaid
-graph TB
-    subgraph Frontend["Static Dashboard UI (ui/)"]
-        direction LR
-        V1["Design<br/>Canvas"]
-        V2["Test<br/>Lab"]
-        V3["Deploy<br/>Dash"]
-        V4["Live<br/>Workflow"]
-        V5["Monitor<br/>Panel"]
-        V6["Eval<br/>Lab"]
-        V7["Drift<br/>Center"]
-        V8["Feedback<br/>Loop"]
-    end
+| ID | Goal |
+|----|------|
+| G1 | Preserve the working TypeScript UI, gateway, and MCP tool plane |
+| G2 | Adopt Microsoft Agent Framework as the real agent execution runtime rather than a mock compatibility layer |
+| G3 | Define a stable contract between workflow authoring and workflow execution |
+| G4 | Make declarative assets complete and reviewable so prompts, schemas, agent configs, and workflow manifests become source-of-truth artifacts |
+| G5 | Support both simulated mode and live Foundry mode without changing product-facing authoring behavior |
+| G6 | Keep the demo explainable to enterprise stakeholders and implementable by a small engineering team |
 
-    subgraph Gateway["API Gateway (TypeScript/Fastify)"]
-        direction LR
-        REST["REST API<br/>/api/v1/*"]
-        WS["WebSocket<br/>/ws/workflow"]
-        ORCH["Agent<br/>Orchestrator"]
-        ADAPT["Mode Adapter<br/>live or simulated"]
-    end
+### Non-Goals
 
-    subgraph Agents["Agent Layer (Semantic Kernel JS / Foundry REST)"]
-        direction LR
-        A1["Intake<br/>Agent"]
-        A2["Extraction<br/>Agent"]
-        A3["Compliance<br/>Agent"]
-        A4["Approval<br/>Agent"]
-    end
-
-    subgraph MCP["MCP Server Layer (@modelcontextprotocol/sdk)"]
-        direction LR
-        M1["Intake<br/>MCP"]
-        M2["Extraction<br/>MCP"]
-        M3["Compliance<br/>MCP"]
-        M4["Workflow<br/>MCP"]
-        M5["Audit<br/>MCP"]
-        M6["Eval<br/>MCP"]
-        M7["Drift<br/>MCP"]
-        M8["Feedback<br/>MCP"]
-    end
-
-    subgraph Data["Data Layer (JSON Files)"]
-        direction LR
-        D1["contracts.json"]
-        D2["policies.json"]
-        D3["evaluations.json"]
-        D4["feedback.json"]
-        D5["audit.json"]
-        D6["drift.json"]
-    end
-
-    subgraph LLM["LLM Provider"]
-        F1["Microsoft Foundry<br/>GPT-4o"]
-        F2["GPT-4o-mini<br/>(swap demo)"]
-    end
-
-    Frontend -->|HTTP + WebSocket| Gateway
-    Gateway --> Agents
-    Agents -->|MCP Protocol| MCP
-    MCP --> Data
-    ADAPT -->|live mode| LLM
-    ADAPT -->|simulated mode| Data
-```
-
-### 2.2 Agent Pipeline Sequence
-
-```mermaid
-sequenceDiagram
-    participant UI as Static Dashboard UI
-    participant GW as API Gateway
-    participant WS as WebSocket
-    participant IA as Intake Agent
-    participant EA as Extraction Agent
-    participant CA as Compliance Agent
-    participant AA as Approval Agent
-    participant LLM as Foundry GPT-4o
-
-    Note over UI,LLM: Step 1 - Contract Submission
-    UI->>GW: POST /api/v1/contracts (pdf_text)
-    GW->>WS: status processing_started
-    GW->>IA: process(contract)
-    IA->>LLM: classify + extract metadata
-    LLM-->>IA: type NDA, confidence 0.96
-    IA-->>GW: intake_result
-    GW->>WS: status intake_complete
-
-    Note over UI,LLM: Step 2 - Extraction
-    GW->>EA: process(contract, intake_result)
-    EA->>LLM: extract clauses, parties, dates
-    LLM-->>EA: clauses, parties arrays
-    EA-->>GW: extraction_result
-    GW->>WS: status extraction_complete
-
-    Note over UI,LLM: Step 3 - Compliance Check
-    GW->>CA: process(contract, extraction_result)
-    CA->>LLM: check against policies (RAG)
-    LLM-->>CA: results with clause, status, policy_ref
-    CA-->>GW: compliance_result
-    GW->>WS: status compliance_complete
-
-    Note over UI,LLM: Step 4 - Approval (HITL Gate)
-    GW->>AA: process(contract, compliance_result)
-    AA->>LLM: evaluate risk level
-    LLM-->>AA: risk HIGH
-    AA-->>GW: action escalate_to_human
-    GW->>WS: status awaiting_human_review
-    Note over UI: Dashboard shows HITL panel
-    UI->>GW: POST review with decision approve
-    GW->>WS: status approved
-```
-
-### 2.3 MCP Server Internal Architecture
-
-```mermaid
-graph TB
-    subgraph MCPServer["Single MCP Server (e.g., contract-extraction-mcp)"]
-        direction TB
-        ENTRY["MCP SDK Entry Point<br/>server.ts"]
-        TOOLS["Tool Registry<br/>MCP tool definitions"]
-        LOGIC["Business Logic<br/>extractionEngine.ts"]
-        STORE["Data Store<br/>JSON read/write"]
-        ADAPTER["LLM Adapter<br/>live or simulated"]
-    end
-
-    EXT_CLIENT["External Caller<br/>(Agent / Gateway / CLI)"] -->|MCP Protocol| ENTRY
-    ENTRY --> TOOLS
-    TOOLS --> LOGIC
-    LOGIC --> STORE
-    LOGIC --> ADAPTER
-    ADAPTER -->|live| FOUNDRY["Foundry API"]
-    ADAPTER -->|simulated| CACHE["data/simulated/*.json"]
-```
-
-### 2.4 Component Architecture (Dashboard UI)
-
-```mermaid
-graph TB
-    subgraph App["App (Root)"]
-        NAV["NavBar<br/>8 tabs + progress dots"]
-        ROUTER["ViewRouter"]
-        STATUS["StatusBar<br/>MCP health + model + count"]
-    end
-
-    subgraph Views["8 Views"]
-        DC["DesignCanvas<br/>AgentCard x4 + PipelineConnector"]
-        BC["WorkflowTestLab<br/>ScenarioSelector + Results"]
-        DD["DeployDashboard<br/>PipelineStages + RegistryTable"]
-        LW["LiveWorkflow<br/>WorkflowCanvas + HitlPanel"]
-        MP["MonitorPanel<br/>TraceTree + AuditTrail"]
-        EL["EvaluationLab<br/>MetricCard + QualityGate"]
-        DT["DriftDetection<br/>DriftChart + ModelSwap"]
-        FB["FeedbackLoop<br/>FeedbackList + PromptEditor"]
-    end
-
-    subgraph Shared["Shared Components"]
-        AC["AgentCard"]
-        MC["MetricCard"]
-        SB["StatusBadge"]
-        JV["JsonViewer"]
-        PB["ProgressBar"]
-    end
-
-    subgraph State["State Management"]
-        CTX["AppContext<br/>(React Context)"]
-        WS_HOOK["useWebSocket<br/>(custom hook)"]
-        API_HOOK["useApi<br/>(custom hook)"]
-    end
-
-    App --> Views
-    Views --> Shared
-    Views --> State
-    DC --> AC
-    EL --> MC
-    MP --> JV
-    LW --> PB
-```
-
-### 2.5 Dual-Mode Adapter Pattern
-
-```mermaid
-graph LR
-    AGENT["Agent<br/>(Intake/Extract/...)"] --> IFACE["ILlmAdapter<br/>interface"]
-    IFACE -->|DEMO_MODE=live| LIVE["FoundryAdapter<br/>Real API calls<br/>GPT-4o / GPT-4o-mini"]
-    IFACE -->|DEMO_MODE=simulated| SIM["SimulatedAdapter<br/>Pre-recorded JSON<br/>data/simulated/"]
-
-    ENV["Environment Variable<br/>DEMO_MODE=live or simulated"] -.->|selects| IFACE
-
-    style LIVE fill:#E8F5E9,stroke:#2E7D32
-    style SIM fill:#FFF3E0,stroke:#E65100
-```
+| ID | Non-Goal |
+|----|----------|
+| NG1 | Rewriting the existing gateway, UI, and MCP servers into Python |
+| NG2 | Making the dashboard a direct MAF host |
+| NG3 | Treating workflow authoring JSON from the UI as the final execution payload without canonical normalization |
+| NG4 | Introducing a production multi-tenant platform, service mesh, or durable workflow engine beyond what the demo needs |
+| NG5 | Replacing MCP with direct tool calls from the MAF executor |
 
 ---
 
-## 3. API Design
+## 3. Architecture
 
-### 3.1 API Gateway Endpoints
+```mermaid
+graph TB
+    subgraph Experience[Experience and Control Plane]
+        UI[Static Dashboard]
+        GW[TypeScript Gateway]
+        REG[Workflow Registry]
+    end
 
-| Method | Endpoint | Description | WebSocket Push |
-|--------|----------|-------------|----------------|
-| GET | `/api/v1/health` | Health check for gateway + all MCP servers | No |
-| POST | `/api/v1/contracts` | Submit a contract for processing (triggers pipeline) | Yes -- step-by-step progress |
-| GET | `/api/v1/contracts` | List all processed contracts | No |
-| GET | `/api/v1/contracts/{id}` | Get contract details + processing results | No |
-| POST | `/api/v1/contracts/{id}/review` | Submit HITL review decision | Yes -- approval status |
-| POST | `/api/v1/tools/{server}/{tool}` | Execute a single MCP tool (gateway capability for direct calls, not the primary Test tab UX) | No |
-| GET | `/api/v1/tools` | List all MCP servers and their tools | No |
-| POST | `/api/v1/evaluations/run` | Run evaluation suite | Yes -- per-contract progress |
-| GET | `/api/v1/evaluations/results` | Get latest evaluation results | No |
-| GET | `/api/v1/evaluations/baseline` | Get baseline comparison | No |
-| GET | `/api/v1/drift/llm` | Get LLM drift timeline data | No |
-| GET | `/api/v1/drift/data` | Get data drift analysis | No |
-| POST | `/api/v1/drift/model-swap` | Simulate model swap comparison | No |
-| POST | `/api/v1/feedback` | Submit feedback on agent output | No |
-| GET | `/api/v1/feedback/summary` | Get feedback trends and summary | No |
-| POST | `/api/v1/feedback/optimize` | Convert feedback to test cases + re-evaluate | Yes -- optimization progress |
-| GET | `/api/v1/audit/{contract_id}` | Get decision audit trail for a contract | No |
-| GET | `/api/v1/traces/{contract_id}` | Get trace data (agent steps, tool calls, latency) | No |
-| POST | `/api/v1/deploy/pipeline` | Trigger simulated deployment pipeline | Yes -- stage progress |
-| POST | `/api/v1/prompts/{agent}` | Update agent prompt (Feedback view) | No |
-| WS | `/ws/workflow` | WebSocket for real-time pipeline progress | N/A |
+    subgraph Execution[Execution Plane]
+        MAF[Python Microsoft Agent Framework Executor]
+        EST[Execution State]
+        HITL[Human Review Coordinator]
+    end
 
-### 3.2 Key Request/Response Contracts
+    subgraph Declarative[Declarative Asset Plane]
+        PR[Prompts]
+        SC[Schemas]
+        AC[Agent Configs]
+        WM[Workflow Manifests]
+        EV[Evaluation Assets]
+        PL[Policy Assets]
+    end
 
-#### POST /api/v1/contracts
+    subgraph Tools[Tool Plane]
+        MCP[TypeScript MCP Servers]
+        DATA[Domain Data]
+    end
 
-**Request Body:**
-```json
-{
-    "text": "This Non-Disclosure Agreement is entered into...",
-    "filename": "NDA-Acme-Beta-2026.pdf",
-    "source": "upload"
-}
+    subgraph Foundry[Microsoft Foundry]
+        MOD[Models]
+        TRC[Tracing]
+        EVAL[Evaluation]
+        SAFE[Safety and Monitoring]
+    end
+
+    UI --> GW
+    GW --> REG
+    GW --> MAF
+    REG --> MAF
+    PR --> MAF
+    SC --> MAF
+    AC --> MAF
+    WM --> MAF
+    EV --> EVAL
+    PL --> MCP
+    MAF --> EST
+    MAF --> HITL
+    MAF --> MCP
+    MCP --> DATA
+    MAF --> MOD
+    MAF --> TRC
+    MAF --> EVAL
+    MAF --> SAFE
 ```
 
-**Response (202 Accepted):**
-```json
-{
-    "contract_id": "contract-001",
-    "status": "processing",
-    "message": "Contract submitted. Follow /ws/workflow for real-time updates."
-}
-```
+### Architecture Decision
 
-#### WebSocket /ws/workflow Messages
+| Option | Summary | Why Not Selected |
+|--------|---------|------------------|
+| Node-only runtime | Keep all orchestration in TypeScript | Weakens the MAF story, forces bespoke orchestration, and duplicates work the framework already provides |
+| Full Python rewrite | Move gateway, UI control plane, and tools to Python | High migration cost with no demo benefit and unnecessary churn in working surfaces |
+| Mixed control plane plus executor | Keep TypeScript operator plane and MCP tools, add Python MAF executor | Best balance of pragmatism, framework alignment, and delivery risk |
 
-```json
-{
-    "event": "agent_step_complete",
-    "contract_id": "contract-001",
-    "agent": "intake",
-    "status": "complete",
-    "result": {
-        "type": "NDA",
-        "confidence": 0.96,
-        "parties": ["Acme Corp", "Beta Inc"]
-    },
-    "latency_ms": 1200,
-    "tokens": {"input": 342, "output": 128},
-    "timestamp": "2026-03-04T10:03:45Z"
-}
-```
+---
 
-#### POST /api/v1/tools/{server}/{tool}
+## 4. Component Design
 
-**Request Body:**
-```json
-{
-    "input": {
-        "text": "Recipient shall not disclose any Confidential Information..."
-    }
-}
-```
+### 4.1 Static Dashboard
 
-**Response (200 OK):**
-```json
-{
-    "output": {
-        "clauses": [
-            {"type": "confidentiality", "text": "...", "section": "3.1"}
-        ],
-        "confidence": 0.94
-    },
-    "latency_ms": 1200,
-    "tokens": {"input": 342, "output": 198},
-    "status": "success"
-}
-```
+| Responsibility | Description |
+|----------------|-------------|
+| Workflow authoring | Create, edit, validate, save, load, and activate workflows |
+| Operator visibility | Show deployment, live workflow, monitoring, evaluation, drift, and feedback views |
+| HITL interaction | Capture approval decisions and review comments |
 
-#### POST /api/v1/contracts/{id}/review
+### 4.2 TypeScript Gateway
 
-**Request Body:**
-```json
-{
-    "decision": "approve",
-    "reviewer": "Piyush",
-    "comment": "Acceptable for this strategic partner"
-}
-```
+| Responsibility | Description |
+|----------------|-------------|
+| Control-plane API | Expose workflow, contract, deploy, audit, evaluation, drift, and feedback APIs |
+| Workflow registry | Persist workflow definitions, track active workflow version, and publish runtime-ready workflow packages |
+| Translation boundary | Normalize UI authoring state into a canonical workflow package that the MAF executor consumes |
+| Demo coordination | Manage simulated mode, deployment view, and operator status surfaces |
 
-**Response (200 OK):**
-```json
-{
-    "contract_id": "contract-001",
-    "decision": "approve",
-    "status": "archived",
-    "timestamp": "2026-03-04T10:04:52Z"
-}
-```
+### 4.3 Python MAF Executor
 
-### 3.3 Error Response Format
+| Responsibility | Description |
+|----------------|-------------|
+| Orchestration | Execute the active workflow package using MAF workflows and agents |
+| Model routing | Select primary, fallback, and emergency models |
+| Tool mediation | Invoke MCP servers under explicit tool authorization boundaries |
+| HITL checkpoints | Pause, resume, reject, or modify workflow steps based on human decisions |
+| Execution state | Track workflow instance, step state, retries, and outputs |
+| Trace emission | Emit workflow and agent telemetry to Foundry and the gateway-visible audit surfaces |
 
-```json
-{
-    "error": "ValidationError",
-    "message": "Contract text is required",
-    "details": {"field": "text", "reason": "required"},
-    "request_id": "req-abc-123"
-}
-```
+### 4.4 MCP Servers
 
-| Status Code | Usage |
+| Responsibility | Description |
+|----------------|-------------|
+| Domain operations | Contract intake, extraction, compliance, workflow, audit, evaluation, drift, and feedback tools |
+| Business boundary | Remain the only allowed contract-domain tool interface for the MAF executor |
+
+---
+
+## 5. Data Model
+
+### 5.1 Runtime Control Objects
+
+| Object | Owner | Purpose |
+|--------|-------|---------|
+| Workflow Definition | Gateway | Authoring-time representation saved from the dashboard |
+| Workflow Package | Gateway | Canonical execution-ready artifact derived from the active workflow definition |
+| Workflow Activation | Gateway | Record that binds one workflow package version as active |
+| Workflow Execution Request | Gateway | Request to run the active workflow against a contract input |
+| Workflow Instance | MAF executor | In-flight execution state for a specific contract and workflow package version |
+| Step Result | MAF executor | Per-agent output validated against schemas |
+| HITL Decision | Gateway and MAF executor | Review outcome used to continue, reject, or modify execution |
+| Evaluation Record | Gateway plus Foundry | Quality result for promotion, demo evidence, and drift baselines |
+
+### 5.2 Required Workflow Package Fields
+
+| Field | Meaning |
+|-------|---------|
+| Workflow identifier | Stable logical workflow name |
+| Workflow version | Immutable activated version |
+| Authoring source | Reference to dashboard-saved workflow definition |
+| Execution topology | Sequential, parallel, sequential plus HITL, fan-out, or conditional |
+| Agent roster | Ordered set of runtime agents and roles |
+| Tool bindings | Allowed MCP tool references per agent |
+| Prompt references | File references to system prompts and optional templates |
+| Schema references | File references for input, output, and validation schemas |
+| Policy references | File references for contract and compliance policy assets |
+| Model policy | Primary, fallback, and emergency model references |
+| HITL policy | Checkpoint stages, timeout rules, approver role, and escalation path |
+| Mode policy | Simulated or live runtime behavior |
+
+### 5.3 Source-Of-Truth Rule
+
+| Artifact | Source Of Truth |
+|----------|-----------------|
+| Workflow authoring metadata | Gateway-managed workflow definition |
+| Runtime execution shape | Gateway-produced workflow package plus declarative asset references |
+| In-flight state | MAF executor |
+| Agent prompts | Files under prompts |
+| Validation contracts | Files under config or schemas |
+| Policy rules | Files under data and policy asset locations |
+
+---
+
+## 6. API Design
+
+### 6.1 Contract Between Gateway And MAF Executor
+
+The runtime contract is intentionally split into three phases.
+
+| Phase | System Of Record | Purpose |
+|-------|------------------|---------|
+| Author | Gateway | Save and validate workflow definitions from the dashboard |
+| Activate | Gateway | Publish one canonical active workflow package version |
+| Execute | MAF executor | Run contract instances against the active workflow package |
+
+### 6.2 Gateway Responsibilities In The Contract
+
+| Responsibility | Rule |
+|----------------|------|
+| Validate authoring state | The gateway blocks activation when structural validation fails |
+| Normalize workflow state | The gateway converts UI-specific layout data into a canonical workflow package |
+| Version workflow package | Every activation creates an immutable version |
+| Expose active workflow | The gateway exposes the currently active workflow package and version |
+| Start execution | The gateway submits contract execution requests against the active workflow package |
+| Collect HITL responses | The gateway accepts human decisions and forwards them to the matching workflow instance |
+
+### 6.3 MAF Executor Responsibilities In The Contract
+
+| Responsibility | Rule |
+|----------------|------|
+| Accept only canonical packages | The executor never runs raw UI authoring state |
+| Resolve declarative references | The executor loads prompts, schemas, agent configs, and workflow manifests from approved paths |
+| Enforce tool boundaries | The executor invokes only declared MCP tools for each agent |
+| Own workflow instance state | Retries, step status, pause state, and result materialization live in the executor |
+| Emit execution evidence | The executor returns execution status, step results, HITL waits, and trace identifiers |
+
+### 6.4 Required Control-Plane Endpoints
+
+| Endpoint Category | Purpose |
+|-------------------|---------|
+| Workflow registry | Save, list, retrieve, delete, and activate workflow definitions |
+| Active workflow package | Retrieve current canonical runtime package and version |
+| Execution submission | Start a workflow instance for a contract input |
+| Execution status | Query instance status, step state, and trace references |
+| HITL decision | Submit approval, rejection, or modification outcomes |
+
+### 6.5 State And Status Semantics
+
+| Status | Meaning | Owner |
+|--------|---------|-------|
+| Draft | Saved but not active workflow definition | Gateway |
+| Active | Workflow package version selected for execution | Gateway |
+| Accepted | Executor has accepted a run request | MAF executor |
+| Running | Workflow instance is in progress | MAF executor |
+| Waiting for review | Workflow instance paused for HITL | MAF executor |
+| Completed | Workflow instance finished successfully | MAF executor |
+| Failed | Workflow instance ended unsuccessfully | MAF executor |
+| Cancelled | Workflow instance was terminated intentionally | MAF executor |
+
+---
+
+## 7. Security
+
+| Area | Requirement |
+|------|-------------|
+| Trust boundaries | The dashboard never calls MCP servers or Foundry directly; all control flows through the gateway and executor |
+| Tool authorization | Each agent may invoke only the MCP tools declared in the active workflow package |
+| Secret handling | Foundry credentials remain in environment or vault-backed settings, never in workflow definitions or prompt files |
+| Content safety | Foundry safety checks remain enabled for live execution |
+| Input validation | Contract inputs, workflow definitions, HITL decisions, and evaluation requests are validated at the gateway boundary |
+| Output validation | Step outputs are schema-validated before being published as final results |
+| Auditability | Workflow version, model version, tool usage, and reviewer actions must be traceable |
+
+---
+
+## 8. Performance
+
+| Metric | Target | Notes |
+|--------|--------|-------|
+| Workflow activation visibility | Immediate in UI after activation | Control-plane action only |
+| Execution start acknowledgment | Fast operator feedback after submission | Execution may continue asynchronously |
+| Per-step latency | Demo-appropriate near-real-time behavior | Avoid long silent waits in presenter flows |
+| Activation-to-runtime consistency | No stale workflow package after activation | The executor must always resolve the latest active version before starting a new instance |
+
+### Performance Guidance
+
+| Concern | Guidance |
+|---------|----------|
+| Workflow package size | Keep packages lightweight and reference declarative files rather than embedding large content |
+| Prompt loading | Resolve prompt files by reference and cache safely per workflow version |
+| Evaluation | Keep heavy evaluation workloads off the synchronous user-facing execution path |
+
+---
+
+## 9. Error Handling
+
+| Failure Mode | Expected Behavior |
+|--------------|------------------|
+| Invalid workflow definition | Gateway rejects save or activation with explicit structural findings |
+| Missing declarative asset | Activation fails before the workflow package becomes active |
+| Executor cannot resolve active package | Execution request fails fast with a control-plane error |
+| MCP tool unavailable | Executor marks the step failed or retries per runtime policy |
+| Model failure | Executor follows model fallback policy and records the selected model path |
+| HITL timeout | Executor follows escalation policy and records timeout outcome |
+
+### Error Ownership Rule
+
+| Error Class | Owner |
 |-------------|-------|
-| 200 | Successful read/update |
-| 202 | Contract submitted (async processing) |
-| 400 | Validation error (missing/invalid fields) |
-| 404 | Resource not found |
-| 500 | Internal server error |
-| 503 | MCP server unavailable |
+| Authoring and activation errors | Gateway |
+| Orchestration and step execution errors | MAF executor |
+| Tool implementation errors | MCP server plus executor surface |
 
 ---
 
-## 4. Data Model Diagrams
+## 10. Monitoring
 
-### 4.1 Core Entities
+| Signal | Owner | Purpose |
+|--------|-------|---------|
+| Workflow activation events | Gateway | Show which package version is active |
+| Workflow execution traces | MAF executor plus Foundry | Explain multi-agent execution and timing |
+| Tool call metrics | MAF executor and MCP servers | Show tool latency, success rate, and boundary usage |
+| Model usage | Foundry and MAF executor | Show model routing, token use, and fallback |
+| HITL events | Gateway and MAF executor | Show review pauses and decisions |
+| Evaluation outcomes | Gateway plus Foundry | Support quality gates and drift baselines |
 
-```mermaid
-erDiagram
-    contracts {
-        string id PK "contract-001"
-        string filename "NDA-Acme-Beta.pdf"
-        string text "Full contract text"
-        string type "NDA|MSA|SOW|Amendment|SLA"
-        string status "processing|awaiting_review|approved|rejected|archived"
-        float classification_confidence "0.96"
-        datetime submitted_at "2026-03-04T10:03:00Z"
-        datetime completed_at "2026-03-04T10:05:00Z"
-    }
+### Monitoring Rule
 
-    extraction_results {
-        string id PK
-        string contract_id FK
-        json clauses "array of extracted clauses"
-        json parties "array of identified parties"
-        json dates "array of key dates"
-        json values "array of monetary values"
-        float confidence "overall extraction confidence"
-    }
-
-    compliance_results {
-        string id PK
-        string contract_id FK
-        json clause_results "per-clause pass/warn/fail"
-        string overall_risk "low|medium|high|critical"
-        int flags_count "number of flagged clauses"
-        json policy_references "matched policy rules"
-    }
-
-    review_decisions {
-        string id PK
-        string contract_id FK
-        string decision "approve|reject|request_changes"
-        string reviewer "reviewer name"
-        string comment "review comment"
-        datetime decided_at
-    }
-
-    audit_entries {
-        string id PK
-        string contract_id FK
-        string agent "intake|extraction|compliance|approval|human"
-        string action "classified|extracted|flagged|escalated|approved"
-        string reasoning "agent reasoning text"
-        datetime timestamp
-    }
-
-    trace_entries {
-        string id PK
-        string contract_id FK
-        string agent "agent name"
-        string tool "MCP tool name"
-        json input "tool input JSON"
-        json output "tool output JSON"
-        int latency_ms "execution time"
-        int tokens_in "input tokens"
-        int tokens_out "output tokens"
-        datetime timestamp
-    }
-
-    evaluations {
-        string id PK
-        string version "v1.3"
-        datetime run_at
-        int total_cases "20"
-        int passed "17"
-        float accuracy "0.85"
-        json per_metric "metric breakdown"
-        json per_contract "per-contract results"
-        string quality_gate "PASS|FAIL"
-    }
-
-    drift_data {
-        string id PK
-        string type "llm_drift|data_drift|model_swap"
-        json timeline "weekly accuracy data points"
-        json distribution "contract type distribution"
-        json alerts "detected drift events"
-        datetime generated_at
-    }
-
-    feedback_entries {
-        string id PK
-        string contract_id FK
-        string agent "agent that produced the output"
-        string sentiment "positive|negative"
-        string comment "reviewer feedback text"
-        string reviewer "feedback author"
-        datetime submitted_at
-        boolean converted_to_test "false"
-    }
-
-    contracts ||--o| extraction_results : "has"
-    contracts ||--o| compliance_results : "has"
-    contracts ||--o| review_decisions : "has"
-    contracts ||--o{ audit_entries : "has many"
-    contracts ||--o{ trace_entries : "has many"
-    contracts ||--o{ feedback_entries : "has many"
-```
-
-### 4.2 JSON File Storage Layout
-
-```
-data/
-    contracts.json          # Array of contract records + results
-    policies.json           # 10 company policy rules (static)
-    clauses.json            # 50 standard clause definitions (static)
-    evaluations.json        # Evaluation run results
-    drift.json              # Simulated drift timeline data
-    feedback.json           # User feedback entries
-    audit.json              # Decision audit trail
-    simulated/              # Pre-recorded LLM responses
-        intake/
-            nda-001.json
-            msa-001.json
-            ...
-        extraction/
-            nda-001.json
-            ...
-        compliance/
-            nda-001.json
-            ...
-        approval/
-            nda-001.json
-            ...
-    ground-truth/           # Evaluation ground truth
-        nda-001-truth.json
-        msa-001-truth.json
-        ...
-    sample-contracts/       # 5 sample contract PDFs
-        NDA-Acme-Beta-2026.pdf
-        MSA-GlobalTech-2026.pdf
-        SOW-CloudMigration-2026.pdf
-        Amendment-DataPolicy-2026.pdf
-        SLA-InfraUptime-2026.pdf
-```
+The trace identifier exposed in the monitor view must connect one contract submission to the workflow package version, workflow instance, agent steps, tool usage, and human review actions.
 
 ---
 
-## 5. Service Layer Diagrams
+## 11. Testing Strategy
 
-### 5.1 Backend Architecture (TypeScript)
+| Test Layer | Scope |
+|------------|-------|
+| Declarative asset validation | Ensure prompts, schemas, agent configs, workflow manifests, and evaluation assets exist and are internally consistent |
+| Gateway control-plane tests | Save, load, validate, activate, and expose active workflow packages |
+| Contract tests | Verify the gateway-to-executor runtime contract remains stable |
+| Executor orchestration tests | Verify MAF workflow behavior, tool boundaries, retries, HITL, and fallback |
+| End-to-end tests | Submit a contract against an active workflow package and verify monitoring and evaluation evidence |
 
-```mermaid
-graph TB
-    subgraph Gateway["API Gateway (Fastify)"]
-        direction TB
-        ROUTES["routes/<br/>contracts.ts<br/>tools.ts<br/>evaluations.ts<br/>drift.ts<br/>feedback.ts<br/>audit.ts"]
-        WEBSOCKET["websocket/<br/>workflowWs.ts"]
-        ORCH["orchestrator/<br/>pipeline.ts<br/>agentRunner.ts"]
-    end
+### Minimum Contract Tests
 
-    subgraph Adapters["Adapters"]
-        LLM_ADAPT["adapters/<br/>llmAdapter.ts<br/>foundryAdapter.ts<br/>simulatedAdapter.ts"]
-    end
-
-    subgraph MCPClients["MCP Clients"]
-        MCP_CLIENT["mcpClient/<br/>client.ts<br/>serverRegistry.ts"]
-    end
-
-    subgraph Services["Services"]
-        CONTRACT_SVC["services/<br/>contractService.ts<br/>evaluationService.ts<br/>judgeService.ts<br/>driftService.ts<br/>feedbackService.ts<br/>auditService.ts"]
-    end
-
-    subgraph DataAccess["Data Access"]
-        JSON_STORE["stores/<br/>jsonStore.ts<br/>contractStore.ts<br/>feedbackStore.ts"]
-    end
-
-    ROUTES --> ORCH
-    ROUTES --> CONTRACT_SVC
-    WEBSOCKET --> ORCH
-    ORCH --> MCPClients
-    ORCH --> LLM_ADAPT
-    CONTRACT_SVC --> DataAccess
-    MCPClients -->|MCP Protocol| MCP_SERVERS["8 MCP Servers<br/>(separate processes)"]
-```
-
-### 5.2 MCP Server Internal Structure (Per Server)
-
-```
-mcp-servers/
-    contract-intake-mcp/
-        server.ts               # @modelcontextprotocol/sdk entry point + tool definitions
-        engine.ts               # Business logic (classify, extract metadata)
-        index.ts
-    contract-extraction-mcp/
-        server.ts
-        engine.ts               # Clause extraction, party identification
-    contract-compliance-mcp/
-        server.ts
-        engine.ts               # Policy checking, risk flagging
-    contract-workflow-mcp/
-        server.ts
-        engine.ts               # Approval routing, HITL escalation
-    contract-audit-mcp/
-        server.ts
-        engine.ts               # Decision logging, report generation
-    contract-eval-mcp/
-        server.ts
-        engine.ts               # Evaluation suite runner, quality gate, LLM-as-judge
-    contract-drift-mcp/
-        server.ts
-        engine.ts               # Drift detection, model swap simulation
-    contract-feedback-mcp/
-        server.ts
-        engine.ts               # Feedback collection, improvement cycle
-```
-
-### 5.3 Agent Definitions
-
-```
-agents/
-    intakeAgent.ts              # Agent definition: system prompt, tool bindings
-    extractionAgent.ts
-    complianceAgent.ts
-    approvalAgent.ts
-    agentConfig.ts              # Shared agent configuration
-
-prompts/
-    intake-system.md            # System prompt for Intake Agent
-    extraction-system.md        # System prompt for Extraction Agent
-    compliance-system.md        # System prompt for Compliance Agent
-    approval-system.md          # System prompt for Approval Agent
-```
+| Contract Test | Purpose |
+|---------------|---------|
+| Workflow package retrieval | Ensure the active package is immutable and complete |
+| Execution submission | Ensure the executor accepts only canonical active packages |
+| HITL resumption | Ensure paused workflow instances can continue with human decisions |
+| Schema validation | Ensure step outputs conform to declared schemas |
 
 ---
 
-## 6. Security Diagrams
+## 12. Migration Plan
 
-### 6.1 Security Model (Demo Context)
+### Phase 1: Control-Plane Stabilization
 
-This is a demo system -- security is simplified but follows best practices where applicable.
+| Goal | Deliverable |
+|------|-------------|
+| Remove ambiguity about runtime ownership | Gateway remains workflow source of truth and executor boundary is explicit |
+| Canonicalize workflow package | UI workflow state is normalized into a versioned runtime package |
 
-| Layer | Implementation | Notes |
-|-------|---------------|-------|
-| Authentication | None (single-user demo) | Future: Entra ID for multi-user |
-| Authorization | None (single-user demo) | Demonstrated conceptually in Deploy view |
-| API Keys | Environment variables (`FOUNDRY_API_KEY`) | Never hardcoded, `.env` file excluded from git |
-| Input Validation | JSON schema validation on all endpoints | Prevents malformed requests |
-| Prompt Injection | Input sanitization before LLM calls | Strip control characters, limit input length |
-| CORS | Gateway origin (localhost:8000) | Gateway allows its own origin for the static UI |
-| Data Protection | All data is synthetic | No PII, no real contracts |
-| Secret Management | `.env` file + `.gitignore` | Keys never committed to repository |
+### Phase 2: Declarative Asset Completion
 
-### 6.2 Input Sanitization Pipeline
+| Goal | Deliverable |
+|------|-------------|
+| Complete asset inventory | All required prompt, schema, agent config, workflow manifest, evaluation, and policy references are defined and owned |
+| Eliminate placeholder paths | No active workflow package references nonexistent declarative assets |
 
-```mermaid
-graph LR
-    INPUT["User Input<br/>(contract text)"] --> V1["Schema<br/>Validation"]
-    V1 --> V2["Length<br/>Check<br/>(max 50K chars)"]
-    V2 --> V3["Control Char<br/>Strip"]
-    V3 --> V4["Encoding<br/>Normalize<br/>(UTF-8)"]
-    V4 --> AGENT["Agent<br/>Processing"]
+### Phase 3: MAF Promotion
 
-    style V1 fill:#E3F2FD,stroke:#1565C0
-    style V2 fill:#E8F5E9,stroke:#2E7D32
-    style V3 fill:#FFF3E0,stroke:#E65100
-    style V4 fill:#F3E5F5,stroke:#6A1B9A
-```
+| Goal | Deliverable |
+|------|-------------|
+| Replace mock compatibility layer | Real Python MAF executor owns orchestration |
+| Preserve user-facing workflow story | Dashboard and gateway behavior remain stable while runtime implementation changes underneath |
+
+### Phase 4: Evidence-Driven Promotion
+
+| Goal | Deliverable |
+|------|-------------|
+| Prove runtime readiness | Evaluation, trace, HITL, and fallback evidence is available for demo and engineering validation |
 
 ---
 
-## 7. Performance
+## 13. Open Questions
 
-### 7.1 Performance Requirements
-
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Contract Pipeline (end-to-end) | < 30 seconds | All 4 agents complete |
-| Per-Agent Step | < 10 seconds | Individual agent processing |
-| Dashboard Load | < 2 seconds | Initial page render |
-| WebSocket Latency | < 100ms | Status update delivery |
-| MCP Tool Call | < 5 seconds | Single tool execution |
-| Evaluation Suite (20 cases) | < 3 minutes | Full evaluation run |
-| API Response (non-LLM) | < 200ms | Data retrieval endpoints |
-
-### 7.2 Optimization Strategies
-
-- **Simulated mode**: Instant responses (no LLM latency) for rehearsal and testing
-- **WebSocket streaming**: Dashboard receives step-by-step updates instead of polling
-- **Agent parallelism**: Not applicable (sequential pipeline by design) -- but audit logging is async
-- **JSON file caching**: Data loaded at server startup, written on change
-- **React optimizations**: `React.memo` for stable components, lazy loading for views
+| Question | Owner | Current Recommendation |
+|----------|-------|------------------------|
+| Should the executor communicate with the gateway synchronously, asynchronously, or both | Engineering | Use synchronous control-plane calls for the demo first, while keeping status retrieval asynchronous-friendly |
+| Should workflow packages be stored only in the gateway or also materialized to disk as immutable runtime artifacts | Engineering | Materialize immutable active versions so execution is reproducible |
+| Should the executor use direct Foundry model APIs only or also align to Foundry Agent Service registration flows | Architecture and engineering | Keep model inference mandatory and agent-service-aligned registration visible for deployment demonstrations |
 
 ---
 
-## 8. Testing Strategy
+## Declarative Asset Set
 
-### 8.1 Test Pyramid
+### Required Asset Families
 
-```mermaid
-graph TD
-    E2E[" E2E Tests - 10%<br/>Full pipeline: submit contract through all 8 stages"]
-    INT[" Integration Tests - 30%<br/>API endpoints + MCP tool calls + WebSocket"]
-    UNIT[" Unit Tests - 60%<br/>Agents, engines, adapters, services"]
-    COV[" Coverage Target: 80%"]
+| Asset Family | Purpose | Owner | Source Of Truth Rule |
+|--------------|---------|-------|----------------------|
+| System prompts | Agent instructions and role framing | Prompt authors plus engineering | One prompt file per agent role, versioned in repo |
+| Output schemas | Structured validation for agent results | Engineering | One schema family per agent output and shared runtime event |
+| Agent configs | Model policy, tool policy, boundary policy, prompt references, and schema references | Engineering | One config per runtime agent role |
+| Workflow manifests | Canonical workflow topology and runtime references | Engineering and architecture | One manifest per supported workflow pattern or activated version |
+| Evaluation assets | Ground truth, judge criteria, and baseline metadata | Engineering and demo owner | Required for quality gates and regression comparison |
+| Policy assets | Contract policies, clause libraries, and rule thresholds | Domain owner and engineering | Must be declarative and independently reviewable |
 
-    E2E --- INT --- UNIT --- COV
+### Required Repository Structure
 
-    style E2E fill:#F44336,color:#fff,stroke:#D32F2F
-    style INT fill:#FF9800,color:#fff,stroke:#F57C00
-    style UNIT fill:#4CAF50,color:#fff,stroke:#388E3C
-    style COV fill:#2196F3,color:#fff,stroke:#1565C0
-```
+| Location | Required Contents |
+|----------|-------------------|
+| prompts | Intake, extraction, compliance, approval, and evaluation-related prompt files |
+| config/agents | One declarative config per runtime agent role |
+| config/workflows | Canonical workflow manifests and normalized package templates |
+| config/schemas | Input, output, workflow package, execution state, and HITL schemas |
+| data/policies | Contract policy assets used by compliance and approval flows |
+| data or evaluation asset location | Baselines, eval cases, and judge rubric metadata |
 
-### 8.2 Test Types
+### Completion Criteria For The Declarative Asset Set
 
-| Test Type | Scope | Framework | Key Tests |
-|-----------|-------|-----------|-----------|
-| Unit | Agent engines, adapters, stores | Vitest | Classification logic, extraction parsing, policy matching |
-| Unit | React components | Vitest + React Testing Library | Component rendering, state updates, event handlers |
-| Integration | API endpoints | Vitest + supertest | Contract submission, HITL review, evaluation run |
-| Integration | MCP tools | Vitest | Each MCP tool with sample inputs |
-| Integration | WebSocket | Vitest | Real-time event delivery |
-| E2E | Full pipeline | Playwright | Submit contract -> view in all 8 views |
-| E2E | Simulated mode | Playwright | Same pipeline with simulated LLM responses |
-
-### 8.3 Evaluation Tests (AI-Specific)
-
-| Test Case | Ground Truth | Metric | Threshold |
-|-----------|-------------|--------|-----------|
-| NDA classification | type: "NDA" | Classification accuracy | 100% (5/5 sample contracts) |
-| Clause extraction (NDA) | 4 clauses annotated | F1 score | >= 85% |
-| Compliance flagging (MSA) | 2 policy violations | Precision | >= 80% |
-| Risk level assessment | High risk for specific contract | Correct risk assignment | 100% (binary) |
-| HITL escalation | High risk triggers escalation | Correct routing | 100% |
+| Criterion | Meaning |
+|-----------|---------|
+| No dangling references | Every agent config and workflow manifest resolves to real prompt and schema assets |
+| No inline prompt ownership | Prompts and templates are not embedded as source-of-truth in runtime code |
+| No inferred workflow shape | The executor reads explicit manifests or workflow packages, not hardcoded step graphs |
+| Asset ownership is clear | Every asset family has one owning layer and review path |
 
 ---
 
-## 9. Implementation Notes
-
-### 9.1 Project Directory Structure
-
-```
-contract-agentops-demo/
-    README.md                       # Setup instructions + demo guide
-    package.json                    # Root package.json (npm workspaces monorepo)
-    tsconfig.base.json              # Shared TypeScript configuration
-    .env.example                    # Environment variable template
-    start.ts                        # One-command startup (all servers + gateway)
-    start.sh                        # Bash startup script
-    start.ps1                       # PowerShell startup script
-
-    gateway/                        # API Gateway (Fastify + ws)
-        package.json
-        tsconfig.json
-        src/
-            index.ts                # Fastify app entry point
-            routes/
-                contracts.ts
-                tools.ts
-                evaluations.ts
-                drift.ts
-                feedback.ts
-                audit.ts
-                deploy.ts
-            websocket/
-                workflowWs.ts       # WebSocket handler for real-time updates
-            orchestrator/
-                pipeline.ts         # Agent pipeline orchestration
-                agentRunner.ts      # Agent execution wrapper
-            adapters/
-                llmAdapter.ts       # ILlmAdapter interface
-                foundryAdapter.ts   # Live Foundry API calls
-                simulatedAdapter.ts # Pre-recorded JSON responses
-            services/
-                contractService.ts
-                evaluationService.ts
-                judgeService.ts     # LLM-as-judge evaluation scoring
-                driftService.ts
-                feedbackService.ts
-                auditService.ts
-            stores/
-                jsonStore.ts        # Base JSON file store
-                contractStore.ts
-                feedbackStore.ts
-            config.ts               # Configuration (ports, mode, paths)
-
-    mcp-servers/                    # 8 MCP Servers (@modelcontextprotocol/sdk)
-        contract-intake-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts
-        contract-extraction-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts
-        contract-compliance-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts
-        contract-workflow-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts
-        contract-audit-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts
-        contract-eval-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts           # Includes LLM-as-judge scoring
-        contract-drift-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts
-        contract-feedback-mcp/
-            package.json
-            src/
-                server.ts
-                engine.ts
-
-    agents/                         # Agent Definitions
-        package.json
-        src/
-            intakeAgent.ts
-            extractionAgent.ts
-            complianceAgent.ts
-            approvalAgent.ts
-            agentConfig.ts
-
-    prompts/                        # Agent System Prompts (Markdown)
-        intake-system.md
-        extraction-system.md
-        compliance-system.md
-        approval-system.md
-
-    ui/                             # Static Dashboard UI (vanilla HTML/CSS/JS)
-        index.html                  # Main HTML with 8-view tabs
-        app.js                      # Simulated mode interactions + animations
-        api.js                      # Real-mode API integration + WebSocket
-        styles.css                  # Dashboard styles
-
-    dashboard/                      # [ARCHIVED] React Dashboard (not in runtime)
-
-    data/                           # Data Files
-        contracts.json
-        policies.json
-        clauses.json
-        evaluations.json
-        drift.json
-        feedback.json
-        audit.json
-        simulated/                  # Pre-recorded LLM responses
-            intake/
-            extraction/
-            compliance/
-            approval/
-        ground-truth/               # Evaluation ground truth
-        sample-contracts/           # 5 sample contract PDFs
-
-    tests/                          # Tests (Vitest + Playwright)
-        unit/
-            intakeEngine.test.ts
-            extractionEngine.test.ts
-            complianceEngine.test.ts
-            adapters.test.ts
-            stores.test.ts
-            judgeService.test.ts
-        integration/
-            apiContracts.test.ts
-            apiEvaluations.test.ts
-            mcpTools.test.ts
-            websocket.test.ts
-        e2e/
-            fullPipeline.test.ts
-```
-
-### 9.2 Startup Sequence
-
-```mermaid
-graph TD
-    START["npm start"] --> ENV["Load .env<br/>DEMO_MODE, API_KEY, PORTS"]
-    ENV --> MCP_START["Start 8 MCP Servers<br/>(child processes, ports 9001-9008)"]
-    MCP_START --> HEALTH["Health Check<br/>All 8 servers responding"]
-    HEALTH --> GW_START["Start API Gateway<br/>(Fastify, port 8000)"]
-    GW_START --> READY["PASS - Ready<br/>UI at http://localhost:8000"]
-
-    MCP_START -->|failure| RETRY["Retry max 3<br/>Log error"]
-    RETRY -->|still failing| PARTIAL["WARN - Partial Start<br/>Some MCP servers unavailable"]
-```
-
-### 9.3 Port Assignments
-
-| Component | Port | Notes |
-|-----------|------|-------|
-| Static UI + API Gateway | 8000 | Fastify serves UI at / and API at /api/v1/* |
-| contract-intake-mcp | 9001 | MCP over SSE |
-| contract-extraction-mcp | 9002 | MCP over SSE |
-| contract-compliance-mcp | 9003 | MCP over SSE |
-| contract-workflow-mcp | 9004 | MCP over SSE |
-| contract-audit-mcp | 9005 | MCP over SSE |
-| contract-eval-mcp | 9006 | MCP over SSE |
-| contract-drift-mcp | 9007 | MCP over SSE |
-| contract-feedback-mcp | 9008 | MCP over SSE |
-
-### 9.4 Environment Variables
-
-```bash
-# .env.example
-DEMO_MODE=simulated              # "live" or "simulated"
-FOUNDRY_API_KEY=                  # Required for live mode only
-FOUNDRY_ENDPOINT=                 # Foundry API endpoint (live mode)
-FOUNDRY_MODEL=gpt-4o             # Primary model
-FOUNDRY_MODEL_SWAP=gpt-4o-mini   # Model for swap demo
-GATEWAY_PORT=8000
-DASHBOARD_PORT=3000
-MCP_BASE_PORT=9001               # MCP servers use 9001-9008
-LOG_LEVEL=INFO
-```
-
----
-
-## 10. Rollout Plan
-
-### Phase 1: Foundation (Core Pipeline)
-
-**Goal**: Working contract pipeline with 5 MCP servers + 4 views
-
-| Deliverable | Stories |
-|-------------|---------|
-| 5 core MCP servers (Intake, Extraction, Compliance, Workflow, Audit) | US-1.3, US-2.3, US-3.3, US-4.3, US-5.3 |
-| 4 AI agents with prompts | US-1.1, US-1.2, US-2.1, US-4.1 |
-| API gateway with WebSocket | (infrastructure) |
-| Simulated mode adapter | (infrastructure) |
-| Design Canvas + Workflow Test Lab views | US-1.1, US-1.2, US-2.1, US-2.2 |
-| Live Workflow + Monitor Panel views | US-4.1, US-4.2, US-5.1, US-5.2 |
-| 5 sample contracts with ground truth | (data) |
-| Startup script (`npm start`) | (infrastructure) |
-
-### Phase 2: AgentOps Layer
-
-**Goal**: Ops capabilities with 3 more MCP servers + 3 views
-
-| Deliverable | Stories |
-|-------------|---------|
-| Evaluation MCP server | US-6.4, US-6.5 |
-| Drift Detection MCP server | US-7.4 |
-| Feedback MCP server | US-8.5 |
-| Evaluation Lab view | US-6.1, US-6.2, US-6.3 |
-| Drift Detection Center view | US-7.1, US-7.2, US-7.3 |
-| Feedback & Optimize Loop view | US-8.1, US-8.2, US-8.3, US-8.4 |
-| Simulated drift data (4-week curve) | US-7.1 |
-| Ground truth evaluation dataset (20 cases) | US-6.1 |
-| Prompt editor with re-evaluation | US-8.4 |
-
-### Phase 3: Polish
-
-**Goal**: Complete demo with governance + guided mode
-
-| Deliverable | Stories |
-|-------------|---------|
-| Deploy Dashboard view | US-3.1, US-3.2 |
-| Agent 365 Governance view (P2) | US-9 |
-| Demo script mode with presenter notes (P2) | US-10 |
-| README with setup instructions | (docs) |
-| Demo recording for async sharing | (docs) |
-
----
-
-## 11. Risks & Mitigations
-
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| Foundry API unavailable during demo | High | Low | Simulated mode with pre-recorded responses |
-| 10 processes hard to start/manage | Medium | Medium | Single `npm start` script manages all processes via npm workspaces |
-| WebSocket connection drops during demo | Medium | Low | Auto-reconnect logic + fallback to polling |
-| MCP SDK breaking changes (preview) | Medium | Medium | Pin versions in package.json lockfile, abstract MCP layer |
-| Non-deterministic LLM responses | Medium | High | `temperature=0`, `seed` param, cached simulated responses |
-| Large JSON files slow performance | Low | Low | Demo processes ~20 contracts max; file size negligible |
-| React build failures on different Node versions | Low | Medium | Pin Node version in `.nvmrc`, use lockfile |
-| TypeScript compilation errors across workspaces | Low | Medium | Shared tsconfig.base.json, strict mode, CI type-checking |
-
----
-
-## 12. Monitoring & Observability
-
-### 12.1 Demo Health Dashboard (StatusBar)
-
-The React StatusBar component shows real-time system health:
-
-```
-+-------------------------------------------------------------------------------------+
-| MCP: 8/8 [PASS] | Model: GPT-4o | Mode: Live | Contracts: 3 processed | WS: [PASS] |
-+-------------------------------------------------------------------------------------+
-```
-
-### 12.2 Logging Strategy
-
-| Component | Log Format | Output |
-|-----------|------------|--------|
-| API Gateway | Structured JSON | stdout + `logs/gateway.log` |
-| MCP Servers | Structured JSON | stdout + `logs/mcp-{name}.log` |
-| Agent Pipeline | Structured JSON (per-step) | stdout + stored in trace_entries |
-| Static Dashboard UI | Browser console | DevTools |
-
-### 12.3 Key Operational Metrics (Displayed in Monitor Panel)
-
-| Metric | Source | Visualization |
-|--------|--------|---------------|
-| Per-agent latency | Trace entries | Horizontal bar chart |
-| Token usage per step | Trace entries | Table |
-| Tool call success rate | MCP server logs | Status badges |
-| Pipeline completion rate | Contract store | Counter |
-| HITL escalation rate | Audit entries | Percentage |
-| Evaluation pass rate | Evaluation results | Quality gate card |
-| Drift threshold crossing | Drift data | Line chart with alert |
-| Feedback sentiment ratio | Feedback entries | Bar chart |
-
----
-
-## 13. AI/ML Specification
-
-### 13.1 Model Configuration
-
-| Parameter | Value |
-|-----------|-------|
-| **Primary Model** | GPT-4o |
-| **Provider** | Microsoft Foundry |
-| **Endpoint** | Environment variable `FOUNDRY_ENDPOINT` |
-| **Authentication** | API key via `FOUNDRY_API_KEY` env var |
-| **Temperature** | 0.0 (deterministic for demo reliability) |
-| **Top-P** | 1.0 |
-| **Max Tokens** | 2048 (sufficient for contract analysis) |
-| **Structured Output** | JSON mode with schema validation |
-| **Timeout** | 30 seconds |
-| **Retry Policy** | 2 retries with exponential backoff (1s, 3s) |
-| **Swap Model** | GPT-4o-mini (for model swap demo in Drift view) |
-
-#### Judge Model Configuration (LLM-as-Judge)
-
-| Parameter | Value |
-|-----------|-------|
-| **Model** | GPT-4o |
-| **Purpose** | Qualitative evaluation scoring of agent outputs |
-| **Temperature** | 0.0 (deterministic scoring) |
-| **Structured Output** | JSON schema with 3 scores: relevance, groundedness, coherence (0-5 each) |
-| **Scoring Criteria** | Relevance: output addresses the contract input. Groundedness: claims supported by source text. Coherence: logical consistency of reasoning. |
-| **Invocation** | Per-contract during evaluation suite run (not per-pipeline run) |
-| **Cost Impact** | ~5-20 additional GPT-4o calls per evaluation suite (minimal) |
-
-### 13.2 Agent Tool Bindings
-
-| Agent | MCP Server | Tools | Side Effects |
-|-------|-----------|-------|--------------|
-| Intake Agent | contract-intake-mcp | `upload_contract`, `classify_document`, `extract_metadata` | Write to contracts.json |
-| Extraction Agent | contract-extraction-mcp | `extract_clauses`, `identify_parties`, `extract_dates_values` | Write extraction_results |
-| Compliance Agent | contract-compliance-mcp | `check_policy`, `flag_risk`, `get_policy_rules` | Write compliance_results |
-| Approval Agent | contract-workflow-mcp | `route_approval`, `escalate_to_human`, `notify_stakeholder` | Write review state, audit |
-
-### 13.3 Agent Pipeline Behavior
-
-```mermaid
-graph TD
-    subgraph Pipeline["Sequential Agent Pipeline"]
-        direction LR
-        I["Intake<br/>Classify + route"]
-        E["Extraction<br/>Pull terms"]
-        C["Compliance<br/>Check policies<br/>(RAG: policies.json)"]
-        A["Approval<br/>Route/escalate"]
-    end
-
-    I -->|contract + type| E
-    E -->|contract + clauses| C
-    C -->|contract + risk| A
-
-    subgraph Outputs["Per-Agent Outputs"]
-        O1["type, confidence"]
-        O2["clauses, parties, dates"]
-        O3["compliance_results, risk_level"]
-        O4["decision: auto_approve or escalate"]
-    end
-
-    I --> O1
-    E --> O2
-    C --> O3
-    A --> O4
-```
-
-### 13.4 RAG Design (Compliance Agent)
-
-| Parameter | Value |
-|-----------|-------|
-| **Knowledge Source** | `data/policies.json` (10 rules) + `data/clauses.json` (50 clauses) |
-| **Retrieval Method** | Direct JSON lookup (no vector store -- small dataset) |
-| **Matching Strategy** | Policy rules matched by clause type + keyword overlap |
-| **Chunk Strategy** | N/A (policies are pre-structured as rules) |
-
-### 13.5 Evaluation Strategy
-
-| Metric | Evaluator | Threshold | Test Dataset |
-|--------|-----------|-----------|--------------|
-| Extraction Accuracy | Ground truth F1 | >= 85% | `data/ground-truth/` (20 cases) |
-| Compliance Precision | Ground truth comparison | >= 80% | `data/ground-truth/` |
-| Classification Accuracy | Exact match | >= 90% | 5 sample contracts |
-| False Flag Rate | Ground truth negatives | < 15% | `data/ground-truth/` |
-| Latency P95 | Timer | < 5s per step | Live mode runs |
-| Cost per Contract | Token counter | < $0.10 | Token logs |
-| Relevance (Judge) | LLM-as-judge (GPT-4o) | >= 4.0/5.0 | Judge scores per evaluation run |
-| Groundedness (Judge) | LLM-as-judge (GPT-4o) | >= 3.5/5.0 | Judge scores per evaluation run |
-| Coherence (Judge) | LLM-as-judge (GPT-4o) | >= 4.0/5.0 | Judge scores per evaluation run |
-
-### 13.6 Observability
-
-- **Tracing**: Per-agent trace entries with input/output, latency, and token counts stored in `trace_entries`
-- **Token Tracking**: Input tokens and output tokens logged per agent step and per tool call
-- **Quality Monitoring**: Evaluation scores tracked per run via `evaluations.json`; quality gate (PASS/FAIL) computed against thresholds
-- **Drift Monitoring**: Weekly accuracy timeline in `drift.json`; alerts triggered when accuracy drops below threshold
-- **Dashboard**: Monitor Panel view (View 5) displays real-time traces, token usage, latency charts, and audit trail
-
-### 13.7 Drift Simulation Data
-
-The Drift Detection MCP server uses pre-generated simulation data:
-
-| Drift Type | Data Pattern | Source |
-|-----------|-------------|--------|
-| LLM Drift | 4-week accuracy decline: 92% -> 88% -> 84% -> 81% | `data/drift.json` |
-| Data Drift | New "AI Liability" clause type appearing in 15% of contracts | `data/drift.json` |
-| Model Swap | GPT-4o vs GPT-4o-mini: accuracy (-3.1%), latency (-52%), cost (-60%) | Computed on-demand |
-
----
-
-## Cross-Cutting Concerns Diagram
-
-```mermaid
-graph TD
-    subgraph Pipeline[" Middleware Pipeline"]
-        direction LR
-        REQ[Request] --> VAL[Input<br/>Validation] --> SAN[Sanitization] --> ROUTE[Route<br/>Handler]
-        ROUTE --> ERR[Error<br/>Handler] --> FMT[Response<br/>Format] --> RES[Response]
-    end
-
-    subgraph Row1[" "]
-        direction LR
-        L[" LOGGING<br/>Structured JSON logs<br/>Per-component output<br/>Correlation IDs"]
-        M[" MONITORING<br/>StatusBar health checks<br/>MCP server status<br/>WebSocket connectivity"]
-        T[" TRACING<br/>Per-agent trace entries<br/>Tool call recording<br/>Latency + token tracking"]
-    end
-
-    subgraph Row2[" "]
-        direction LR
-        V["PASS - VALIDATION<br/>JSON schema validation<br/>Input length limits<br/>Control char stripping"]
-        E["WARN - ERROR HANDLING<br/>Graceful degradation<br/>Simulated mode fallback<br/>MCP health retries"]
-        C[" MODE ADAPTER<br/>Live mode: Foundry API<br/>Simulated mode: JSON cache<br/>Seamless switching"]
-    end
-
-    Pipeline --- Row1
-    Row1 --- Row2
-```
-
----
-
-**Generated by AgentX Architect Agent**
-**Author**: Solution Architect Agent
-**Last Updated**: 2026-03-04
-**Version**: 1.0
+## Review History
+
+| Date | Reviewer | Status | Notes |
+|------|----------|--------|-------|
+| 2026-03-10 | Solution Architect Agent | Draft | Established mixed runtime operating model, gateway-to-executor contract, and complete declarative asset structure |

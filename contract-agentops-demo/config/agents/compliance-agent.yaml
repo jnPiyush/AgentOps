@@ -1,0 +1,71 @@
+# Declarative Agent Configuration - Compliance Agent
+# Purpose: Policy compliance and risk assessment
+# Framework: Microsoft Agent Framework compatible
+# Version: 1.0.0
+
+agent_id: compliance
+name: Contract Compliance Agent
+version: 1.0.0
+created: 2026-03-10
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.0
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 60s
+
+prompts:
+  system_prompt: prompts/compliance-system.md
+  output_template: templates/compliance-result.json
+  few_shot_examples: examples/compliance-examples.json
+
+tools:
+  - name: check_policy
+    mcp_server: contract-compliance-mcp
+    description: Compare extracted clauses against policy rules
+    required: true
+    timeout: 20s
+  - name: flag_risk
+    mcp_server: contract-compliance-mcp
+    description: Compute risk levels and blocking issues
+    required: true
+    timeout: 20s
+  - name: get_policy_rules
+    mcp_server: contract-compliance-mcp
+    description: Retrieve policy rules and thresholds
+    required: true
+    timeout: 10s
+
+behavior:
+  role: "Compare extracted content against policies and assess contract risk"
+  boundary: "Policy analysis only - no final approval decision"
+  output_schema: config/schemas/compliance-result.json
+  validation:
+    required_fields: [overall_score, risk_level, policy_violations, recommendations, approval_required, blocking_issues]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 10s
+    max_latency: 25s
+
+workflow:
+  input_from: [extraction_agent]
+  output_to: [approval_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: true
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, compliance_precision, risk_distribution]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

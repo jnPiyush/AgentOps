@@ -1,6 +1,7 @@
 # PRD: Contract AgentOps Demo - Microsoft Foundry
 
 > **Architecture Update (2026-03-07)**: The React dashboard has been archived. The primary UI is now a static vanilla HTML/CSS/JS dashboard under `ui/`, served at `http://localhost:8000`. References to "React dashboard" below are historical.
+> **Product Scope Update (2026-03-10)**: The Interactive Workflow Designer Canvas scope has been merged into this document. This is the single canonical PRD for the contract demo.
 
 **Epic**: Contract AgentOps Demo
 **Status**: Draft
@@ -39,7 +40,7 @@ Organizations struggle to operationalize AI agents beyond initial prototypes. Wh
 - **Education Gap**: Teams understand "build an agent" but not "operate an agent" -- the 80% of work that happens after deployment
 - **Microsoft Foundry Showcase**: Demonstrates the complete Foundry + Agent 365 value proposition in a tangible, relatable scenario
 - **Enterprise Relevance**: Contract management is universal -- every organization handles contracts, making the demo immediately relatable
-- **Visual Impact**: MCP apps + React dashboard make the invisible (drift, evaluations, feedback loops) visible and interactive
+- **Visual Impact**: The interactive design canvas, workflow test surfaces, and operational dashboard make the invisible (drift, evaluations, feedback loops) visible and interactive
 
 ### What happens if we don't solve this?
 
@@ -86,6 +87,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | Metric | Current | Target | Timeline |
 |--------|---------|--------|----------|
 | AgentOps stages visually demonstrated | 0 (slides only) | 8/8 stages with live UI | MVP |
+| Interactive design canvas capabilities | Partial | Full agent CRUD, workflow types, save/load, push to pipeline | MVP |
 | MCP servers operational | 0 | 8 purpose-built MCP servers | MVP |
 | Dashboard views | 0 | 8 interactive views (one per stage) | MVP |
 | Sample contracts for demo | 0 | 5 (NDA, MSA, SOW, Amendment, SLA) | MVP |
@@ -111,26 +113,35 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
    - [ ] Each MCP server can run independently for isolated testing
    - [ ] All MCP servers work together in the orchestrated pipeline
 
-2. **React Dashboard (8 Views)**: Interactive UI showing each AgentOps stage
+2. **Static Dashboard (8 Views)**: Interactive UI showing each AgentOps stage
    - **Acceptance Criteria**:
    - [ ] One view per AgentOps stage with real-time data
    - [ ] Navigation between stages follows the lifecycle flow
    - [ ] Visual indicators (traffic lights, progress bars, trend lines) for status
 
-3. **4 Contract Agents**: Specialized agents orchestrated via Microsoft Foundry Agent Framework
+3. **Interactive Workflow Designer Canvas**: Design Canvas must support authoring and activating custom agent workflows
+   - **Acceptance Criteria**:
+   - [ ] Users can add, edit, and remove agents from the workflow
+   - [ ] Users can associate MCP tools, model choice, role, boundary, and output expectations per agent
+   - [ ] Users can choose workflow topology: sequential, parallel, sequential plus HITL, fan-out, conditional
+   - [ ] Users can reorder agents and persist workflow definitions
+   - [ ] Users can save, load, and activate workflows for Test, Deploy, and Live stages
+   - [ ] Design validation blocks invalid save and push actions while preserving warnings
+
+4. **4 Contract Agents**: Specialized agents orchestrated via Microsoft Foundry and Microsoft Agent Framework
    - **Acceptance Criteria**:
    - [ ] Intake Agent classifies contracts by type
    - [ ] Extraction Agent pulls key terms and clauses
    - [ ] Compliance Agent checks terms against company policies
    - [ ] Approval Agent routes for human approval based on risk level
 
-4. **Sample Contract Dataset**: 5 realistic contract PDFs for demo
+5. **Sample Contract Dataset**: 5 realistic contract PDFs for demo
    - **Acceptance Criteria**:
    - [ ] NDA, MSA, SOW, Amendment, SLA -- each with distinct clauses
    - [ ] No real PII or company data (synthetic but realistic)
    - [ ] Ground truth annotations for evaluation comparisons
 
-5. **Human-in-the-Loop Flow**: Approval escalation with human review
+6. **Human-in-the-Loop Flow**: Approval escalation with human review
    - **Acceptance Criteria**:
    - [ ] High-risk contracts pause for human review in the UI
    - [ ] Reviewer can approve/reject/request-changes with comments
@@ -158,14 +169,20 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
    - [ ] Convert negative feedback into new evaluation test cases
    - [ ] Show prompt refinement -> re-evaluation -> improvement cycle
 
+9. **Advanced Canvas Experience**: Optional design-canvas enhancements for larger workflows
+   - **Acceptance Criteria**:
+   - [ ] Support enhanced canvas controls such as zoom, fit-to-view, or minimap when the workflow grows
+   - [ ] Export workflow definitions as JSON for inspection and portability
+   - [ ] Keep authoring performance acceptable for workflows up to 20 agents
+
 #### Could Have (P2)
 
-9. **Agent 365 Governance View**: Show agent registry, identity, access control
+10. **Agent 365 Governance View**: Show agent registry, identity, access control
    - **Acceptance Criteria**:
    - [ ] Display registered agents with Entra Agent IDs
    - [ ] Show agent-to-data relationships visualization
 
-10. **Demo Script Mode**: Auto-guided walkthrough with narration prompts
+11. **Demo Script Mode**: Auto-guided walkthrough with narration prompts
     - **Acceptance Criteria**:
     - [ ] Step-by-step guided mode highlighting each stage
     - [ ] Presenter notes displayed alongside the UI
@@ -250,14 +267,21 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 ### Feature 1: Contract Intake MCP Server + Design Canvas UI
 
-**Description**: Upload contracts, auto-classify by type, display agent architecture visually
+**Description**: Design, configure, validate, and activate agent workflows before runtime execution
 **Priority**: P0
 
 | Story ID | As a... | I want... | So that... | Acceptance Criteria | Priority |
 |----------|---------|-----------|------------|---------------------|----------|
-| US-1.1 | Presenter | to upload a contract PDF to the dashboard | the audience sees the contract enter the pipeline | - [ ] Upload button accepts PDF<br>- [ ] Contract type auto-classified (NDA/MSA/SOW/Amendment/SLA)<br>- [ ] Classification confidence displayed | P0 |
-| US-1.2 | Presenter | to see all 4 agents displayed as cards with their tools and boundaries | the audience understands the agent architecture before processing begins | - [ ] Agent cards show: name, model, tools, boundaries<br>- [ ] Visual connections between agents show the pipeline flow | P0 |
-| US-1.3 | Developer | MCP server to expose `upload_contract`, `classify_document`, `extract_metadata` tools | agents can call intake tools via MCP protocol | - [ ] 3 MCP tools registered and callable<br>- [ ] JSON schema defined for inputs/outputs | P0 |
+| US-1.1 | Workflow designer | to add a new agent with name, icon, role, model, tools, boundary, and output expectations | I can compose a custom workflow instead of using a fixed pipeline | - [ ] Add Agent action opens a form or modal<br>- [ ] Name, icon, and role are required<br>- [ ] New agent appears in the workflow after save | P0 |
+| US-1.2 | Workflow designer | to edit and remove existing agents | I can refine or simplify the workflow safely | - [ ] Edit action opens pre-filled values<br>- [ ] Delete requires confirmation<br>- [ ] Order and remaining agent metadata stay consistent after changes | P0 |
+| US-1.3 | Workflow designer | to select tools from available MCP servers for each agent | each agent has an explicit bounded tool set | - [ ] Tools are grouped by MCP server<br>- [ ] Selected tools appear on the agent card or details panel<br>- [ ] Tool choices persist with the workflow | P0 |
+| US-1.4 | Workflow designer | to choose workflow topology such as sequential, parallel, sequential plus HITL, fan-out, or conditional | I can represent different orchestration patterns | - [ ] Workflow type is selectable in the design view<br>- [ ] Visual layout updates to reflect the chosen topology<br>- [ ] Workflow type persists when saved | P0 |
+| US-1.5 | Workflow designer | to reorder agents in the workflow | I can control execution order and stage layout | - [ ] Agent cards can be reordered interactively<br>- [ ] Order changes persist after save and reload | P0 |
+| US-1.6 | Workflow designer | to save and load workflow definitions | I can reuse and iterate on multiple designs | - [ ] Save writes to the workflow API with local fallback if needed<br>- [ ] Load shows saved workflows with name, type, agent count, and last updated date<br>- [ ] Delete from the saved list is supported | P0 |
+| US-1.7 | Workflow designer | to push the designed workflow into the rest of the pipeline | Test, Deploy, and Live stages reflect the active design | - [ ] Push to Pipeline saves and activates the workflow<br>- [ ] Active workflow is visible to downstream stages<br>- [ ] Activation status is confirmed to the user | P0 |
+| US-1.8 | Workflow designer | to see validation feedback during authoring, save, and push | invalid designs are caught before testing or deployment | - [ ] Structural errors are shown inline in the design experience<br>- [ ] Save is blocked when structural errors exist<br>- [ ] Push is blocked when structural errors exist<br>- [ ] Warnings remain visible but do not block progress | P0 |
+| US-1.9 | Presenter | to upload a contract PDF to the dashboard after choosing a workflow | the audience sees the contract enter the active pipeline | - [ ] Upload button accepts PDF or representative text input<br>- [ ] Contract type is classified once the runtime begins<br>- [ ] Active workflow is clearly associated with the submitted contract | P0 |
+| US-1.10 | Developer | MCP server to expose `upload_contract`, `classify_document`, `extract_metadata` tools | the intake stage can classify and prepare contract inputs via MCP | - [ ] 3 MCP tools registered and callable<br>- [ ] JSON schema defined for inputs and outputs | P0 |
 
 ### Feature 2: Extraction MCP Server + Workflow Test Lab UI
 
@@ -352,7 +376,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 **Steps**:
 
-1. **Act 1 -- Design Canvas**: Presenter shows the 4 agent cards with their tools, models, and boundaries. Explains the agent architecture before any processing.
+1. **Act 1 -- Design Canvas**: Presenter creates or loads a workflow, configures agents, validates the design, and activates it. The audience sees that workflow design is interactive rather than hardcoded.
 
 2. **Act 2 -- Workflow Test Lab**: Presenter selects a representative scenario such as a high-risk MSA and runs the workflow test. The dashboard shows expected outcomes, workflow coverage, and pass/warn/fail results. Audience sees whether the designed workflow is fit for purpose.
 
@@ -394,10 +418,11 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | Dependency | Type | Status | Impact if Unavailable |
 |------------|------|--------|----------------------|
 | Microsoft Foundry (GPT-4o) | External | Available | HIGH -- core agent inference. Fallback: use simulated responses |
-| Node.js 20+ | Runtime | Available | HIGH -- single runtime for entire stack |
+| Node.js 20+ | Runtime | Available | HIGH -- gateway, UI, and MCP control plane |
+| Python 3.11+ | Runtime | Available | HIGH -- Microsoft Agent Framework executor runtime |
 | @modelcontextprotocol/sdk | Library | Available | HIGH -- official MCP TypeScript SDK |
-| Semantic Kernel JS / Foundry REST API | Library | Available | HIGH -- agent orchestration. Fallback: direct API calls |
-| React 18+ | Library | Available | MEDIUM -- dashboard framework |
+| Microsoft Agent Framework + Foundry SDK/runtime | Library | Available | HIGH -- primary agent orchestration path |
+| Static dashboard UI served by gateway | Frontend | Available | MEDIUM -- primary operator experience |
 | Fastify + ws | Library | Available | MEDIUM -- API gateway + WebSocket |
 
 ### Technical Constraints
@@ -434,11 +459,11 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 **Goal**: 4 core agents + 5 MCP servers (Intake, Extraction, Compliance, Workflow, Audit) + Live Workflow UI
 **Deliverables**:
-- Contract Agent definitions with prompts in `prompts/` directory
+- Contract agent definitions with prompts in `prompts/` directory
 - MCP servers 1-5 with tool implementations
 - Static dashboard: Design Canvas + Workflow Test Lab + Live Workflow + Monitor Panel views
 - 5 sample contract PDFs with ground truth
-- Agent orchestration via Agent Framework SDK
+- Agent orchestration via Microsoft Agent Framework
 
 **Stories**: US-1.1 through US-5.3
 
@@ -447,7 +472,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 **Goal**: 3 Ops MCP servers (Evaluation, Drift, Feedback) + corresponding UI views
 **Deliverables**:
 - MCP servers 6-8 with tool implementations
-- React dashboard: Evaluation Lab + Drift Detection Center + Feedback Loop views
+- Static dashboard: Evaluation Lab + Drift Detection Center + Feedback Loop views
 - Simulated drift data (4-week degradation curve)
 - Evaluation ground truth dataset (20 test cases)
 - Prompt editor with re-evaluation flow
@@ -458,7 +483,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 **Goal**: Deploy Dashboard + Agent 365 Governance view + guided demo mode
 **Deliverables**:
-- React dashboard: Deploy Dashboard + Governance View
+- Static dashboard: Deploy Dashboard + Governance View
 - Demo script mode with presenter notes
 - README with setup instructions
 - Demo recording for async sharing
@@ -492,8 +517,9 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 | Question | Owner | Status | Resolution |
 |----------|-------|--------|------------|
-| Should MCP servers use Python (FastMCP) or TypeScript? | Piyush | **Resolved** | **TypeScript** -- unified stack with dashboard, single runtime (Node.js), official MCP TS SDK available |
-| Should the dashboard use React or Streamlit? | Piyush | **Resolved** | **React** -- richer interactivity (8 views), TypeScript alignment with backend |
+| Should MCP servers use Python (FastMCP) or TypeScript? | Piyush | **Resolved** | **TypeScript** -- MCP remains a TypeScript business-tool boundary owned by the existing control plane |
+| Should the runtime be Node-only or mixed | Piyush | **Resolved** | **Mixed runtime** -- TypeScript gateway, static UI, and MCP servers remain in place, while Python hosts the Microsoft Agent Framework executor |
+| Should the dashboard use React or Streamlit? | Piyush | **Resolved** | **Static dashboard served by the gateway** -- the React track is archived and the static runtime is the canonical UI |
 | How realistic should simulated drift data be? | Piyush | Open | Recommend 4-week simulated degradation with configurable parameters |
 | Should we include a "reset demo" button? | Piyush | Open | Recommend yes -- essential for repeated demo runs |
 | Pre-recorded vs. live LLM calls during demo? | Piyush | Open | Recommend hybrid: live by default, fallback to cached for reliability |
@@ -506,7 +532,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 ```
 +-----------------------------------------------------------------------------------+
-|                     Contract AgentOps Dashboard (React)                            |
+|                Contract AgentOps Dashboard (Static UI served by gateway)           |
 |  +----------+ +--------+ +--------+ +---------+ +---------+ +------+ +-----+ +-+ |
 |  | Design   | | Test   | | Deploy | | Live    | | Monitor | | Eval | |Drift| |FB||
 |  | Canvas   | | Console| | Dash   | | Workflow| | Panel   | | Lab  | | Ctr | |  ||
@@ -514,7 +540,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 +-----------------------------------------------------------------------------------+
         |             |          |           |           |         |        |      |
 +-----------------------------------------------------------------------------------+
-|                    Agent Orchestration (Agent Framework SDK)                       |
+|               Agent Orchestration (Microsoft Agent Framework)                      |
 |  [Intake Agent] --> [Extraction Agent] --> [Compliance Agent] --> [Approval Agent] |
 +-----------------------------------------------------------------------------------+
         |             |          |           |           |         |        |      |
@@ -551,20 +577,30 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | Compliance Agent | GPT-4o | Compliance MCP | Flag risks against policy -- no approval authority |
 | Approval Agent | GPT-4o | Workflow MCP | Route approvals, escalate -- no policy changes |
 
+### Design Canvas Notes
+
+| Topic | Decision |
+|-------|----------|
+| Workflow authoring source of truth | Design Canvas in the static dashboard |
+| Supported topologies | Sequential, parallel, sequential plus HITL, fan-out, conditional |
+| Persistence | Save and load through the workflow API, with local fallback when needed |
+| Validation | Structural validation occurs during authoring, save, and push |
+| Advanced controls | Export and enhanced canvas navigation are desirable but secondary to the core authoring flow |
+
 ### Technology Stack
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| Dashboard | React 18 + TypeScript | 8 interactive views |
+| Dashboard | Static HTML/CSS/JS served by gateway | 8 interactive views |
 | MCP Servers | TypeScript + @modelcontextprotocol/sdk | 8 tool servers |
 | API Gateway | Fastify + ws (TypeScript) | REST API + WebSocket |
-| Agent Orchestration | Semantic Kernel JS / Foundry REST API (TypeScript) | Multi-agent pipeline |
+| Agent Orchestration | Python Microsoft Agent Framework with Foundry | Multi-agent pipeline |
 | LLM (Agents) | Microsoft Foundry (GPT-4o) | Agent reasoning |
 | LLM (Judge) | Microsoft Foundry (GPT-4o) | Evaluation scoring (LLM-as-judge) |
 | Data Store | Local JSON files | Contracts, feedback, eval results |
-| Charts | Recharts (React) | Drift trends, eval metrics, feedback trends |
-| Styling | Tailwind CSS | Dashboard design (dark theme) |
-| Runtime | Node.js 20+ | Single runtime for entire stack |
+| Charts | Native UI charts and dashboard visualizations | Drift trends, eval metrics, feedback trends |
+| Styling | Static dashboard styles | Dashboard design |
+| Runtime | Mixed: Node.js 20+ plus Python 3.11+ | TypeScript control plane plus Python execution plane |
 
 ### Glossary
 
@@ -580,8 +616,8 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 ### Related Documents
 
 - [AgentOps Presentation Script](../../scripts/generate_agentops_pptx.py)
-- [Technical Specification](../specs/) (TBD -- Architect phase)
-- [Architecture Decision Record](../adr/) (TBD -- Architect phase)
+- [Technical Specification](../specs/SPEC-ContractAgentOps-Demo.md)
+- [Architecture Decision Record](../adr/ADR-ContractAgentOps-Demo.md)
 
 ---
 

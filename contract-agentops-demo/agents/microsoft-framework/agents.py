@@ -7,8 +7,9 @@ from typing import Dict, Any, List, Optional
 
 from opentelemetry import trace
 from pydantic import BaseModel, Field
+import yaml
 
-from .config import config, get_model_config, initialize_tracing
+from .config import config, get_model_config, initialize_tracing, read_json_asset, resolve_asset_path
 
 # Mock implementations for Microsoft Agent Framework classes
 class Tool(BaseModel):
@@ -306,11 +307,50 @@ async def test_agent_connectivity() -> Dict[str, bool]:
 
 
 def load_agent_from_yaml(yaml_path: Path) -> DeclarativeContractAgent:
-    """Load agent configuration from YAML file (future enhancement)"""
-    # YAML-driven agent configuration implementation placeholder
-    # This would read the YAML configs created earlier and dynamically
-    # configure agents based on the declarative specifications
-    raise NotImplementedError("YAML configuration loading not yet implemented")
+    """Load agent configuration from YAML and validate referenced assets."""
+    resolved_yaml_path = resolve_asset_path(str(yaml_path))
+    if not resolved_yaml_path.exists():
+        raise FileNotFoundError(f"Agent YAML file not found: {resolved_yaml_path}")
+
+    with resolved_yaml_path.open("r", encoding="utf-8") as yaml_file:
+        agent_definition = yaml.safe_load(yaml_file) or {}
+
+    agent_id = str(agent_definition.get("agent_id", "")).strip()
+    if not agent_id:
+        raise ValueError(f"agent_id is required in {resolved_yaml_path}")
+
+    prompt_ref = agent_definition.get("prompts", {}).get("system_prompt")
+    template_ref = agent_definition.get("prompts", {}).get("output_template")
+    examples_ref = agent_definition.get("prompts", {}).get("few_shot_examples")
+    schema_ref = agent_definition.get("behavior", {}).get("output_schema")
+
+    missing_assets: List[str] = []
+    for asset_ref in [prompt_ref, template_ref, examples_ref, schema_ref]:
+        if asset_ref and not resolve_asset_path(str(asset_ref)).exists():
+            missing_assets.append(str(asset_ref))
+
+    if missing_assets:
+        raise FileNotFoundError(
+            f"Agent config {resolved_yaml_path} references missing assets: {', '.join(missing_assets)}"
+        )
+
+    if schema_ref:
+        read_json_asset(str(schema_ref))
+    if template_ref:
+        read_json_asset(str(template_ref))
+    if examples_ref:
+        read_json_asset(str(examples_ref))
+
+    agent = AgentFactory.create_agent(agent_id)
+    agent.config_definition = agent_definition
+    agent.asset_references = {
+        "yaml": str(resolved_yaml_path),
+        "prompt": prompt_ref,
+        "output_template": template_ref,
+        "few_shot_examples": examples_ref,
+        "output_schema": schema_ref,
+    }
+    return agent
 
 
 if __name__ == "__main__":

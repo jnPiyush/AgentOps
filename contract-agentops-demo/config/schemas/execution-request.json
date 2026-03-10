@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contract-agentops/execution-request",
+  "title": "ExecutionRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["workflow_package_id", "workflow_version", "contract_id", "document_name", "document_text", "submitted_at"],
+  "properties": {
+    "workflow_package_id": { "type": "string" },
+    "workflow_version": { "type": "string" },
+    "contract_id": { "type": "string" },
+    "document_name": { "type": "string" },
+    "document_text": { "type": "string" },
+    "submitted_at": { "type": "string" }
+  }
+}

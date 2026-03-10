@@ -15,6 +15,7 @@ import { promptRoutes } from "./routes/prompts.js";
 import { sampleContractRoutes } from "./routes/sampleContracts.js";
 import { toolRoutes } from "./routes/tools.js";
 import { workflowRoutes } from "./routes/workflows.js";
+import { initWorkflowRegistry } from "./services/workflowRegistry.js";
 import { initStores } from "./stores/contractStore.js";
 import { addWsClient } from "./websocket/workflowWs.js";
 
@@ -22,6 +23,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export async function startGateway(): Promise<void> {
 	await initStores();
+	await initWorkflowRegistry();
 
 	const app = Fastify({ logger: appConfig.logLevel === "DEBUG" });
 

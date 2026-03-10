@@ -109,7 +109,7 @@ Each agent specializes in a specific aspect of contract analysis, with built-in 
 ## 🛠️ Installation & Setup
 
 ### Prerequisites
-- Node.js 18+ with TypeScript support
+- Node.js 20+ with TypeScript support
 - Git for version control
 - Optional: Docker for containerized deployment
 
@@ -316,6 +316,7 @@ POLICY_REFRESH_INTERVAL=300000  # 5 minutes
 ## 📝 Documentation
 
 - **[Dynamic Policy Engine](docs/dynamic-policy-engine.md)** - Comprehensive policy configuration guide
+- **[Setup and Deployment Guide](docs/SETUP-DEPLOYMENT.md)** - Local setup, Azure configuration, azd deployment, and verification steps
 
 
 ## 🤝 Contributing

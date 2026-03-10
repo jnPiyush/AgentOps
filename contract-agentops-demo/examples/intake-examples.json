@@ -1,0 +1,12 @@
+[
+  {
+    "input": {
+      "document_text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc.",
+      "document_name": "nda-example.txt"
+    },
+    "expected": {
+      "contract_type": "NDA",
+      "parties": ["Acme Corp", "Beta Inc"]
+    }
+  }
+]

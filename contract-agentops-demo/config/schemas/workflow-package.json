@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contract-agentops/workflow-package",
+  "title": "WorkflowPackage",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "workflow_id",
+    "workflow_name",
+    "workflow_version",
+    "activated_at",
+    "execution_topology",
+    "mode_policy",
+    "model_policy",
+    "hitl_policy",
+    "agents"
+  ],
+  "properties": {
+    "id": { "type": "string" },
+    "workflow_id": { "type": "string" },
+    "workflow_name": { "type": "string" },
+    "workflow_version": { "type": "string" },
+    "activated_at": { "type": "string" },
+    "authoring_source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workflow_definition_id", "updated_at"],
+      "properties": {
+        "workflow_definition_id": { "type": "string" },
+        "updated_at": { "type": "string" }
+      }
+    },
+    "execution_topology": { "type": "string" },
+    "mode_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "supported_modes"],
+      "properties": {
+        "mode": { "type": "string", "enum": ["simulated", "live"] },
+        "supported_modes": { "type": "array", "items": { "type": "string", "enum": ["simulated", "live"] } }
+      }
+    },
+    "model_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary_model", "fallback_model", "emergency_model"],
+      "properties": {
+        "primary_model": { "type": "string" },
+        "fallback_model": { "type": "string" },
+        "emergency_model": { "type": "string" }
+      }
+    },
+    "hitl_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "reviewer_role", "timeout_hours", "escalation_email", "checkpoints"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "reviewer_role": { "type": "string" },
+        "timeout_hours": { "type": "number" },
+        "escalation_email": { "type": "string" },
+        "checkpoints": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "manifest_references": { "type": "array", "items": { "type": "string" } },
+    "policy_references": { "type": "array", "items": { "type": "string" } },
+    "agents": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "role", "kind", "stage", "lane", "order", "model", "tools", "boundary", "output", "runtime_role_key", "declarative"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "role": { "type": "string" },
+          "kind": { "type": "string" },
+          "stage": { "type": "number" },
+          "lane": { "type": "number" },
+          "order": { "type": "number" },
+          "model": { "type": "string" },
+          "tools": { "type": "array", "items": { "type": "string" } },
+          "boundary": { "type": "string" },
+          "output": { "type": "string" },
+          "runtime_role_key": { "type": "string" },
+          "declarative": { "type": "object" }
+        }
+      }
+    }
+  }
+}

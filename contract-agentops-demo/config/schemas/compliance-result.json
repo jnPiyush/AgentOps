@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contract-agentops/compliance-result",
+  "title": "ComplianceResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["overall_score", "policy_violations", "recommendations", "risk_level", "approval_required", "blocking_issues"],
+  "properties": {
+    "overall_score": { "type": "number", "minimum": 0, "maximum": 1 },
+    "policy_violations": { "type": "array", "items": { "type": "string" } },
+    "recommendations": { "type": "array", "items": { "type": "string" } },
+    "risk_level": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL", "low", "medium", "high", "critical"] },
+    "approval_required": { "type": "boolean" },
+    "blocking_issues": { "type": "array", "items": { "type": "string" } }
+  }
+}

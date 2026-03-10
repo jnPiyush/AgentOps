@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "contract-agentops/extraction-result",
+  "title": "ExtractionResult",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["clauses", "parties", "dates", "values", "confidence"],
+  "properties": {
+    "clauses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["type", "text", "section"],
+        "properties": {
+          "type": { "type": "string" },
+          "text": { "type": "string" },
+          "section": { "type": "string" }
+        }
+      }
+    },
+    "parties": { "type": "array", "items": { "type": "string" } },
+    "dates": { "type": "array", "items": { "type": "string" } },
+    "values": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["label", "value"],
+        "properties": {
+          "label": { "type": "string" },
+          "value": { "type": ["number", "string"] }
+        }
+      }
+    },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+  }
+}

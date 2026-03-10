@@ -1,0 +1,8 @@
+{
+  "overall_score": 0.88,
+  "policy_violations": ["Missing data processing addendum"],
+  "recommendations": ["Add data processing addendum before execution"],
+  "risk_level": "MEDIUM",
+  "approval_required": true,
+  "blocking_issues": []
+}

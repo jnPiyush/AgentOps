@@ -1,0 +1,12 @@
+[
+  {
+    "input": {
+      "risk_level": "HIGH",
+      "policy_violations": ["High liability cap", "Unapproved data transfer"]
+    },
+    "expected": {
+      "decision": "CONDITIONAL",
+      "escalation_required": true
+    }
+  }
+]
