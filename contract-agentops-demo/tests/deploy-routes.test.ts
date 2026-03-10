@@ -82,7 +82,7 @@ describe("deploy routes auth", () => {
 			foundryApiKey: "api-key",
 			foundryEndpoint: "https://example.test",
 			foundryProjectEndpoint: "https://example.test/projects/demo",
-			foundryModel: "gpt-4o",
+			foundryModel: "gpt-5.4",
 		});
 
 		const app = Fastify();

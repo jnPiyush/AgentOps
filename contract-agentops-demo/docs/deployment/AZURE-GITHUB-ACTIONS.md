@@ -31,7 +31,7 @@ Foundry endpoint and API key secrets are no longer required. The deployment work
 - `demo_mode` default: `live`
 - `environment_name` default: `contract-agentops-prod`
 - `azure_location` default: `eastus2`
-- `foundry_model` default: `gpt-4o`
+- `foundry_model` default: `gpt-5.4`
 - `foundry_model_version` default: `2024-11-20`
 
 ## Deployment Flow

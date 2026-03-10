@@ -10,7 +10,7 @@ param environmentName string
 param location string
 
 @description('Model deployment name')
-param foundryModel string = 'gpt-4o'
+param foundryModel string = 'gpt-5.4'
 
 @description('Demo mode: live or simulated')
 param demoMode string = 'live'

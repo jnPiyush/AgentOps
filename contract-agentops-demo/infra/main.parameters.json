@@ -9,7 +9,7 @@
 			"value": "${AZURE_LOCATION}"
 		},
 		"foundryModel": {
-			"value": "${FOUNDRY_MODEL=gpt-4o}"
+			"value": "${FOUNDRY_MODEL=gpt-5.4}"
 		},
 		"deployAdminKey": {
 			"value": "${DEPLOY_ADMIN_KEY}"

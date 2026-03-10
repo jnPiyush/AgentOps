@@ -27,7 +27,7 @@ const WorkflowDesigner = (() => {
     { id: "merge", label: "Merge Node" },
   ];
 
-  const MODEL_OPTIONS = ["GPT-4o", "GPT-4o-mini", "GPT-4.1", "GPT-4.1-mini", "GPT-4.1-nano", "o3-mini", "o4-mini"];
+  const MODEL_OPTIONS = ["GPT-5.4", "GPT-4o-mini", "GPT-4.1", "GPT-4.1-mini", "GPT-4.1-nano", "o3-mini", "o4-mini"];
 
   // All available MCP tools organized by server
   const AVAILABLE_TOOLS = {
@@ -374,7 +374,7 @@ const WorkflowDesigner = (() => {
           name: "Intake Agent",
           role: "Classify contracts by type and extract initial metadata",
           icon: "I",
-          model: "GPT-4o",
+          model: "GPT-5.4",
           tools: ["upload_contract", "classify_document", "extract_metadata"],
           boundary: "Classify only",
           output: "Contract classification and metadata",
@@ -389,7 +389,7 @@ const WorkflowDesigner = (() => {
           name: "Extraction Agent",
           role: "Extract key clauses, parties, dates, and monetary values",
           icon: "E",
-          model: "GPT-4o",
+          model: "GPT-5.4",
           tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
           boundary: "Extract only",
           output: "Structured clause data with confidence scores",
@@ -404,7 +404,7 @@ const WorkflowDesigner = (() => {
           name: "Compliance Agent",
           role: "Check extracted terms against company policies and flag risks",
           icon: "C",
-          model: "GPT-4o",
+          model: "GPT-5.4",
           tools: ["check_policy", "flag_risk", "get_policy_rules"],
           boundary: "Flag only",
           output: "Policy compliance flags and risk assessment",
@@ -419,7 +419,7 @@ const WorkflowDesigner = (() => {
           name: "Approval Agent",
           role: "Route contracts for approval or escalate to human review",
           icon: "A",
-          model: "GPT-4o",
+          model: "GPT-5.4",
           tools: ["route_approval", "escalate_to_human", "notify_stakeholder"],
           boundary: "Route only",
           output: "Routing decision and stakeholder notification",
@@ -697,7 +697,7 @@ const WorkflowDesigner = (() => {
       name: "",
       role: "",
       icon: "",
-      model: "GPT-4o",
+      model: "GPT-5.4",
       tools: [],
       boundary: "",
       output: "",

@@ -36,7 +36,7 @@ server.tool(
 
 server.tool(
 	"simulate_model_swap",
-	"Compare GPT-4o vs GPT-4o-mini on accuracy, latency, and cost metrics to evaluate model swap viability",
+	"Compare GPT-5.4 vs GPT-4o-mini on accuracy, latency, and cost metrics to evaluate model swap viability",
 	{},
 	async () => {
 		const result = await simulateModelSwap();

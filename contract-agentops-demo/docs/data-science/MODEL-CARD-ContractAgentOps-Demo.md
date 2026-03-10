@@ -11,7 +11,7 @@ This document records the current model posture for the Contract AgentOps demo a
 | Primary runtime default | `gpt-5.1-2026-01-15` | `agents/microsoft-framework/config.py` | Default primary model for the Python executor. [Confidence: HIGH] |
 | Fallback | `gpt-4o-2026-01-15` | `agents/microsoft-framework/config.py`, `config/workflows/contract-processing.yaml` | Used for fallback routing and documented model swap comparisons. [Confidence: HIGH] |
 | Emergency fallback | `gpt-4o-mini-2026-01-15` | `agents/microsoft-framework/config.py`, `config/workflows/contract-processing.yaml` | Lower-cost emergency path with accepted quality degradation threshold of 5%. [Confidence: HIGH] |
-| Judge model family in demo docs | `gpt-4o` family | PRD and UX artifacts | Judge scoring is modeled as an LLM-as-judge layer, but repo-local evaluation is deterministic simulation today. [Confidence: HIGH] |
+| Judge model family in demo docs | `gpt-5.4` family | PRD and UX artifacts | Judge scoring is modeled as an LLM-as-judge layer, but repo-local evaluation is deterministic simulation today. [Confidence: HIGH] |
 
 ## Intended Responsibilities
 

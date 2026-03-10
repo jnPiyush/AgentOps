@@ -33,7 +33,7 @@ on:
         description: "Foundry deployment name"
         required: true
         type: string
-        default: gpt-4o
+        default: gpt-5.4
       foundry_model_version:
         description: "Azure OpenAI model version used if the deployment must be created"
         required: true
@@ -141,7 +141,7 @@ jobs:
           demo_mode="live"
           environment_name="contract-agentops-main"
           azure_location="eastus2"
-          foundry_model="gpt-4o"
+          foundry_model="gpt-5.4"
           foundry_model_version="2024-11-20"
 
           if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then

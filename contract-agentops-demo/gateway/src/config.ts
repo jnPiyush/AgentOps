@@ -32,7 +32,7 @@ export const appConfig: AppConfig = {
 	foundryApiKey: envOrDefault("FOUNDRY_API_KEY", ""),
 	foundryEndpoint: envOrDefault("FOUNDRY_ENDPOINT", ""),
 	foundryProjectEndpoint: envOrDefault("FOUNDRY_PROJECT_ENDPOINT", envOrDefault("FOUNDRY_ENDPOINT", "")),
-	foundryModel: envOrDefault("FOUNDRY_MODEL", "gpt-4o"),
+	foundryModel: envOrDefault("FOUNDRY_MODEL", "gpt-5.4"),
 	foundryModelSwap: envOrDefault("FOUNDRY_MODEL_SWAP", "gpt-4o-mini"),
 	legalReviewEmail: envOrDefault("LEGAL_REVIEW_EMAIL", "legal-review@company.com"),
 	gatewayPort: Number.parseInt(envOrDefault("GATEWAY_PORT", "8000"), 10),

@@ -161,7 +161,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
    - **Acceptance Criteria**:
    - [ ] Simulated LLM drift over time (accuracy degradation visualization)
    - [ ] Data drift detection when new contract types appear
-   - [ ] Model swap simulator: compare GPT-4o vs. GPT-4o-mini on same test set
+   - [ ] Model swap simulator: compare GPT-5.4 vs. GPT-4o-mini on same test set
 
 8. **Feedback & Optimize Loop**: Collect human feedback and close the improvement loop
    - **Acceptance Criteria**:
@@ -207,7 +207,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | Requirement | Specification |
 |-------------|---------------|
 | **Model Type** | LLM (text understanding, extraction, reasoning) |
-| **Provider** | Microsoft Foundry (GPT-4o primary, GPT-4o-mini for model swap demo) |
+| **Provider** | Microsoft Foundry (GPT-5.4 primary, GPT-4o-mini for model swap demo) |
 | **Latency** | Near-real-time (<10s per agent step for demo pacing) |
 | **Quality Threshold** | Extraction accuracy >= 85%, Compliance precision >= 80% |
 | **Cost Budget** | Demo budget -- minimal (few hundred requests per demo run) |
@@ -239,7 +239,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 - [ ] Model version pinned explicitly for reproducible demos
 - [ ] All prompts stored as separate files in `prompts/` directory (not inline in code)
 - [ ] LLM-as-judge evaluator scores agent outputs on relevance (0-5), groundedness (0-5), and coherence (0-5)
-- [ ] Judge LLM uses GPT-4o with structured output schema for scoring consistency
+- [ ] Judge LLM uses GPT-5.4 with structured output schema for scoring consistency
 
 ### 4.3 Non-Functional Requirements
 
@@ -349,7 +349,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 |----------|---------|-----------|------------|---------------------|----------|
 | US-7.1 | Presenter | to see LLM drift visualized as accuracy degradation over time | the audience understands that LLM quality is not static -- it drifts | - [ ] Line chart: accuracy over weeks (simulated)<br>- [ ] Drift threshold line with "DRIFT DETECTED" alert<br>- [ ] Trend direction indicator | P1 |
 | US-7.2 | Presenter | to see data drift when new contract types appear that were not in training | the audience sees how changing input distributions affect agents | - [ ] Distribution chart: contract types over time<br>- [ ] New type highlighted (e.g., "AI Services -- 15% of recent contracts")<br>- [ ] "SHIFT DETECTED" alert | P1 |
-| US-7.3 | Presenter | to simulate a model swap (GPT-4o to GPT-4o-mini) and see impact | the audience sees the cost-quality tradeoff in concrete terms | - [ ] Side-by-side: accuracy, latency, cost per model<br>- [ ] Verdict card: "ACCEPTABLE" or "DEGRADED" based on threshold | P1 |
+| US-7.3 | Presenter | to simulate a model swap (GPT-5.4 to GPT-4o-mini) and see impact | the audience sees the cost-quality tradeoff in concrete terms | - [ ] Side-by-side: accuracy, latency, cost per model<br>- [ ] Verdict card: "ACCEPTABLE" or "DEGRADED" based on threshold | P1 |
 | US-7.4 | Developer | MCP server to expose `detect_llm_drift`, `detect_data_drift`, `simulate_model_swap`, `get_drift_timeline`, `recommend_action` tools | drift detection engine can analyze agent quality over time | - [ ] 5 MCP tools for drift analysis<br>- [ ] Simulated historical data for demo | P1 |
 
 ### Feature 8: Feedback MCP Server + Feedback & Optimize Loop UI
@@ -417,7 +417,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 | Dependency | Type | Status | Impact if Unavailable |
 |------------|------|--------|----------------------|
-| Microsoft Foundry (GPT-4o) | External | Available | HIGH -- core agent inference. Fallback: use simulated responses |
+| Microsoft Foundry (GPT-5.4) | External | Available | HIGH -- core agent inference. Fallback: use simulated responses |
 | Node.js 20+ | Runtime | Available | HIGH -- gateway, UI, and MCP control plane |
 | Python 3.11+ | Runtime | Available | HIGH -- Microsoft Agent Framework executor runtime |
 | @modelcontextprotocol/sdk | Library | Available | HIGH -- official MCP TypeScript SDK |
@@ -449,7 +449,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | LLM responses non-deterministic | Medium | High | Use temperature=0, seed parameter; cache responses for demo reliability |
 | Demo takes too long (>20 min) | Medium | Medium | Build "fast forward" buttons and pre-loaded states |
 | Audience questions exceed demo scope | Low | High | Prepare FAQ slide, have simulated data for ad-hoc queries |
-| Model quality insufficient for extraction | High | Low | Use GPT-4o with structured outputs; pre-validate all 5 sample contracts |
+| Model quality insufficient for extraction | High | Low | Use GPT-5.4 with structured outputs; pre-validate all 5 sample contracts |
 
 ---
 
@@ -572,10 +572,10 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 
 | Agent | Model | Tools (MCP) | Boundaries |
 |-------|-------|-------------|------------|
-| Intake Agent | GPT-4o | Intake MCP | Classify and route only -- no extraction or compliance |
-| Extraction Agent | GPT-4o | Extraction MCP | Extract terms only -- no compliance judgment |
-| Compliance Agent | GPT-4o | Compliance MCP | Flag risks against policy -- no approval authority |
-| Approval Agent | GPT-4o | Workflow MCP | Route approvals, escalate -- no policy changes |
+| Intake Agent | GPT-5.4 | Intake MCP | Classify and route only -- no extraction or compliance |
+| Extraction Agent | GPT-5.4 | Extraction MCP | Extract terms only -- no compliance judgment |
+| Compliance Agent | GPT-5.4 | Compliance MCP | Flag risks against policy -- no approval authority |
+| Approval Agent | GPT-5.4 | Workflow MCP | Route approvals, escalate -- no policy changes |
 
 ### Design Canvas Notes
 
@@ -595,8 +595,8 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | MCP Servers | TypeScript + @modelcontextprotocol/sdk | 8 tool servers |
 | API Gateway | Fastify + ws (TypeScript) | REST API + WebSocket |
 | Agent Orchestration | Python Microsoft Agent Framework with Foundry | Multi-agent pipeline |
-| LLM (Agents) | Microsoft Foundry (GPT-4o) | Agent reasoning |
-| LLM (Judge) | Microsoft Foundry (GPT-4o) | Evaluation scoring (LLM-as-judge) |
+| LLM (Agents) | Microsoft Foundry (GPT-5.4) | Agent reasoning |
+| LLM (Judge) | Microsoft Foundry (GPT-5.4) | Evaluation scoring (LLM-as-judge) |
 | Data Store | Local JSON files | Contracts, feedback, eval results |
 | Charts | Native UI charts and dashboard visualizations | Drift trends, eval metrics, feedback trends |
 | Styling | Static dashboard styles | Dashboard design |

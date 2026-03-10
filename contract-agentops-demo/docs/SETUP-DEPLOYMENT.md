@@ -120,7 +120,7 @@ DEMO_MODE=live
 FOUNDRY_API_KEY=<your-api-key>
 FOUNDRY_ENDPOINT=https://<your-resource>.openai.azure.com
 FOUNDRY_PROJECT_ENDPOINT=
-FOUNDRY_MODEL=gpt-4o
+FOUNDRY_MODEL=gpt-5.4
 FOUNDRY_MODEL_SWAP=gpt-4o-mini
 GATEWAY_PORT=8000
 MCP_BASE_PORT=9001
@@ -184,7 +184,7 @@ Set deployment values:
 
 ```powershell
 azd env set AZURE_LOCATION eastus2
-azd env set FOUNDRY_MODEL gpt-4o
+azd env set FOUNDRY_MODEL gpt-5.4
 azd env set FOUNDRY_MODEL_VERSION 2024-11-20
 azd env set DEMO_MODE live
 ```
@@ -247,7 +247,7 @@ The Azure infrastructure now provisions the Azure OpenAI account through Bicep a
 For live mode, set these `azd` environment values before deployment:
 
 ```powershell
-azd env set FOUNDRY_MODEL gpt-4o
+azd env set FOUNDRY_MODEL gpt-5.4
 azd env set FOUNDRY_MODEL_VERSION 2024-11-20
 azd env set DEMO_MODE live
 ```
@@ -366,7 +366,7 @@ azd env new contract-agentops-dev
 azd env set AZURE_LOCATION eastus2
 azd env set FOUNDRY_ENDPOINT https://<your-resource>.openai.azure.com
 azd env set FOUNDRY_API_KEY <your-api-key>
-azd env set FOUNDRY_MODEL gpt-4o
+azd env set FOUNDRY_MODEL gpt-5.4
 azd env set DEMO_MODE simulated
 azd up
 ```

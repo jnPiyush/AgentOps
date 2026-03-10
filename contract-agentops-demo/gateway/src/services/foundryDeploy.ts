@@ -715,8 +715,8 @@ function simulatedDeploy(): DeployPipelineResult {
 			status: "passed",
 			duration_ms: 180,
 			details: {
-				deployment_name: "gpt-4o",
-				model: "gpt-4o",
+				deployment_name: "gpt-5.4",
+				model: "gpt-5.4",
 				status: "succeeded",
 				sku: "Standard",
 			},
@@ -759,7 +759,7 @@ function simulatedDeploy(): DeployPipelineResult {
 	const agents: FoundryAgentInfo[] = AGENT_DEFS.map((def) => ({
 		agent_name: def.name,
 		foundry_agent_id: `asst_sim_${randomUUID().slice(0, 12)}`,
-		model: "gpt-4o",
+		model: "gpt-5.4",
 		status: "registered" as const,
 		tools_count: def.tools.length,
 	}));

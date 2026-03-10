@@ -43,7 +43,7 @@ The distribution is normalized to `1.0`, and the test suite now asserts that nor
 
 | Model | Accuracy | Latency | Cost per contract |
 |-------|----------|---------|-------------------|
-| GPT-4o | `92%` | `2400 ms` | `$0.08` |
+| GPT-5.4 | `92%` | `2400 ms` | `$0.08` |
 | GPT-4o-mini | `89%` | `1150 ms` | `$0.032` |
 
 Computed deltas:

@@ -139,7 +139,7 @@ export async function simulateModelSwap(): Promise<{
 		Math.abs(swap.comparison.accuracy_delta) <= accuracyThreshold ? ("ACCEPTABLE" as const) : ("DEGRADED" as const);
 
 	return {
-		current_model: "GPT-4o",
+		current_model: "GPT-5.4",
 		candidate_model: "GPT-4o-mini",
 		current: swap.gpt4o,
 		candidate: swap.gpt4o_mini,

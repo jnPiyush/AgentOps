@@ -63,7 +63,7 @@ describe("contract-drift-mcp engine", () => {
 	describe("simulateModelSwap", () => {
 		it("returns comparison of two models", async () => {
 			const result = await simulateModelSwap();
-			expect(result.current_model).toBe("GPT-4o");
+			expect(result.current_model).toBe("GPT-5.4");
 			expect(result.candidate_model).toBe("GPT-4o-mini");
 			expect(result).toHaveProperty("current");
 			expect(result).toHaveProperty("candidate");
