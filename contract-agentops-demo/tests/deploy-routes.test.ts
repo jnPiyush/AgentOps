@@ -6,18 +6,22 @@ import { deployRoutes } from "../gateway/src/routes/deploy.js";
 const mutableConfig = appConfig as {
 	demoMode: "live" | "simulated";
 	deployAdminKey: string;
+	foundryAuthMode: "api-key" | "managed-identity";
 	foundryApiKey: string;
 	foundryEndpoint: string;
 	foundryProjectEndpoint: string;
+	foundryManagedIdentityClientId: string;
 	foundryModel: string;
 };
 
 const originalConfig = {
 	demoMode: appConfig.demoMode,
 	deployAdminKey: appConfig.deployAdminKey,
+	foundryAuthMode: appConfig.foundryAuthMode,
 	foundryApiKey: appConfig.foundryApiKey,
 	foundryEndpoint: appConfig.foundryEndpoint,
 	foundryProjectEndpoint: appConfig.foundryProjectEndpoint,
+	foundryManagedIdentityClientId: appConfig.foundryManagedIdentityClientId,
 	foundryModel: appConfig.foundryModel,
 };
 
@@ -79,6 +83,7 @@ describe("deploy routes auth", () => {
 		Object.assign(mutableConfig, {
 			demoMode: "live",
 			deployAdminKey: "secret-key",
+			foundryAuthMode: "api-key",
 			foundryApiKey: "api-key",
 			foundryEndpoint: "https://example.test",
 			foundryProjectEndpoint: "https://example.test/projects/demo",
@@ -90,6 +95,32 @@ describe("deploy routes auth", () => {
 
 		const response = await app.inject({ method: "POST", url: "/api/v1/deploy/pipeline" });
 		expect(response.statusCode).toBe(401);
+
+		await app.close();
+	});
+
+	it("reports live mode as configured when managed identity auth is selected without an API key", async () => {
+		Object.assign(mutableConfig, {
+			demoMode: "live",
+			deployAdminKey: "secret-key",
+			foundryAuthMode: "managed-identity",
+			foundryApiKey: "",
+			foundryEndpoint: "https://example.test",
+			foundryProjectEndpoint: "https://example.test/projects/demo",
+			foundryManagedIdentityClientId: "00000000-0000-0000-0000-000000000001",
+			foundryModel: "gpt-5.4",
+		});
+
+		const app = Fastify();
+		await app.register(deployRoutes);
+
+		const response = await app.inject({ method: "GET", url: "/api/v1/deploy/mode" });
+		expect(response.statusCode).toBe(200);
+		expect(response.json()).toMatchObject({
+			mode: "live",
+			foundry_auth_mode: "managed-identity",
+			foundry_configured: true,
+		});
 
 		await app.close();
 	});

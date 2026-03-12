@@ -1,0 +1,14 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "contract-agentops/signature-result",
+	"title": "SignatureResult",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["signature_status", "pending_signers", "next_action", "confidence_score"],
+	"properties": {
+		"signature_status": { "type": "string" },
+		"pending_signers": { "type": "array", "items": { "type": "string" } },
+		"next_action": { "type": "string" },
+		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+	}
+}

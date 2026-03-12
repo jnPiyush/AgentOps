@@ -1,0 +1,302 @@
+name: Contract AgentOps Deploy ACA
+
+on:
+  workflow_dispatch:
+    inputs:
+      demo_mode:
+        description: 'Deployment mode'
+        required: true
+        type: choice
+        default: live
+        options:
+          - simulated
+          - live
+      environment_name:
+        description: 'ACA environment name'
+        required: true
+        type: string
+        default: contract-agentops-aca-prod
+      azure_location:
+        description: 'Azure region'
+        required: true
+        type: string
+        default: eastus2
+      foundry_model:
+        description: 'Foundry deployment name'
+        required: true
+        type: string
+        default: gpt-5.4
+      foundry_model_version:
+        description: 'Azure OpenAI model version used if the deployment must be created'
+        required: true
+        type: string
+        default: 2024-11-20
+
+permissions:
+  contents: read
+
+concurrency:
+  group: contract-agentops-deploy-aca-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: contract-agentops-demo
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: contract-agentops-demo/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    needs: validate
+    defaults:
+      run:
+        working-directory: contract-agentops-demo
+    env:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: contract-agentops-demo/package-lock.json
+
+      - name: Azure login with service principal
+        shell: bash
+        run: |
+          set -euo pipefail
+          az login --service-principal \
+            --username "$AZURE_CLIENT_ID" \
+            --password "$AZURE_CLIENT_SECRET" \
+            --tenant "$AZURE_TENANT_ID"
+          az account set --subscription "$AZURE_SUBSCRIPTION_ID"
+
+      - name: Prepare ACA Azure CLI extensions
+        shell: bash
+        run: |
+          set -euo pipefail
+          az extension add --name containerapp --upgrade --allow-preview true
+          az provider register --namespace Microsoft.App
+          az provider register --namespace Microsoft.OperationalInsights
+          az provider register --namespace Microsoft.ContainerRegistry
+
+      - name: Resolve deployment settings
+        id: resolve
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          demo_mode='live'
+          environment_name='contract-agentops-aca-main'
+          azure_location='eastus2'
+          foundry_model='gpt-5.4'
+          foundry_model_version='2024-11-20'
+
+          if [[ "${GITHUB_EVENT_NAME}" == 'workflow_dispatch' ]]; then
+            demo_mode='${{ github.event.inputs.demo_mode }}'
+            environment_name='${{ github.event.inputs.environment_name }}'
+            azure_location='${{ github.event.inputs.azure_location }}'
+            foundry_model='${{ github.event.inputs.foundry_model }}'
+            foundry_model_version='${{ github.event.inputs.foundry_model_version }}'
+          elif [[ "${GITHUB_REF}" == refs/tags/* ]]; then
+            environment_name='contract-agentops-aca-prod'
+          fi
+
+          image_tag="${GITHUB_SHA::12}"
+          deploy_admin_key="$(openssl rand -hex 32)"
+          echo "::add-mask::${deploy_admin_key}"
+
+          {
+            echo "demo_mode=${demo_mode}"
+            echo "environment_name=${environment_name}"
+            echo "azure_location=${azure_location}"
+            echo "foundry_model=${foundry_model}"
+            echo "foundry_model_version=${foundry_model_version}"
+            echo "image_tag=${image_tag}"
+            echo "deploy_admin_key=${deploy_admin_key}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Provision ACA infrastructure
+        id: infra
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          deployment_name="aca-${{ steps.resolve.outputs.environment_name }}-${GITHUB_RUN_ID}"
+          outputs_path="$RUNNER_TEMP/aca-outputs.json"
+
+          az deployment sub create \
+            --name "$deployment_name" \
+            --location "${{ steps.resolve.outputs.azure_location }}" \
+            --template-file infra/container-apps.bicep \
+            --parameters environmentName="${{ steps.resolve.outputs.environment_name }}" location="${{ steps.resolve.outputs.azure_location }}" foundryModel="${{ steps.resolve.outputs.foundry_model }}" \
+            --query properties.outputs > "$outputs_path"
+
+          resource_group="$(jq -r '.AZURE_RESOURCE_GROUP.value' "$outputs_path")"
+          aca_environment="$(jq -r '.AZURE_CONTAINER_APPS_ENVIRONMENT.value' "$outputs_path")"
+          container_app_name="$(jq -r '.AZURE_CONTAINER_APP_NAME.value' "$outputs_path")"
+          acr_name="$(jq -r '.AZURE_CONTAINER_REGISTRY_NAME.value' "$outputs_path")"
+          acr_login_server="$(jq -r '.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER.value' "$outputs_path")"
+          pull_identity_resource_id="$(jq -r '.AZURE_CONTAINER_REGISTRY_PULL_IDENTITY_RESOURCE_ID.value' "$outputs_path")"
+          pull_identity_client_id="$(jq -r '.AZURE_CONTAINER_REGISTRY_PULL_IDENTITY_CLIENT_ID.value' "$outputs_path")"
+          foundry_account_name="$(jq -r '.AZURE_FOUNDRY_ACCOUNT_NAME.value' "$outputs_path")"
+          foundry_deployment_name="$(jq -r '.AZURE_FOUNDRY_DEPLOYMENT_NAME.value' "$outputs_path")"
+
+          {
+            echo "resource_group=${resource_group}"
+            echo "aca_environment=${aca_environment}"
+            echo "container_app_name=${container_app_name}"
+            echo "acr_name=${acr_name}"
+            echo "acr_login_server=${acr_login_server}"
+            echo "pull_identity_resource_id=${pull_identity_resource_id}"
+            echo "pull_identity_client_id=${pull_identity_client_id}"
+            echo "foundry_account_name=${foundry_account_name}"
+            echo "foundry_deployment_name=${foundry_deployment_name}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Ensure Foundry model deployment exists
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if az cognitiveservices account deployment show \
+            --resource-group "${{ steps.infra.outputs.resource_group }}" \
+            --name "${{ steps.infra.outputs.foundry_account_name }}" \
+            --deployment-name "${{ steps.infra.outputs.foundry_deployment_name }}" >/dev/null 2>&1; then
+            echo "Reusing existing Foundry deployment '${{ steps.infra.outputs.foundry_deployment_name }}'."
+            exit 0
+          fi
+
+          az cognitiveservices account deployment create \
+            --resource-group "${{ steps.infra.outputs.resource_group }}" \
+            --name "${{ steps.infra.outputs.foundry_account_name }}" \
+            --deployment-name "${{ steps.infra.outputs.foundry_deployment_name }}" \
+            --model-format OpenAI \
+            --model-name "${{ steps.resolve.outputs.foundry_model }}" \
+            --model-version "${{ steps.resolve.outputs.foundry_model_version }}" \
+            --sku-name Standard \
+            --sku-capacity 10
+
+      - name: Resolve Foundry runtime configuration
+        id: foundry
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          foundry_endpoint="https://${{ steps.infra.outputs.foundry_account_name }}.openai.azure.com"
+          {
+            echo "foundry_endpoint=${foundry_endpoint}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image to ACR
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          az acr build \
+            --registry "${{ steps.infra.outputs.acr_name }}" \
+            --image contract-agentops-demo:${{ steps.resolve.outputs.image_tag }} \
+            --image contract-agentops-demo:latest \
+            .
+
+      - name: Wait for AcrPull role propagation
+        shell: bash
+        run: |
+          set -euo pipefail
+          sleep 20
+
+      - name: Create or update ACA app
+        id: deploy_app
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          image_ref="${{ steps.infra.outputs.acr_login_server }}/contract-agentops-demo:${{ steps.resolve.outputs.image_tag }}"
+          env_vars=(
+            "DEMO_MODE=${{ steps.resolve.outputs.demo_mode }}"
+            "FOUNDRY_AUTH_MODE=managed-identity"
+            "FOUNDRY_ENDPOINT=${{ steps.foundry.outputs.foundry_endpoint }}"
+            "FOUNDRY_PROJECT_ENDPOINT=${{ steps.foundry.outputs.foundry_endpoint }}"
+            "FOUNDRY_MANAGED_IDENTITY_CLIENT_ID=${{ steps.infra.outputs.pull_identity_client_id }}"
+            "FOUNDRY_MODEL=${{ steps.resolve.outputs.foundry_model }}"
+            "GATEWAY_PORT=8000"
+            "MCP_BASE_PORT=9001"
+            "LOG_LEVEL=INFO"
+            "NODE_ENV=production"
+            "DEPLOY_ADMIN_KEY=secretref:deploy-admin-key"
+          )
+
+          if az containerapp show \
+            --resource-group "${{ steps.infra.outputs.resource_group }}" \
+            --name "${{ steps.infra.outputs.container_app_name }}" >/dev/null 2>&1; then
+            az containerapp update \
+              --resource-group "${{ steps.infra.outputs.resource_group }}" \
+              --name "${{ steps.infra.outputs.container_app_name }}" \
+              --image "$image_ref" \
+              --user-assigned "${{ steps.infra.outputs.pull_identity_resource_id }}" \
+              --set-env-vars "${env_vars[@]}" \
+              --secrets "deploy-admin-key=${{ steps.resolve.outputs.deploy_admin_key }}"
+          else
+            az containerapp create \
+              --resource-group "${{ steps.infra.outputs.resource_group }}" \
+              --name "${{ steps.infra.outputs.container_app_name }}" \
+              --environment "${{ steps.infra.outputs.aca_environment }}" \
+              --image "$image_ref" \
+              --target-port 8000 \
+              --ingress external \
+              --min-replicas 1 \
+              --max-replicas 3 \
+              --user-assigned "${{ steps.infra.outputs.pull_identity_resource_id }}" \
+              --registry-server "${{ steps.infra.outputs.acr_login_server }}" \
+              --registry-identity "${{ steps.infra.outputs.pull_identity_resource_id }}" \
+              --env-vars "${env_vars[@]}" \
+              --secrets "deploy-admin-key=${{ steps.resolve.outputs.deploy_admin_key }}"
+          fi
+
+          app_url="$(az containerapp show \
+            --resource-group "${{ steps.infra.outputs.resource_group }}" \
+            --name "${{ steps.infra.outputs.container_app_name }}" \
+            --query properties.configuration.ingress.fqdn -o tsv)"
+
+          echo "app_url=https://${app_url}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify deployed application
+        shell: pwsh
+        run: |
+          ./scripts/deploy/verify-deployment.ps1 -AppUrl '${{ steps.deploy_app.outputs.app_url }}' -DeployAdminKey '${{ steps.resolve.outputs.deploy_admin_key }}' -TriggerPipeline

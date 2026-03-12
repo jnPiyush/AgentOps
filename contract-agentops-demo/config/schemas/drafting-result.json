@@ -1,0 +1,26 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "contract-agentops/drafting-result",
+	"title": "DraftingResult",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["draft_summary", "recommended_clauses", "open_questions", "confidence_score"],
+	"properties": {
+		"draft_summary": { "type": "string" },
+		"recommended_clauses": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["topic", "recommended_text", "rationale"],
+				"properties": {
+					"topic": { "type": "string" },
+					"recommended_text": { "type": "string" },
+					"rationale": { "type": "string" }
+				}
+			}
+		},
+		"open_questions": { "type": "array", "items": { "type": "string" } },
+		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+	}
+}

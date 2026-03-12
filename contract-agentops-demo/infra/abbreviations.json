@@ -2,6 +2,7 @@
 	"resourcesResourceGroups": "rg-",
 	"webServerFarms": "plan-",
 	"webSitesAppService": "app-",
+	"userAssignedIdentities": "id-",
 	"operationalInsightsWorkspaces": "log-",
 	"insightsComponents": "appi-"
 }

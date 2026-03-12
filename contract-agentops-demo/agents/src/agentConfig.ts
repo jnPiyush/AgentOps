@@ -21,12 +21,26 @@ export const AGENTS: Record<string, AgentDefinition> = {
 		tools: ["upload_contract", "classify_document", "extract_metadata"],
 		systemPromptFile: "intake-system.md",
 	},
+	drafting: {
+		name: "Drafting Agent",
+		role: "Assemble the first-pass draft package and recommend approved clause language",
+		mcpServer: "contract-extraction-mcp",
+		tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
+		systemPromptFile: "drafting-system.md",
+	},
 	extraction: {
 		name: "Extraction Agent",
 		role: "Extract key clauses, parties, dates, and monetary values",
 		mcpServer: "contract-extraction-mcp",
 		tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
 		systemPromptFile: "extraction-system.md",
+	},
+	review: {
+		name: "Internal Review Agent",
+		role: "Summarize redlines, version differences, and internal review outcomes",
+		mcpServer: "contract-audit-mcp",
+		tools: ["get_audit_log", "create_audit_entry"],
+		systemPromptFile: "review-system.md",
 	},
 	compliance: {
 		name: "Compliance Agent",
@@ -35,12 +49,47 @@ export const AGENTS: Record<string, AgentDefinition> = {
 		tools: ["check_policy", "flag_risk", "get_policy_rules"],
 		systemPromptFile: "compliance-system.md",
 	},
+	negotiation: {
+		name: "Negotiation Agent",
+		role: "Assess counterparty changes and recommend fallback positions",
+		mcpServer: "contract-workflow-mcp",
+		tools: ["notify_stakeholder", "route_approval"],
+		systemPromptFile: "negotiation-system.md",
+	},
 	approval: {
 		name: "Approval Agent",
 		role: "Route contracts for approval or escalate to human review",
 		mcpServer: "contract-workflow-mcp",
 		tools: ["route_approval", "escalate_to_human", "notify_stakeholder"],
 		systemPromptFile: "approval-system.md",
+	},
+	signature: {
+		name: "Signature Agent",
+		role: "Coordinate execution milestones, signature status, and reminder actions",
+		mcpServer: "contract-workflow-mcp",
+		tools: ["notify_stakeholder", "create_audit_entry"],
+		systemPromptFile: "signature-system.md",
+	},
+	obligations: {
+		name: "Obligations Agent",
+		role: "Convert final contract commitments into tracked obligations and owners",
+		mcpServer: "contract-workflow-mcp",
+		tools: ["notify_stakeholder", "create_audit_entry"],
+		systemPromptFile: "obligations-system.md",
+	},
+	renewal: {
+		name: "Renewal Agent",
+		role: "Detect renewal and expiry risk and prepare alerts before deadlines are missed",
+		mcpServer: "contract-drift-mcp",
+		tools: ["detect_drift", "model_swap_analysis"],
+		systemPromptFile: "renewal-system.md",
+	},
+	analytics: {
+		name: "Analytics Agent",
+		role: "Summarize lifecycle outcomes, evaluation signals, and operational insights",
+		mcpServer: "contract-eval-mcp",
+		tools: ["run_evaluation", "get_baseline"],
+		systemPromptFile: "analytics-system.md",
 	},
 };
 
@@ -53,5 +102,5 @@ export async function loadSystemPrompt(agentKey: string): Promise<string> {
 }
 
 export function getAgentPipeline(): string[] {
-	return ["intake", "extraction", "compliance", "approval"];
+	return ["intake", "drafting", "review", "compliance", "negotiation", "approval"];
 }

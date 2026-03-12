@@ -37,8 +37,8 @@ async function testSuite() {
 		return (
 			result.pipeline_id.startsWith("deploy-") &&
 			result.mode === "simulated" &&
-			result.summary.agents_deployed === 4 &&
-			result.summary.tools_registered === 12 &&
+			result.summary.agents_deployed === 6 &&
+			result.summary.tools_registered === 16 &&
 			result.summary.errors === 0 &&
 			result.stages.length === 6 &&
 			result.stages.every((stage) => stage.status === "passed")
@@ -50,12 +50,14 @@ async function testSuite() {
 		const result = deploySimulated();
 		const expectedAgents = [
 			"Contract Intake Agent",
-			"Contract Extraction Agent",
+			"Contract Drafting Agent",
+			"Contract Internal Review Agent",
 			"Contract Compliance Agent",
+			"Contract Negotiation Agent",
 			"Contract Approval Agent",
 		];
 		return (
-			result.agents.length === 4 &&
+			result.agents.length === 6 &&
 			result.agents.every((agent) => agent.status === "registered") &&
 			expectedAgents.every((name) => result.agents.some((agent) => agent.agent_name === name))
 		);

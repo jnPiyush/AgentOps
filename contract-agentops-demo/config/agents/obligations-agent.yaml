@@ -1,0 +1,65 @@
+# Declarative Agent Configuration - Obligations Agent
+
+agent_id: obligations
+name: Contract Obligations Agent
+version: 1.0.0
+created: 2026-03-12
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.0
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 30s
+
+prompts:
+  system_prompt: prompts/obligations-system.md
+  output_template: templates/extraction-result.json
+
+tools:
+  - name: notify_stakeholder
+    mcp_server: contract-workflow-mcp
+    description: Notify obligation owners and downstream business teams
+    required: true
+    timeout: 10s
+  - name: create_audit_entry
+    mcp_server: contract-audit-mcp
+    description: Record obligation assignments and milestones
+    required: false
+    timeout: 10s
+
+behavior:
+  role: "Convert final contract commitments into tracked obligations and owners"
+  boundary: "Post-execution obligations only - does not change signed terms"
+  output_schema: config/schemas/obligations-result.json
+  validation:
+    required_fields: [obligations, owner_assignments, follow_up_window_days]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 6s
+    max_latency: 15s
+
+workflow:
+  input_from: signature_agent
+  output_to: [renewal_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: false
+  routing:
+    - condition: "output.obligations.length == 0"
+      action: route_to_legal_review
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, obligation_coverage]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

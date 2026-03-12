@@ -1,0 +1,32 @@
+FROM node:20-bookworm-slim
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY package.json package-lock.json ./
+COPY gateway/package.json ./gateway/package.json
+COPY agents/package.json ./agents/package.json
+COPY mcp-servers/contract-audit-mcp/package.json ./mcp-servers/contract-audit-mcp/package.json
+COPY mcp-servers/contract-compliance-mcp/package.json ./mcp-servers/contract-compliance-mcp/package.json
+COPY mcp-servers/contract-drift-mcp/package.json ./mcp-servers/contract-drift-mcp/package.json
+COPY mcp-servers/contract-eval-mcp/package.json ./mcp-servers/contract-eval-mcp/package.json
+COPY mcp-servers/contract-extraction-mcp/package.json ./mcp-servers/contract-extraction-mcp/package.json
+COPY mcp-servers/contract-feedback-mcp/package.json ./mcp-servers/contract-feedback-mcp/package.json
+COPY mcp-servers/contract-intake-mcp/package.json ./mcp-servers/contract-intake-mcp/package.json
+COPY mcp-servers/contract-workflow-mcp/package.json ./mcp-servers/contract-workflow-mcp/package.json
+
+RUN npm ci
+
+COPY . .
+
+RUN useradd --system --create-home --shell /usr/sbin/nologin appuser
+RUN chown -R appuser:appuser /app
+
+USER appuser
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s --retries=5 CMD node -e "fetch('http://127.0.0.1:8000/api/v1/health').then((response) => { if (!response.ok) process.exit(1); }).catch(() => process.exit(1));"
+
+CMD ["npm", "start"]

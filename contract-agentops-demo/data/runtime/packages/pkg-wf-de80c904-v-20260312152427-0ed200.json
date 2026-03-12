@@ -1,0 +1,359 @@
+{
+  "id": "pkg-wf-de80c904-v-20260312152427-0ed200",
+  "workflow_id": "wf-de80c904",
+  "workflow_name": "Contract Lifecycle Pipeline",
+  "workflow_version": "v-20260312152427-0ed200",
+  "activated_at": "2026-03-12T15:24:27.983Z",
+  "authoring_source": {
+    "workflow_definition_id": "wf-de80c904",
+    "updated_at": "2026-03-12T15:24:27.977Z"
+  },
+  "execution_topology": "sequential-hitl",
+  "mode_policy": {
+    "mode": "simulated",
+    "supported_modes": [
+      "simulated",
+      "live"
+    ]
+  },
+  "model_policy": {
+    "primary_model": "gpt-5.4",
+    "fallback_model": "gpt-4o-mini",
+    "emergency_model": "gpt-4o-mini"
+  },
+  "hitl_policy": {
+    "enabled": true,
+    "reviewer_role": "legal-reviewer",
+    "timeout_hours": 24,
+    "escalation_email": "legal-review@company.com",
+    "checkpoints": [
+      "approval"
+    ]
+  },
+  "manifest_references": [
+    "config/workflows/contract-processing.yaml",
+    "config/schemas/workflow-package.json",
+    "config/stages/contract-lifecycle.json"
+  ],
+  "policy_references": [
+    "data/policies/contract_policies.json",
+    "data/policies.json",
+    "data/clauses.json"
+  ],
+  "contract_stage_map": {
+    "catalog_reference": "config/stages/contract-lifecycle.json",
+    "stages": [
+      {
+        "id": "request-initiation",
+        "order": 1,
+        "name": "Request and Initiation",
+        "summary": "Establishes contract type, completeness, and routing context.",
+        "primary_mcp_affinity": [
+          "intake",
+          "workflow"
+        ],
+        "mvp_shape": "Single group with optional validation branch",
+        "notes": "Intake agent plus metadata validation agent.",
+        "default_execution_group_name": "Request Initiation Group",
+        "execution_groups": [
+          {
+            "id": "group-request-initiation",
+            "name": "Request Initiation Group",
+            "runtime_agent_ids": [
+              "intake-1"
+            ],
+            "runtime_role_keys": [
+              "intake"
+            ],
+            "primary_mcp_affinity": [
+              "intake",
+              "workflow"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "authoring-drafting",
+        "order": 2,
+        "name": "Authoring and Drafting",
+        "summary": "Creates the draft package and recommends approved clause language.",
+        "primary_mcp_affinity": [
+          "extraction",
+          "workflow"
+        ],
+        "mvp_shape": "Parallelizable pair",
+        "notes": "Drafting agent plus clause recommendation agent.",
+        "default_execution_group_name": "Drafting Group",
+        "execution_groups": [
+          {
+            "id": "group-authoring-drafting",
+            "name": "Drafting Group",
+            "runtime_agent_ids": [
+              "drafting-1"
+            ],
+            "runtime_role_keys": [
+              "drafting"
+            ],
+            "primary_mcp_affinity": [
+              "extraction",
+              "workflow"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "internal-review",
+        "order": 3,
+        "name": "Internal Review",
+        "summary": "Summarizes changes and evaluates redlines before broader routing.",
+        "primary_mcp_affinity": [
+          "extraction",
+          "audit"
+        ],
+        "mvp_shape": "Parallelizable pair",
+        "notes": "Redline analysis agent plus version-diff agent.",
+        "default_execution_group_name": "Internal Review Group",
+        "execution_groups": [
+          {
+            "id": "group-internal-review",
+            "name": "Internal Review Group",
+            "runtime_agent_ids": [
+              "review-1"
+            ],
+            "runtime_role_keys": [
+              "review"
+            ],
+            "primary_mcp_affinity": [
+              "extraction",
+              "audit"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "compliance-check",
+        "order": 4,
+        "name": "Compliance Check",
+        "summary": "Produces policy exceptions and regulatory findings.",
+        "primary_mcp_affinity": [
+          "compliance"
+        ],
+        "mvp_shape": "Parallelizable pair",
+        "notes": "Policy mapping agent plus regulatory review agent.",
+        "default_execution_group_name": "Compliance Group",
+        "execution_groups": [
+          {
+            "id": "group-compliance-check",
+            "name": "Compliance Group",
+            "runtime_agent_ids": [
+              "compliance-1"
+            ],
+            "runtime_role_keys": [
+              "compliance"
+            ],
+            "primary_mcp_affinity": [
+              "compliance"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "negotiation-external-review",
+        "order": 5,
+        "name": "Negotiation and External Review",
+        "summary": "Analyzes counterparty changes and recommends fallback language.",
+        "primary_mcp_affinity": [
+          "compliance",
+          "workflow"
+        ],
+        "mvp_shape": "Sequential pair",
+        "notes": "Counterparty change analysis agent plus fallback recommendation agent.",
+        "default_execution_group_name": "Negotiation Group",
+        "execution_groups": [
+          {
+            "id": "group-negotiation-external-review",
+            "name": "Negotiation Group",
+            "runtime_agent_ids": [
+              "negotiation-1"
+            ],
+            "runtime_role_keys": [
+              "negotiation"
+            ],
+            "primary_mcp_affinity": [
+              "compliance",
+              "workflow"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "approval-routing",
+        "order": 6,
+        "name": "Approval Routing",
+        "summary": "Finalizes the approver path and enforces HITL checkpoints.",
+        "primary_mcp_affinity": [
+          "workflow",
+          "audit"
+        ],
+        "mvp_shape": "Sequential plus HITL",
+        "notes": "Routing agent plus escalation agent. This is the endpoint of the active demo workflow.",
+        "default_execution_group_name": "Approval Routing Group",
+        "execution_groups": [
+          {
+            "id": "group-approval-routing",
+            "name": "Approval Routing Group",
+            "runtime_agent_ids": [
+              "approval-1"
+            ],
+            "runtime_role_keys": [
+              "approval"
+            ],
+            "primary_mcp_affinity": [
+              "workflow",
+              "audit"
+            ]
+          }
+        ]
+      }
+    ],
+    "unmapped_agent_ids": []
+  },
+  "agents": [
+    {
+      "id": "intake-1",
+      "name": "Intake Agent",
+      "role": "Classify contracts by type and extract initial metadata",
+      "kind": "agent",
+      "stage": 0,
+      "lane": 0,
+      "order": 0,
+      "model": "GPT-5.4",
+      "tools": [
+        "upload_contract",
+        "classify_document",
+        "extract_metadata"
+      ],
+      "boundary": "Classify only",
+      "output": "Contract classification and metadata",
+      "runtime_role_key": "intake",
+      "declarative": {
+        "agent_config": "config/agents/intake-agent.yaml",
+        "prompt": "prompts/intake-system.md",
+        "output_schema": "config/schemas/intake-result.json"
+      }
+    },
+    {
+      "id": "drafting-1",
+      "name": "Drafting Agent",
+      "role": "Assemble the initial draft package and recommend approved clause language",
+      "kind": "agent",
+      "stage": 1,
+      "lane": 0,
+      "order": 1,
+      "model": "GPT-5.4",
+      "tools": [
+        "extract_clauses",
+        "identify_parties",
+        "extract_dates_values"
+      ],
+      "boundary": "Draft package only",
+      "output": "Draft-ready clause package and fallback language recommendations",
+      "runtime_role_key": "drafting",
+      "declarative": {
+        "agent_config": "config/agents/drafting-agent.yaml",
+        "prompt": "prompts/drafting-system.md",
+        "output_schema": "config/schemas/drafting-result.json"
+      }
+    },
+    {
+      "id": "review-1",
+      "name": "Internal Review Agent",
+      "role": "Summarize redlines, review comments, and internal decision points",
+      "kind": "agent",
+      "stage": 2,
+      "lane": 0,
+      "order": 2,
+      "model": "GPT-5.4",
+      "tools": [
+        "get_audit_log",
+        "create_audit_entry"
+      ],
+      "boundary": "Internal review only",
+      "output": "Redline summary and internal review disposition",
+      "runtime_role_key": "review",
+      "declarative": {
+        "agent_config": "config/agents/review-agent.yaml",
+        "prompt": "prompts/review-system.md",
+        "output_schema": "config/schemas/review-result.json"
+      }
+    },
+    {
+      "id": "compliance-1",
+      "name": "Compliance Agent",
+      "role": "Check extracted terms against company policies and flag risks",
+      "kind": "agent",
+      "stage": 3,
+      "lane": 0,
+      "order": 3,
+      "model": "GPT-5.4",
+      "tools": [
+        "check_policy",
+        "flag_risk",
+        "get_policy_rules"
+      ],
+      "boundary": "Flag only",
+      "output": "Policy compliance flags and risk assessment",
+      "runtime_role_key": "compliance",
+      "declarative": {
+        "agent_config": "config/agents/compliance-agent.yaml",
+        "prompt": "prompts/compliance-system.md",
+        "output_schema": "config/schemas/compliance-result.json"
+      }
+    },
+    {
+      "id": "negotiation-1",
+      "name": "Negotiation Agent",
+      "role": "Assess counterparty markup and recommend fallback negotiation positions",
+      "kind": "agent",
+      "stage": 4,
+      "lane": 0,
+      "order": 4,
+      "model": "GPT-5.4",
+      "tools": [
+        "route_approval",
+        "notify_stakeholder"
+      ],
+      "boundary": "Negotiation support only",
+      "output": "Negotiation summary with fallback recommendations",
+      "runtime_role_key": "negotiation",
+      "declarative": {
+        "agent_config": "config/agents/negotiation-agent.yaml",
+        "prompt": "prompts/negotiation-system.md",
+        "output_schema": "config/schemas/negotiation-result.json"
+      }
+    },
+    {
+      "id": "approval-1",
+      "name": "Approval Agent",
+      "role": "Route contracts for approval or escalate to human review",
+      "kind": "human",
+      "stage": 5,
+      "lane": 0,
+      "order": 5,
+      "model": "GPT-5.4",
+      "tools": [
+        "route_approval",
+        "escalate_to_human",
+        "notify_stakeholder"
+      ],
+      "boundary": "Route only",
+      "output": "Routing decision and stakeholder notification",
+      "runtime_role_key": "approval",
+      "declarative": {
+        "agent_config": "config/agents/approval-agent.yaml",
+        "prompt": "prompts/approval-system.md",
+        "output_schema": "config/schemas/approval-result.json"
+      }
+    }
+  ]
+}

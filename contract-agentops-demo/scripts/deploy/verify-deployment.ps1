@@ -4,6 +4,8 @@ param(
 
     [switch]$TriggerPipeline,
 
+    [string]$DeployAdminKey,
+
     [int]$StartupRetries = 12,
 
     [int]$StartupDelaySeconds = 10
@@ -13,12 +15,24 @@ $ErrorActionPreference = "Stop"
 
 function Invoke-JsonGet {
     param([string]$Url)
-    return Invoke-RestMethod -Method Get -Uri $Url -TimeoutSec 60
+
+    $headers = @{}
+    if ($DeployAdminKey) {
+        $headers["x-admin-key"] = $DeployAdminKey
+    }
+
+    return Invoke-RestMethod -Method Get -Uri $Url -TimeoutSec 60 -Headers $headers
 }
 
 function Invoke-JsonPost {
     param([string]$Url)
-    return Invoke-RestMethod -Method Post -Uri $Url -TimeoutSec 180 -ContentType "application/json"
+
+    $headers = @{}
+    if ($DeployAdminKey) {
+        $headers["x-admin-key"] = $DeployAdminKey
+    }
+
+    return Invoke-RestMethod -Method Post -Uri $Url -TimeoutSec 180 -ContentType "application/json" -Headers $headers
 }
 
 for ($attempt = 1; $attempt -le $StartupRetries; $attempt++) {

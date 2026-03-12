@@ -7,6 +7,7 @@ import {
 	deploySimulated,
 	deployToFoundry,
 } from "../services/foundryDeploy.js";
+import { getFoundryConfigurationError, isFoundryConfigured } from "../services/foundryAuth.js";
 
 // Track last deployment for cleanup
 let lastDeployment: DeployPipelineResult | null = null;
@@ -46,7 +47,9 @@ function getFoundryConfig(): FoundryDeployConfig {
 	return {
 		endpoint: appConfig.foundryEndpoint,
 		projectEndpoint: appConfig.foundryProjectEndpoint,
+		authMode: appConfig.foundryAuthMode,
 		apiKey: appConfig.foundryApiKey,
+		managedIdentityClientId: appConfig.foundryManagedIdentityClientId,
 		model: appConfig.foundryModel,
 	};
 }
@@ -64,10 +67,11 @@ export async function deployRoutes(app: FastifyInstance): Promise<void> {
 
 		if (appConfig.demoMode === "live") {
 			const cfg = getFoundryConfig();
-			if (!cfg.endpoint || !cfg.apiKey) {
+			const configError = getFoundryConfigurationError(cfg);
+			if (configError) {
 				return reply.status(400).send({
 					error: "missing_config",
-					message: "FOUNDRY_ENDPOINT and FOUNDRY_API_KEY required for live deployment",
+					message: configError,
 				});
 			}
 			const result = await deployToFoundry(cfg);
@@ -141,9 +145,11 @@ export async function deployRoutes(app: FastifyInstance): Promise<void> {
 
 	// GET /api/v1/deploy/mode - Get current deployment mode
 	app.get("/api/v1/deploy/mode", async (_request, reply) => {
+		const cfg = getFoundryConfig();
 		return reply.send({
 			mode: appConfig.demoMode,
-			foundry_configured: Boolean(appConfig.foundryEndpoint && appConfig.foundryApiKey),
+			foundry_auth_mode: appConfig.foundryAuthMode,
+			foundry_configured: isFoundryConfigured(cfg),
 		});
 	});
 }

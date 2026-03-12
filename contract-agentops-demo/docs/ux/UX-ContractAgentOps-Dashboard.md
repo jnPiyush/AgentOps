@@ -32,14 +32,15 @@
 
 ### Feature Summary
 
-An 8-view dashboard that visually demonstrates the full AgentOps lifecycle for a Contract Management scenario. Each view maps to one AgentOps stage (Design, Test, Deploy, Run, Monitor, Evaluate, Detect, Feedback) and connects to purpose-built MCP servers. The dashboard is optimized for live conference demos on large screens.
+An 8-view dashboard that visually demonstrates the **dual-lifecycle architecture** of Modern Contract AgentOps. It strictly separates the **Contract Lifecycle** (business workflow) from the **AgentOps Lifecycle** (AI system capabilities). The UX represents a "Contract-Stage-First" paradigm, ensuring these models remain visually distinct but perfectly correlated. The dashboard is optimized for live conference demos on large screens.
 
 ### Design Goals
 
-1. **Visual storytelling**: Each stage tells a clear story -- the audience should understand what is happening without narration
-2. **Live data flow**: Contracts flow through agents in real time with animated transitions
-3. **Dark theme, high contrast**: Optimized for projector/large screen demos with dark background
-4. **Progressive disclosure**: Each view focuses on one concept; complexity is layered, not dumped
+1. **Dual-Lifecycle Separation**: Business state (Contract Lifecycle) is completely distinct from AI system state (AgentOps). They never share a mixed vocabulary.
+2. **Business-first narrative**: The primary UI tells the story of where the contract is in the business process.
+3. **Drill-down second**: Agent activity, tool details, and tracing form a secondary inspection layer.
+4. **Side-by-side evidence**: When both lifecycles are shown, they are aligned visually without implying they are the same state machine.
+5. **Dark theme, high contrast**: Optimized for projector/large screen demos with dark background.
 
 ### Success Criteria
 
@@ -122,9 +123,9 @@ flowchart TD
 **Detailed Steps**:
 
 1. **Act 1 -- Design Canvas**
-   - **Presenter Action**: Opens dashboard. Sees 4 agent cards arranged in a pipeline.
-   - **System Response**: Agent cards display name, model, tools, boundaries. Connection lines show the flow.
-   - **Talking Point**: "Here is our agent team. Each has a specific role, specific tools, and strict boundaries."
+  - **Presenter Action**: Opens dashboard. Sees the 6 active Contract Lifecycle stages. Clicks one (e.g., "Compliance Check") to expand it.
+   - **System Response**: Expanding a business stage reveals its mapped "Stage Execution Group" of runtime agents (e.g., Policy Mapping Agent + Regulatory Review Agent).
+  - **Talking Point**: "We don't structure our workflow around single agents. We start with the active pre-execution business stages of a contract, then map those stages to specialized groups of AI agents."
 
 2. **Act 2 -- Workflow Test Lab**
   - **Presenter Action**: Clicks "Test" tab. Selects a scenario such as "High-Risk MSA" and clicks "Run Scenario."
@@ -138,14 +139,14 @@ flowchart TD
 
 4. **Act 4 -- Live Workflow**
    - **Presenter Action**: Clicks "Live Workflow" tab. Drags sample NDA PDF onto the drop zone.
-   - **System Response**: Contract enters pipeline. Nodes light up sequentially: Intake (classifying...) -> Extraction (extracting...) -> Compliance (checking...) -> Approval (paused -- HITL). Tool calls appear as sub-nodes.
-   - **Talking Point**: "Watch the contract flow through our agents in real time."
-   - **HITL Moment**: Pipeline pauses. Presenter clicks "Approve." Pipeline completes.
+   - **System Response**: Primary narrative: Contract progresses through business stages. Stage 1 (Request & Initiation) lights up, processing... Stage 2... Stage 3... Stage 4 (Compliance) pauses. Presenter clicks the active stage to "drill down" and see the underlying agent activity and tool calls animating in real time.
+   - **Talking Point**: "Watch the contract flow through our business stages in real time. If we want to see what the AI is doing, we drill down into the active stage."
+   - **HITL Moment**: Pipeline pauses in the Approval Routing stage. Presenter clicks "Approve." Pipeline completes.
 
 5. **Act 5 -- Monitor Panel**
    - **Presenter Action**: Clicks "Monitor" tab.
-   - **System Response**: Trace tree for the NDA appears: 4 agent nodes, expandable to show tool calls, inputs/outputs, latency bars.
-   - **Talking Point**: "Full observability. Every decision is auditable."
+   - **System Response**: Hierarchical trace tree for the NDA appears: Contract Node -> Contract Stage Nodes -> Stage Execution Group (Agents) -> Tool Events.
+   - **Talking Point**: "Full observability. We trace from the business stage down to the specific tool call."
 
 6. **Act 6 -- Evaluation Lab**
    - **Presenter Action**: Clicks "Evaluate" tab. Clicks "Run Suite."
@@ -169,16 +170,17 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A["Contract uploaded"] --> B["Intake: Classified"]
-    B --> C["Extraction: Terms pulled"]
-    C --> D["Compliance: FAILED\nLiability > $5M"]
-    D --> E["Approval: Escalated\nto human"]
-    E --> F{"Human review"}
-    F -->|Reject| G["Contract rejected\nSender notified\nAudit logged"]
-    F -->|Request Changes| H["Return with\nspecific feedback"]
+    A["Contract uploaded"] --> B["Stage 1: Request & Initiation"]
+    B --> C["Stage 2: Authoring\n& Drafting"]
+    C --> D["..."]
+    D --> E["Stage 4: Compliance Check\nFAILED\nLiability > $5M"]
+    E --> F["Stage 6: Approval Routing\nEscalated to human"]
+    F --> G{"Human review"}
+    G -->|Reject| H["Contract rejected\nSender notified\nAudit logged"]
+    G -->|Request Changes| I["Return with\nspecific feedback"]
 
-    style D fill:#E74C3C,stroke:#fff,color:#fff
-    style G fill:#E74C3C,stroke:#fff,color:#fff
+    style E fill:#E74C3C,stroke:#fff,color:#fff
+    style H fill:#E74C3C,stroke:#fff,color:#fff
 ```
 
 ### 3.3 Secondary Flow: Model Swap Decision
@@ -208,12 +210,12 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    A["Human submits feedback:\n'Missed clause in Exhibit B'"] --> B["Feedback logged\nwith agent ID, contract ID"]
+    A["Human submits feedback:\n'Missed clause in Exhibit B'"] --> B["Feedback logged\nwith stage ID, contract ID"]
     B --> C["Click 'Optimize Now'"]
     C --> D["Negative feedback converted\nto 5 new eval test cases"]
     D --> E["Click 'Re-Evaluate'\nRun updated suite"]
     E --> F{"Quality improved?"}
-    F -->|No| G["Open Prompt Editor\nUpdate compliance instructions"]
+    F -->|No| G["Open Prompt Editor\nUpdate policy agent instructions"]
     G --> H["Re-evaluate with\nupdated prompt"]
     H --> F
     F -->|Yes| I["Quality gate: PASS\nDeploy v1.4"]
@@ -261,7 +263,7 @@ flowchart TD
 
 ### View 1: Design Canvas
 
-**Purpose**: Visualize the 4-agent architecture before any processing
+**Purpose**: Visualize the Contract Lifecycle stages and their mapped runtime agents
 **AgentOps Stage**: Design
 
 ```
@@ -269,40 +271,38 @@ flowchart TD
 | DESIGN CANVAS                                            [Reset Layout]     |
 |=============================================================================|
 |                                                                             |
-|  +------------------+      +------------------+      +------------------+   |
-|  | INTAKE AGENT     |      | EXTRACTION AGENT |      | COMPLIANCE AGENT|   |
-|  | Model: GPT-4o    | ---> | Model: GPT-4o    | ---> | Model: GPT-4o   |   |
-|  | Tools:           |      | Tools:           |      | Tools:           |   |
-|  |  - upload_contract|      |  - extract_clauses|     |  - check_policy  |   |
-|  |  - classify_doc   |      |  - identify_parties|    |  - flag_risk     |   |
-|  |  - extract_meta   |      |  - extract_dates  |     |  - get_rules     |   |
-|  | Boundary:        |      | Boundary:        |      | Boundary:        |   |
-|  | Classify only    |      | Extract only     |      | Flag only        |   |
-|  +------------------+      +------------------+      +------------------+   |
-|           |                                                    |            |
-|           |                                                    v            |
-|           |                                           +------------------+  |
-|           |                                           | APPROVAL AGENT  |  |
-|           |                                           | Model: GPT-4o   |  |
-|           |                                           | Tools:          |  |
-|           +------------------------------------------>|  - route_approval|  |
-|                                                       |  - escalate     |  |
-|                                                       |  - notify       |  |
-|                                                       | Boundary:       |  |
-|                                                       | Route only      |  |
-|                                                       +------------------+  |
+| +--- Contract Lifecycle (Business Workflow) ------------------------------+ |
+| |                                                                         | |
+| | [1. Request] -> [2. Drafting] -> [3. Review] -> [4. Compliance] -> ...  | |
+| |                                                   ^ (Active Selection)  | |
+| +-------------------------------------------------------------------------+ |
+|                                                                             |
+| +--- Stage Execution Group (AgentOps Runtime) ----------------------------+ |
+| |                                                                         | |
+| | Stage 4: Compliance Check                                               | |
+| |                                                                         | |
+| |  +---------------------+      +---------------------+                   | |
+| |  | POLICY MAPPING AGENT|      | REGULATORY REVIEW   |                   | |
+| |  | Model: GPT-4o       | ---> | Model: o3-mini      |                   | |
+| |  | Tools:              |      | Tools:              |                   | |
+| |  |  - check_policy     |      |  - search_regs      |                   | |
+| |  |  - get_rules        |      |  - flag_risk        |                   | |
+| |  | Boundary:           |      | Boundary:           |                   | |
+| |  | Map clauses only    |      | Flag compliance only|                   | |
+| |  +---------------------+      +---------------------+                   | |
+| +-------------------------------------------------------------------------+ |
 |                                                                             |
 |  +-----------------------------------------------------------------------+  |
-|  | Agent Inventory                                                       |  |
-|  | Total: 4 | MCP Tools: 12 | Model: GPT-4o | Pipeline: Sequential+HITL |  |
+|  | Architecture Inventory                                                |  |
+|  | 10 Contract Stages | 14 Specialized Agents | 8 MCP Servers            |  |
 |  +-----------------------------------------------------------------------+  |
 +=============================================================================+
 ```
 
 **Interactions**:
-- Click an agent card to expand: shows full prompt instructions, tool schemas
-- Hover on connection arrows: shows data passed between agents
-- Agent cards are draggable (for layout customization, not functional)
+- Click a Contract Stage at the top to display its "Stage Execution Group" (agents) below
+- Hover over an agent card to see full prompt instructions and tool schemas
+- This explicitly enforces the distinction between business stage and agent implementation
 
 ---
 
@@ -366,12 +366,13 @@ flowchart TD
 |                                                                             |
 | Agent 365 Registration                                                      |
 | +-----------------------------------------------------------------------+  |
-| | Agent             | Entra Agent ID           | Status     | Scope     |  |
-| |-------------------+--------------------------+------------+-----------|  |
-| | Intake Agent      | agt-7f3a-intake-001      | Registered | Contracts |  |
-| | Extraction Agent  | agt-7f3a-extract-002     | Registered | Contracts |  |
-| | Compliance Agent  | agt-7f3a-comply-003      | Registered | Contracts |  |
-| | Approval Agent    | agt-7f3a-approve-004     | Registered | Contracts |  |
+| | Agent                  | Entra Agent ID           | Status     | Scope|  |
+| |------------------------+--------------------------+------------+------|  |
+| | Intake/Meta Agent      | agt-7f3a-intake-001      | Registered | SLA  |  |
+| | Clause Extractor Agent | agt-7f3a-extract-002     | Registered | SLA  |  |
+| | Policy Mapping Agent   | agt-7f3a-comply-003      | Registered | SLA  |  |
+| | Reg. Review Agent      | agt-7f3a-comply-004      | Registered | SLA  |  |
+| | Approval Routing Agent | agt-7f3a-approve-005     | Registered | SLA  |  |
 | +-----------------------------------------------------------------------+  |
 |                                                                             |
 | Security Policies Applied                                                   |
@@ -382,7 +383,7 @@ flowchart TD
 | | [PASS] Conditional access applied  |  | [PASS] PII redaction ON        | |
 | +------------------------------------+  +--------------------------------+ |
 |                                                                             |
-| Deployment Summary: 4 agents deployed | 12 tools registered | 0 errors     |
+| Deployment Summary: 5 agents deployed | 12 tools registered | 0 errors     |
 +=============================================================================+
 ```
 
@@ -396,7 +397,7 @@ flowchart TD
 
 ### View 4: Live Workflow
 
-**Purpose**: The "wow moment" -- watch a contract flow through agents in real time
+**Purpose**: See the contract progress through business stages; drill down into agent activity
 **AgentOps Stage**: Run
 
 ```
@@ -404,72 +405,54 @@ flowchart TD
 | LIVE WORKFLOW                              [Drop Contract Here] [v NDA.pdf] |
 |=============================================================================|
 |                                                                             |
-|   +------------+        +------------+       +------------+                 |
-|   |  INTAKE    |  --->  | EXTRACTION |  ---> | COMPLIANCE |                 |
-|   |            |        |            |       |            |                 |
-|   | Classifying|        |  Waiting   |       |  Waiting   |                 |
-|   | [====    ] |        |  [      ]  |       |  [      ]  |                 |
-|   | NDA        |        |            |       |            |                 |
-|   +------|-----+        +------------+       +------|-----+                 |
-|          |                                          |                       |
-|          |   Tool Calls:                            v                       |
-|          |   - classify_document                +-----------+               |
-|          |     => "NDA" (0.97)                  | APPROVAL  |               |
-|          |   - extract_metadata                 |           |               |
-|          |     => {parties: 2, pages: 4}        | Waiting   |               |
-|          |                                      | [      ]  |               |
-|          |                                      +-----------+               |
+| +--- Contract Lifecycle --------------------------------------------------+ |
+| |                                                                         | |
+| |  [1. Request]   [2. Drafting]   [3. Review]   [4. Compliance]           | |
+| |    Done (1.2s)    Done (2.1s)     Done (1.8s)   v Active                | |
+| |                                                 |                       | |
+| +-------------------------------------------------|-----------------------+ |
+|                                                   v                         |
+| +--- Stage Execution Group: Compliance --------+--------------------------+ |
+| |   +-----------------+     +-----------------+                           | |
+| |   | POLICY MAPPING  | --> | REG. REVIEW     |                           | |
+| |   |                 |     |                 |                           | |
+| |   | Mapping...      |     | Waiting         |                           | |
+| |   | [====    ]      |     | [      ]        |                           | |
+| |   +------|----------+     +-----------------+                           | |
+| |          v                                                              | |
+| |        - check_policy_db (Active)                                       | |
+| |        - match_clauses (Pending)                                        | |
+| +-------------------------------------------------------------------------+ |
 |                                                                             |
 |  +-----------------------------------------------------------------------+  |
 |  | Contract Details                                                      |  |
 |  | Type: NDA | Parties: Acme Corp, Beta Inc | Pages: 4 | Risk: --       |  |
 |  +-----------------------------------------------------------------------+  |
-|                                                                             |
-|  +-----------------------------------------------------------------------+  |
-|  | Activity Log (live)                                                   |  |
-|  | 10:04:01  Intake Agent    classify_document   => NDA (0.97)           |  |
-|  | 10:04:02  Intake Agent    extract_metadata     => {parties: 2}        |  |
-|  | 10:04:03  Intake Agent    [PASS] Complete. Handing off to Extraction  |  |
-|  | 10:04:03  Extraction Agent  Starting...                               |  |
-|  +-----------------------------------------------------------------------+  |
 +=============================================================================+
 ```
 
-**State: After all agents process -- HITL pause**:
+**State: After processing reaches Stage 6: Approval Routing -- HITL pause**:
 
 ```
 +=============================================================================+
 | LIVE WORKFLOW                                          [Contract: NDA.pdf]  |
 |=============================================================================|
 |                                                                             |
-|   +------------+        +------------+       +------------+                 |
-|   |  INTAKE    |  --->  | EXTRACTION |  ---> | COMPLIANCE |                 |
-|   |  [PASS]    |        |  [PASS]    |       |  [WARN]    |                 |
-|   |  Complete  |        |  Complete  |       |  2 flags   |                 |
-|   |  1.2s      |        |  2.8s      |       |  1.5s      |                 |
-|   +------------+        +------------+       +------|-----+                 |
-|                                                     |                       |
-|                                                     v                       |
-|                                               +-----------+                |
-|                                               | APPROVAL  |                |
-|                                               | [!] HITL  |                |
-|                                               | Awaiting  |                |
-|                                               | Human     |                |
-|                                               | Review    |                |
-|                                               +-----------+                |
+| +--- Contract Lifecycle --------------------------------------------------+ |
+| |                                                                         | |
+| |  [...]   [4. Compliance]   [5. Negotiation]   [6. Approval Routing]     | |
+| |            WARN (2 flags)    Done (0.8s)        [!] HITL Pause          | |
+| |                                                                         | |
+| +-------------------------------------------------------------------------+ |
 |                                                                             |
 |  +-----------------------------------------------------------------------+  |
-|  | HUMAN REVIEW REQUIRED                                        [HIGH]   |  |
+|  | Stage 6: HUMAN REVIEW REQUIRED                               [HIGH]   |  |
 |  |-----------------------------------------------------------------------|  |
 |  | Reason: Liability cap exceeds $1M policy threshold                    |  |
 |  |                                                                       |  |
-|  | Flagged Clauses:                                                      |  |
+|  | Flagged Clauses (from Stage 4: Compliance Check):                     |  |
 |  |   [!] Section 5.2: Liability cap = $2.5M (Policy max: $1M)           |  |
 |  |   [!] Section 8.1: No termination for convenience clause             |  |
-|  |                                                                       |  |
-|  | Extracted Summary:                                                    |  |
-|  |   Parties: Acme Corp / Beta Inc                                      |  |
-|  |   Value: $2.5M | Term: 24 months | Auto-renew: Yes                   |  |
 |  |                                                                       |  |
 |  |  [Approve]   [Reject]   [Request Changes]                            |  |
 |  |                                                                       |  |
@@ -480,12 +463,10 @@ flowchart TD
 
 **Interactions**:
 - Drag-and-drop contract PDF onto drop zone (or select from dropdown)
-- Agent nodes animate sequentially: gray -> blue (processing) -> green (done) / yellow (warning) / red (failed)
-- Tool calls appear as expanding sub-nodes beneath each agent
-- Progress bar fills within each agent node
-- HITL panel slides up when approval is needed
+- Primary visual focuses on Contract Stages moving left to right
+- Drill-down pane reveals the active Stage's *AgentOps* state showing running agents and tools
+- HITL panel slides up when Stage 6 encounters a routing escalation
 - Approve/Reject/Request Changes buttons resolve the pause
-- Activity log scrolls in real time
 
 ---
 
@@ -499,59 +480,54 @@ flowchart TD
 | MONITOR PANEL                                [Contract: v NDA.pdf] [Refresh]|
 |=============================================================================|
 |                                                                             |
-| +------ Trace Tree ------+  +---------- Latency Breakdown ----------+      |
-| |                        |  |                                        |      |
-| | [-] NDA.pdf (5.8s)     |  |  Intake     [====      ] 1.2s         |      |
-| |   [-] Intake (1.2s)    |  |  Extraction [=============] 2.8s      |      |
-| |     - classify_doc     |  |  Compliance [=======    ] 1.5s        |      |
-| |       0.4s [PASS]      |  |  Approval   [=  ] 0.3s (+ human wait) |      |
-| |     - extract_meta     |  |  Total: 5.8s (agent) + 45s (human)    |      |
-| |       0.8s [PASS]      |  +----------------------------------------+      |
-| |   [-] Extraction (2.8s)|                                                  |
-| |     - extract_clauses  |  +---------- Token Usage -----------------+      |
-| |       1.9s [PASS]      |  |  Agent          | In    | Out   | Cost |      |
-| |     - identify_parties |  |  Intake          | 1,204 |   342 | $0.01|     |
-| |       0.5s [PASS]      |  |  Extraction      | 3,891 | 1,205 | $0.03|     |
-| |     - extract_dates    |  |  Compliance      | 2,156 |   678 | $0.02|     |
-| |       0.4s [PASS]      |  |  Approval        |   456 |   123 | $0.00|     |
-| |   [-] Compliance (1.5s)|  |  Total           | 7,707 | 2,348 | $0.06|     |
-| |     - check_policy     |  +----------------------------------------+      |
-| |       0.8s [WARN]      |                                                  |
-| |     - flag_risk        |                                                  |
-| |       0.7s [WARN]      |                                                  |
-| |   [-] Approval (0.3s)  |                                                  |
-| |     - route_approval   |                                                  |
-| |       0.2s [PASS]      |                                                  |
-| |     - escalate_to_human|                                                  |
-| |       0.1s [PASS]      |                                                  |
-| +------------------------+                                                  |
+| +------ Trace Tree --------------------+  +---------- Latency Breakdown ----------+  |
+| |                                      |  |                                        |  |
+| | [-] Instance: NDA.pdf (5.8s)         |  |  S1: Request   [====      ] 1.2s       |  |
+| |   [-] S1: Request & Initiation (1.2s)|  |  S2: Drafting  [=============] 2.8s    |  |
+| |     [-] Group: Intake/Meta Agents    |  |  S4: Compliance[=======    ] 1.5s      |  |
+| |       [-] Request Triage Agent (1.2s)|  |  S6: Approval  [=  ] 0.3s (+ human)    |  |
+| |         - classify_doc (0.4s) [PASS] |  |  Total: 5.8s (agent) + 45s (human)     |  |
+| |         - extract_meta (0.8s) [PASS] |  +----------------------------------------+  |
+| |   [-] S2: Authoring & Drafting (2.8s)|                                              |
+| |     [-] Group: Drafting Agents       |  +---------- Token Usage -----------------+  |
+| |       [-] Clause Extractor Agt (2.8s)|  |  Stage Group  | In    | Out   | Cost |  |
+| |         - extract_clauses            |  |  S1: Request   | 1,204 |   342 | $0.01|  |
+| |           1.9s [PASS]                |  |  S2: Drafting  | 3,891 | 1,205 | $0.03|  |
+| |         - identify_parties           |  |  S4: Compliance| 2,156 |   678 | $0.02|  |
+| |           0.5s [PASS]                |  |  S6: Approval  |   456 |   123 | $0.00|  |
+| |   [-] S4: Compliance Check (1.5s)    |  |  Total         | 7,707 | 2,348 | $0.06|  |
+| |     [-] Group: Policy Agents         |  +----------------------------------------+  |
+| |       [-] Policy Mapping Agent       |                                              |
+| |         - check_policy               |                                              |
+| |           0.8s [WARN]                |                                              |
+| |       [-] Reg. Review Agent          |                                              |
+| |         - flag_risk                  |                                              |
+| |           0.7s [WARN]                |                                              |
+| |   [-] S6: Approval Routing (0.3s)    |                                              |
+| |       ...                            |                                              |
+| +--------------------------------------+                                              |
 |                                                                             |
 | +-----------------------------------------------------------------------+  |
-| | Decision Audit Trail                                                   |  |
+| | Decision Audit Trail (Business Context)                                |  |
 | |------------------------------------------------------------------------|  |
-| | Time     | Agent      | Decision               | Reasoning             |  |
-| | 10:04:01 | Intake     | Classified as NDA      | 97% conf, keyword     |  |
-| |          |            |                        | match "Non-Disclosure" |  |
-| | 10:04:04 | Extraction | Extracted 6 clauses    | Structured output     |  |
-| |          |            |                        | from sections 1-8     |  |
-| | 10:04:06 | Compliance | Flagged Section 5.2    | Liability $2.5M >     |  |
-| |          |            |                        | policy max $1M        |  |
-| | 10:04:06 | Compliance | Flagged Section 8.1    | Missing termination   |  |
-| |          |            |                        | for convenience       |  |
-| | 10:04:07 | Approval   | Escalated to human     | Risk level: HIGH      |  |
-| |          |            |                        | (2 compliance flags)  |  |
-| | 10:04:52 | Human      | Approved with comment  | "Acceptable for this  |  |
-| |          |            |                        | strategic partner"    |  |
+| | Time     | Stage          | Decision               | Reasoning             |  |
+| | 10:04:01 | S1: Request    | Classified as NDA      | 97% conf, keyword     |  |
+| |          |                |                        | match "Non-Disclosure"|  |
+| | 10:04:04 | S2: Drafting   | Extracted 6 clauses    | Structured output     |  |
+| |          |                |                        | from sections 1-8     |  |
+| | 10:04:06 | S4: Compliance | Flagged Section 5.2    | Liability $2.5M >     |  |
+| |          |                |                        | policy max $1M        |  |
+| | 10:04:07 | S6: Approval   | Escalated to human     | Risk level: HIGH      |  |
+| | 10:04:52 | Human          | Approved               | "Acceptable partner"  |  |
 | +-----------------------------------------------------------------------+  |
 +=============================================================================+
 ```
 
 **Interactions**:
-- Trace tree: click to expand/collapse agent nodes and tool calls
-- Click a tool call to see full input/output JSON in a side panel
-- Latency bars are color-coded: green (<1s), yellow (1-3s), red (>3s)
-- Decision audit trail is scrollable with search/filter
-- Contract dropdown to switch between processed contracts
+- Trace tree: click to expand/collapse Contract Instance -> Contract Stage -> Stage Execution Group -> Agent -> Tool Events
+- Click an event to see full input/output JSON in a side panel
+- Latency bars and billing align to the Contract Stages for business relevance
+- Decision audit trail surfaces events within their Contract Stage context
 
 ---
 
@@ -688,17 +664,17 @@ Current-state note: the values below reflect the latest stored drift artifact fr
 |                                                                             |
 | +--- Recent Feedback -------+  +--- Feedback Trends --------+             |
 | |                            |  |                             |             |
-| | [!] NDA-017                |  | Agent Performance (30d)     |             |
+| | [!] NDA-017                |  | Stage Performance (30d)     |             |
 | |   "Missed termination      |  |                             |             |
-| |    clause in Exhibit B"    |  | Intake       [PASS] 95%    |             |
-| |   -- Jane, Mar 3           |  | Extraction   [PASS] 91%    |             |
-| |                            |  | Compliance   [WARN] 73%    |             |
-| | [+] MSA-022                |  | Approval     [PASS] 95%    |             |
+| |    clause in Exhibit B"    |  | S1: Request  [PASS] 95%    |             |
+| |   -- Jane, Mar 3           |  | S2: Drafting [PASS] 91%    |             |
+| |                            |  | S4: Compl.   [WARN] 73%    |             |
+| | [+] MSA-022                |  | S6: Approval [PASS] 95%    |             |
 | |   "Correct extraction,     |  |                             |             |
 | |    good summary"           |  | This Week: 45 reviews      |             |
 | |   -- Mike, Mar 3           |  | Positive: 78% (+3%)        |             |
 | |                            |  | Top Issue: False flags      |             |
-| | [!] NDA-019                |  |  (Compliance Agent)        |             |
+| | [!] NDA-019                |  |  (S4 Policy Agents)         |             |
 | |   "False flag on standard  |  |                             |             |
 | |    NDA clause"             |  +-----------------------------+             |
 | |   -- Sarah, Mar 2          |                                              |
@@ -710,7 +686,7 @@ Current-state note: the values below reflect the latest stored drift artifact fr
 | |                                                                           ||
 | | Step 1: Convert Feedback        Step 2: Update Prompt                     ||
 | | +-------------------------+     +------------------------------------+    ||
-| | | 5 negative feedbacks    |     | Prompt Editor: Compliance Agent   |    ||
+| | | 5 negative feedbacks    |     | Prompt Editor: S4 Policy Agents    |    ||
 | | | ready to convert        |     |                                    |    ||
 | | |                         |     | "When reviewing contracts, you     |    ||
 | | | [Optimize Now ->]       |     |  MUST check all exhibits and       |    ||
@@ -735,9 +711,9 @@ Current-state note: the values below reflect the latest stored drift artifact fr
 ```
 
 **Interactions**:
-- Submit Feedback: modal with thumbs up/down, comment, agent selector, contract selector
+- Submit Feedback: modal with thumbs up/down, comment, stage selector, contract selector
 - "Optimize Now": converts negative feedback into numbered eval test cases (animated list)
-- Prompt Editor: live text editor for compliance agent instructions (syntax highlighted markdown)
+- Prompt Editor: live text editor for S4 policy agent instructions (syntax highlighted markdown)
 - "Re-Evaluate": runs eval suite, shows before/after metrics with animated delta
 - "Deploy v1.4": triggers deployment pipeline (links to Deploy Dashboard view, brief animation)
 - Feedback resolution: once deployed, feedback entries marked as "Resolved in v1.4"
@@ -928,11 +904,11 @@ Border-left: 4px solid #50E6FF (judge accent)
 - Elevated Surface: `#383838` (dark gray)
 - Input Background: `#1E1E1E`
 
-**Agent Colors** (consistent across all views):
-- Intake Agent: `#0078D4` (Microsoft Blue)
-- Extraction Agent: `#00B294` (Teal Green)
-- Compliance Agent: `#8861C4` (Purple)
-- Approval Agent: `#FF8C00` (Orange)
+**Stage Execution Group Colors** (consistent across all views):
+- S1: Request (Intake/Meta Agents): `#0078D4` (Microsoft Blue)
+- S2: Drafting (Drafting Agents): `#00B294` (Teal Green)
+- S4: Compliance (Policy Agents): `#8861C4` (Purple)
+- S6: Approval (Routing Agents): `#FF8C00` (Orange)
 
 **Status Colors**:
 - Pass/Success: `#00B294` (Teal Green)
@@ -1000,9 +976,9 @@ Border-left: 4px solid #50E6FF (judge accent)
 
 ### 7.3 HITL Escalation Animation
 
-**Context**: Live Workflow -- when approval agent escalates
+**Context**: Live Workflow -- when approval routing agent escalates
 **Sequence**:
-1. Approval Agent node border turns orange with pulse animation
+1. S6 Approval node border turns orange with pulse animation
 2. Review panel slides up from bottom (300ms ease-out)
 3. "AWAITING HUMAN REVIEW" badge appears with fade-in
 4. Background dims slightly to focus attention on the review panel
@@ -1077,12 +1053,12 @@ All animations respect `prefers-reduced-motion`:
 ### 8.3 Color Contrast (Dark Theme)
 
 **Tested Combinations**:
-- White (#FFFFFF) on Charcoal (#2D2D2D): 12.63:1 [PASS]
-- Light Gray (#F2F2F2) on Charcoal (#2D2D2D): 11.21:1 [PASS]
-- Teal Green (#00B294) on Charcoal (#2D2D2D): 4.87:1 [PASS]
-- Gold (#FFB900) on Charcoal (#2D2D2D): 8.19:1 [PASS]
-- Cyan (#50E6FF) on Near-Black (#1B1B1B): 10.41:1 [PASS]
-- Mid Gray (#A0A0A0) on Charcoal (#2D2D2D): 3.76:1 [PASS AA Large]
+- White (#FFFFFF) on Charcoal (#2D2D2D): 12.63:1 \[PASS]
+- Light Gray (#F2F2F2) on Charcoal (#2D2D2D): 11.21:1 \[PASS]
+- Teal Green (#00B294) on Charcoal (#2D2D2D): 4.87:1 \[PASS]
+- Gold (#FFB900) on Charcoal (#2D2D2D): 8.19:1 \[PASS]
+- Cyan (#50E6FF) on Near-Black (#1B1B1B): 10.41:1 \[PASS]
+- Mid Gray (#A0A0A0) on Charcoal (#2D2D2D): 3.76:1 \[PASS AA Large]
 
 **Note**: Status indicators use both color AND icons/text (not color alone).
 
@@ -1131,15 +1107,14 @@ All animations respect `prefers-reduced-motion`:
 
 ### Prototype Scope
 
-- [PASS] All 8 views with static data
-- [PASS] Tab navigation between views
-- [PASS] Agent card expand/collapse
-- [PASS] HITL review panel slide-up
-- [PASS] Quality gate animation
-- [WARN] Live data streaming (simulated with timers)
-- [FAIL] Real MCP server connections (demo uses mock data)
+- \[PASS] All 8 views with static data
+- \[PASS] Tab navigation between views
+- \[PASS] Agent card expand/collapse
+- \[PASS] HITL review panel slide-up
+- \[PASS] Quality gate animation
+- \[WARN] Live data streaming (simulated with timers)
+- \[FAIL] Real MCP server connections (demo uses mock data)
 
----
 
 ## 11. Implementation Notes
 
@@ -1227,10 +1202,10 @@ App
     --color-bg-page: #1B1B1B;
     --color-bg-card: #2D2D2D;
     --color-bg-elevated: #383838;
-    --color-agent-intake: #0078D4;
-    --color-agent-extraction: #00B294;
-    --color-agent-compliance: #8861C4;
-    --color-agent-approval: #FF8C00;
+    --color-stage-s1: #0078D4;
+    --color-stage-s2: #00B294;
+    --color-stage-s4: #8861C4;
+    --color-stage-s6: #FF8C00;
     --color-status-pass: #00B294;
     --color-status-warn: #FFB900;
     --color-status-fail: #E74C3C;

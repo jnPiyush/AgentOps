@@ -27,14 +27,15 @@ describe("gateway config", () => {
 	it("appConfig has correct defaults", () => {
 		expect(appConfig.gatewayPort).toBe(8000);
 		expect(appConfig.demoMode).toMatch(/^(simulated|live)$/);
+		expect(appConfig.foundryAuthMode).toMatch(/^(api-key|managed-identity)$/);
 		expect(appConfig.dataDir).toContain("data");
 		expect(appConfig.legalReviewEmail).toBeTruthy();
 	});
 });
 
 describe("agent config", () => {
-	it("defines 4 agents", () => {
-		expect(Object.keys(AGENTS)).toHaveLength(4);
+	it("keeps the dedicated lifecycle pipeline plus legacy extraction support", () => {
+		expect(Object.keys(AGENTS)).toHaveLength(11);
 	});
 
 	it("each agent has required properties", () => {
@@ -51,7 +52,7 @@ describe("agent config", () => {
 	it("pipeline returns ordered agent keys", () => {
 		const pipeline = getAgentPipeline();
 		expect(Array.isArray(pipeline)).toBe(true);
-		expect(pipeline.length).toBe(4);
+		expect(pipeline.length).toBe(6);
 		expect(pipeline[0]).toBe("intake");
 		expect(pipeline[pipeline.length - 1]).toBe("approval");
 	});

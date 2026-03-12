@@ -52,6 +52,11 @@ module foundryAccount './modules/foundry-account.bicep' = {
   }
 }
 
+resource foundryAccountResource 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
+  scope: rg
+  name: foundryAccount.outputs.name
+}
+
 module appService './modules/app-service.bicep' = {
   name: 'app-service'
   scope: rg
@@ -61,10 +66,19 @@ module appService './modules/app-service.bicep' = {
     tags: tags
     appServicePlanId: appServicePlan.outputs.id
     foundryEndpoint: foundryAccount.outputs.endpoint
-    foundryApiKey: foundryAccount.outputs.apiKey
     foundryModel: foundryModel
     demoMode: demoMode
     deployAdminKey: deployAdminKey
+  }
+}
+
+resource appServiceFoundryUserAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  scope: foundryAccountResource
+  name: guid(foundryAccount.outputs.name, appService.outputs.principalId, 'CognitiveServicesOpenAIUser')
+  properties: {
+    principalId: appService.outputs.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
   }
 }
 

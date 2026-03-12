@@ -4,3 +4,6 @@
 - 2026-03-10: Do not rely on workflow.type plus flat agent order to implement parallel/fan-out orchestration. That model cannot represent orchestrator-first, parallel branches, and later merge/sequential stages.
 - 2026-03-10: Do not assume dashboard/ is the active UI just because it exists. App.tsx references missing design/runtime files, so direct feature work there will stall unless the missing surfaces are restored first.
 - 2026-03-10: Do not leave Foundry model creation inside the gateway deployment pipeline when Azure CD is responsible for provisioning. That split ownership can create hidden drift between IaC, workflow behavior, and runtime registration.
+- 2026-03-11: Do not assume ACA inherits the App Service `azd` postdeploy hook behavior. Container Apps need an explicit registration trigger after deployment, and live mode requires the generated `DEPLOY_ADMIN_KEY` header for that call.
+- 2026-03-11: Do not leave ACA on push triggers after adding it as an optional hosting lane. That silently turns the secondary runtime into a default deployment path.
+- 2026-03-11: Do not add OpenAI RBAC role assignments in Bicep without ensuring the deploying identity can write Azure role assignments. Managed-identity runtime auth will fail at provision time otherwise.

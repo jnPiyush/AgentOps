@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { type FoundryAuthMode, withFoundryAuthHeaders } from "./foundryAuth.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROMPTS_DIR = resolve(__dirname, "../../../prompts");
@@ -51,7 +52,9 @@ export interface DeployPipelineResult {
 export interface FoundryDeployConfig {
 	endpoint: string;
 	projectEndpoint: string;
+	authMode: FoundryAuthMode;
 	apiKey: string;
+	managedIdentityClientId: string;
 	model: string;
 }
 
@@ -75,12 +78,20 @@ const AGENT_DEFS: AgentDef[] = [
 			'Classify this agreement: "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc, effective January 1, 2025, for two years."',
 	},
 	{
-		key: "extraction",
-		name: "Contract Extraction Agent",
-		promptFile: "extraction-system.md",
+		key: "drafting",
+		name: "Contract Drafting Agent",
+		promptFile: "drafting-system.md",
 		tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
 		evalPrompt:
-			'Extract the key parties, dates, and important clauses from this contract summary: "Acme will provide consulting services to Beta from January 1, 2025 to December 31, 2025 with a liability cap of $250,000."',
+			'Produce a first-pass draft package for a SaaS contract using approved fallback language for liability, data processing, and renewal terms.',
+	},
+	{
+		key: "review",
+		name: "Contract Internal Review Agent",
+		promptFile: "review-system.md",
+		tools: ["get_audit_log", "create_audit_entry"],
+		evalPrompt:
+			'Summarize the internal redlines for a vendor contract and identify the top three items that need legal review before compliance routing.',
 	},
 	{
 		key: "compliance",
@@ -89,6 +100,14 @@ const AGENT_DEFS: AgentDef[] = [
 		tools: ["check_policy", "flag_risk", "get_policy_rules"],
 		evalPrompt:
 			'Assess this clause for policy risk: "Vendor liability is capped at $10,000,000 and personal data may be transferred outside approved jurisdictions."',
+	},
+	{
+		key: "negotiation",
+		name: "Contract Negotiation Agent",
+		promptFile: "negotiation-system.md",
+		tools: ["route_approval", "notify_stakeholder"],
+		evalPrompt:
+			'Assess counterparty markup that removes audit rights and increases termination notice periods, then recommend fallback language for the negotiator.',
 	},
 	{
 		key: "approval",
@@ -138,15 +157,23 @@ const REQUEST_TIMEOUT_MS = 30_000;
 
 // --- Foundry HTTP Client ---
 
-async function foundryFetch(endpoint: string, apiKey: string, path: string, init: RequestInit = {}): Promise<Response> {
+async function foundryFetch(cfg: FoundryDeployConfig, endpoint: string, path: string, init: RequestInit = {}): Promise<Response> {
 	const base = endpoint.replace(/\/+$/, "");
-	return fetch(`${base}${path}`, {
-		...init,
-		headers: {
+	const headers = await withFoundryAuthHeaders(
+		{
+			authMode: cfg.authMode,
+			apiKey: cfg.apiKey,
+			managedIdentityClientId: cfg.managedIdentityClientId,
+		},
+		{
 			"Content-Type": "application/json",
-			"api-key": apiKey,
 			...(init.headers as Record<string, string> | undefined),
 		},
+	);
+
+	return fetch(`${base}${path}`, {
+		...init,
+		headers,
 		signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
 	});
 }
@@ -156,7 +183,7 @@ async function foundryFetch(endpoint: string, apiKey: string, path: string, init
 async function preflight(cfg: FoundryDeployConfig): Promise<StageResult> {
 	const t0 = Date.now();
 	try {
-		const res = await foundryFetch(cfg.endpoint, cfg.apiKey, `/openai/deployments?api-version=${DEPLOY_API_VERSION}`);
+		const res = await foundryFetch(cfg, cfg.endpoint, `/openai/deployments?api-version=${DEPLOY_API_VERSION}`);
 		if (!res.ok) {
 			const text = await res.text();
 			return {
@@ -192,8 +219,8 @@ async function verifyModel(cfg: FoundryDeployConfig): Promise<StageResult> {
 	const t0 = Date.now();
 	try {
 		const res = await foundryFetch(
+			cfg,
 			cfg.endpoint,
-			cfg.apiKey,
 			`/openai/deployments/${encodeURIComponent(cfg.model)}?api-version=${DEPLOY_API_VERSION}`,
 		);
 		if (res.ok) {
@@ -262,8 +289,8 @@ async function listExistingAgents(cfg: FoundryDeployConfig): Promise<ExistingAss
 	const agentEndpoint = cfg.projectEndpoint || cfg.endpoint;
 	try {
 		const res = await foundryFetch(
+			cfg,
 			agentEndpoint,
-			cfg.apiKey,
 			`/openai/assistants?api-version=${AGENT_API_VERSION}&limit=100`,
 		);
 		if (!res.ok) return [];
@@ -305,7 +332,7 @@ async function registerAgents(cfg: FoundryDeployConfig): Promise<{ stage: StageR
 
 			const instructions = await loadPrompt(def.promptFile);
 
-			const res = await foundryFetch(agentEndpoint, cfg.apiKey, `/openai/assistants?api-version=${AGENT_API_VERSION}`, {
+			const res = await foundryFetch(cfg, agentEndpoint, `/openai/assistants?api-version=${AGENT_API_VERSION}`, {
 				method: "POST",
 				body: JSON.stringify({
 					model: cfg.model,
@@ -383,8 +410,8 @@ async function verifySafety(cfg: FoundryDeployConfig): Promise<StageResult> {
 	const t0 = Date.now();
 	try {
 		const res = await foundryFetch(
+			cfg,
 			cfg.endpoint,
-			cfg.apiKey,
 			`/openai/deployments/${encodeURIComponent(cfg.model)}/chat/completions?api-version=${DEPLOY_API_VERSION}`,
 			{
 				method: "POST",
@@ -470,8 +497,8 @@ async function activateContentSafety(cfg: FoundryDeployConfig): Promise<{ activa
 	// to attach a content filter configuration to a deployment.
 	try {
 		const res = await foundryFetch(
+			cfg,
 			cfg.endpoint,
-			cfg.apiKey,
 			`/openai/deployments/${encodeURIComponent(cfg.model)}?api-version=${DEPLOY_API_VERSION}`,
 		);
 		if (!res.ok) {
@@ -484,8 +511,8 @@ async function activateContentSafety(cfg: FoundryDeployConfig): Promise<{ activa
 
 		// Update deployment with default content filter policy
 		const updateRes = await foundryFetch(
+			cfg,
 			cfg.endpoint,
-			cfg.apiKey,
 			`/openai/deployments/${encodeURIComponent(cfg.model)}?api-version=${DEPLOY_API_VERSION}`,
 			{
 				method: "PUT",
@@ -563,8 +590,8 @@ async function runEvaluation(
 			}
 
 			const threadRes = await foundryFetch(
+				cfg,
 				agentEndpoint,
-				cfg.apiKey,
 				`/openai/threads?api-version=${AGENT_API_VERSION}`,
 				{ method: "POST", body: JSON.stringify({}) },
 			);
@@ -575,8 +602,8 @@ async function runEvaluation(
 			const thread = (await threadRes.json()) as { id: string };
 
 			const msgRes = await foundryFetch(
+				cfg,
 				agentEndpoint,
-				cfg.apiKey,
 				`/openai/threads/${thread.id}/messages?api-version=${AGENT_API_VERSION}`,
 				{
 					method: "POST",
@@ -588,15 +615,15 @@ async function runEvaluation(
 			);
 			if (!msgRes.ok) {
 				failures.push(`${agent.agent_name}: message creation failed (${msgRes.status})`);
-				foundryFetch(agentEndpoint, cfg.apiKey, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
+				foundryFetch(cfg, agentEndpoint, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
 					method: "DELETE",
 				}).catch(() => {});
 				continue;
 			}
 
 			const runRes = await foundryFetch(
+				cfg,
 				agentEndpoint,
-				cfg.apiKey,
 				`/openai/threads/${thread.id}/runs?api-version=${AGENT_API_VERSION}`,
 				{
 					method: "POST",
@@ -605,7 +632,7 @@ async function runEvaluation(
 			);
 			if (!runRes.ok) {
 				failures.push(`${agent.agent_name}: run creation failed (${runRes.status})`);
-				foundryFetch(agentEndpoint, cfg.apiKey, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
+				foundryFetch(cfg, agentEndpoint, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
 					method: "DELETE",
 				}).catch(() => {});
 				continue;
@@ -617,8 +644,8 @@ async function runEvaluation(
 			while (runStatus !== "completed" && runStatus !== "failed" && runStatus !== "cancelled" && polls < 15) {
 				await new Promise((r) => setTimeout(r, 2000));
 				const pollRes = await foundryFetch(
+					cfg,
 					agentEndpoint,
-					cfg.apiKey,
 					`/openai/threads/${thread.id}/runs/${run.id}?api-version=${AGENT_API_VERSION}`,
 				);
 				if (pollRes.ok) {
@@ -628,7 +655,7 @@ async function runEvaluation(
 				polls++;
 			}
 
-			foundryFetch(agentEndpoint, cfg.apiKey, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
+			foundryFetch(cfg, agentEndpoint, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
 				method: "DELETE",
 			}).catch(() => {});
 
@@ -682,8 +709,8 @@ async function healthCheck(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[])
 	for (const agent of registered) {
 		try {
 			const res = await foundryFetch(
+				cfg,
 				agentEndpoint,
-				cfg.apiKey,
 				`/openai/assistants/${agent.foundry_agent_id}?api-version=${AGENT_API_VERSION}`,
 			);
 			if (res.ok) healthy++;
@@ -783,8 +810,8 @@ function simulatedDeploy(): DeployPipelineResult {
 		},
 		evaluation: { test_count: 4, passed: 4, accuracy: 100 },
 		summary: {
-			agents_deployed: 4,
-			tools_registered: 12,
+			agents_deployed: AGENT_DEFS.length,
+			tools_registered: AGENT_DEFS.reduce((sum, agent) => sum + agent.tools.length, 0),
 			errors: 0,
 			total_duration_ms: stages.reduce((s, st) => s + st.duration_ms, 0),
 		},
@@ -858,8 +885,8 @@ export async function cleanupAgents(
 	for (const id of agentIds) {
 		try {
 			const res = await foundryFetch(
+				cfg,
 				agentEndpoint,
-				cfg.apiKey,
 				`/openai/assistants/${id}?api-version=${AGENT_API_VERSION}`,
 				{ method: "DELETE" },
 			);

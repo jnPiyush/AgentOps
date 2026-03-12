@@ -1,0 +1,14 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "contract-agentops/analytics-result",
+	"title": "AnalyticsResult",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["portfolio_summary", "key_metrics", "recommended_actions", "confidence_score"],
+	"properties": {
+		"portfolio_summary": { "type": "string" },
+		"key_metrics": { "type": "array", "items": { "type": "string" } },
+		"recommended_actions": { "type": "array", "items": { "type": "string" } },
+		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+	}
+}

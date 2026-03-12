@@ -1586,11 +1586,39 @@ body {
 	color: var(--color-text-tertiary);
 }
 
+.workflow-stage-summary {
+	font-size: 12px;
+	line-height: 1.5;
+	color: var(--color-text-secondary);
+	text-align: center;
+	max-width: 240px;
+}
+
 .workflow-stage-grid {
 	display: flex;
 	gap: var(--space-md);
 	flex-wrap: wrap;
 	justify-content: center;
+}
+
+.workflow-group {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-sm);
+	padding: var(--space-sm);
+	border-radius: var(--radius-md);
+	background: rgba(255, 255, 255, 0.03);
+	min-width: 200px;
+}
+
+.workflow-group-label {
+	font-size: 11px;
+	font-weight: 700;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--color-text-tertiary);
+	text-align: center;
 }
 
 .workflow-node {
@@ -1806,6 +1834,13 @@ body {
 	font-size: 13px;
 }
 
+.trace-empty {
+	font-size: 13px;
+	line-height: 1.6;
+	color: var(--color-text-disabled);
+	padding: var(--space-sm) 0;
+}
+
 .trace-agent {
 	margin-bottom: var(--space-sm);
 }
@@ -1845,6 +1880,14 @@ body {
 	padding: 3px 0;
 	color: var(--color-text-secondary);
 	font-size: 12px;
+}
+
+.trace-tool-detail {
+	padding-left: 48px;
+	font-size: 11px;
+	line-height: 1.5;
+	color: var(--color-text-tertiary);
+	white-space: normal;
 }
 
 .trace-tool-time {

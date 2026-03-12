@@ -27,7 +27,7 @@
     "submitted_at": "2026-03-07T06:34:26.433Z",
     "type": "NDA",
     "classification_confidence": 0.95,
-    "completed_at": "2026-03-10T15:20:43.156Z"
+    "completed_at": "2026-03-12T15:25:48.576Z"
   },
   {
     "id": "contract-a3727b2f",
@@ -317,5 +317,316 @@
     "text": "This NDA is between X and Y...",
     "status": "processing",
     "submitted_at": "2026-03-10T15:20:43.118Z"
+  },
+  {
+    "id": "contract-fd83efeb",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-11T15:01:22.226Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-11T15:01:22.281Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-11T15:01:22.292Z"
+  },
+  {
+    "id": "contract-7e71cc37",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-11T16:25:56.075Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-11T16:25:56.110Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-11T16:25:56.120Z"
+  },
+  {
+    "id": "contract-8ae882a0",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T01:35:22.336Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T01:35:22.385Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T01:35:22.403Z"
+  },
+  {
+    "id": "contract-4908efa9",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T01:42:47.219Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T01:42:47.275Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T01:42:47.294Z"
+  },
+  {
+    "id": "contract-0bec21b1",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T01:47:32.147Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T01:47:32.234Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T01:47:32.257Z"
+  },
+  {
+    "id": "contract-166117c7",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T01:52:07.390Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T01:52:07.461Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T01:52:07.481Z"
+  },
+  {
+    "id": "contract-fa170145",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T01:57:14.501Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T01:57:14.574Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T01:57:14.590Z"
+  },
+  {
+    "id": "contract-0ae079fb",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T01:58:04.277Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T01:58:04.422Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T01:58:04.458Z"
+  },
+  {
+    "id": "contract-27e94579",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T01:58:51.541Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T01:58:51.958Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T01:58:52.156Z"
+  },
+  {
+    "id": "contract-audit-mmmtkajf",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-12T01:58:53.019Z",
+    "type": "NDA"
+  },
+  {
+    "id": "contract-52f13c95",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T02:24:57.088Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T02:24:57.168Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T02:24:57.185Z"
+  },
+  {
+    "id": "contract-audit-mmmuhu47",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-12T02:24:58.039Z",
+    "type": "NDA"
+  },
+  {
+    "id": "contract-7a91db6e",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T02:25:50.548Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T02:25:50.604Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T02:25:50.622Z"
+  },
+  {
+    "id": "contract-audit-mmmuiyry",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-12T02:25:50.734Z",
+    "type": "NDA"
+  },
+  {
+    "id": "contract-a6641f0a",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T15:24:46.906Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T15:24:46.946Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T15:24:46.956Z"
+  },
+  {
+    "id": "contract-audit-mmnmcp6c",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-12T15:24:47.604Z",
+    "type": "NDA"
+  },
+  {
+    "id": "contract-943af309",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T15:25:15.086Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T15:25:15.126Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T15:25:15.137Z"
+  },
+  {
+    "id": "contract-audit-mmnmdasf",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-12T15:25:15.615Z",
+    "type": "NDA"
+  },
+  {
+    "id": "contract-34ce6d7f",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T15:25:42.786Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T15:25:42.819Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T15:25:42.830Z"
+  },
+  {
+    "id": "contract-audit-mmnmdvy6",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-12T15:25:43.038Z",
+    "type": "NDA"
+  },
+  {
+    "id": "contract-9a3541eb",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-12T15:25:48.491Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-12T15:25:48.534Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-12T15:25:48.546Z"
+  },
+  {
+    "id": "contract-audit-mmnme0oe",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-12T15:25:49.166Z",
+    "type": "NDA"
   }
 ]

@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import {
 	activateWorkflowDefinition,
 	deleteWorkflowDefinition,
+	getContractStageCatalog,
 	getActiveWorkflow,
 	getActiveWorkflowPackage,
 	getWorkflowById,
@@ -36,6 +37,23 @@ export async function workflowRoutes(app: FastifyInstance): Promise<void> {
 			return reply.status(404).send({ error: "No active workflow package set" });
 		}
 		return reply.send(workflowPackage);
+	});
+
+	// GET /api/v1/workflows/active/stage-map - get the active contract-stage map
+	app.get("/api/v1/workflows/active/stage-map", async (_request, reply) => {
+		const workflowPackage = getActiveWorkflowPackage();
+		if (!workflowPackage) {
+			return reply.status(404).send({ error: "No active workflow package set" });
+		}
+		return reply.send(workflowPackage.contract_stage_map);
+	});
+
+	// GET /api/v1/workflows/stages/catalog - get the contract stage catalog
+	app.get("/api/v1/workflows/stages/catalog", async (_request, reply) => {
+		return reply.send({
+			catalog_reference: "config/stages/contract-lifecycle.json",
+			stages: getContractStageCatalog(),
+		});
 	});
 
 	// GET /api/v1/workflows/:id - get a specific workflow

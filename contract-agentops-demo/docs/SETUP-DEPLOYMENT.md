@@ -14,6 +14,7 @@ Execution modes:
 Azure hosting model:
 
 - Azure App Service for the application runtime
+- Azure Container Apps as an optional containerized runtime
 - Bicep infrastructure under `infra/`
 - `azd` orchestration via `azure.yaml`
 
@@ -26,12 +27,21 @@ The Azure deployment provisions:
 - One Linux Azure App Service Plan
 - One Linux Azure App Service running `npx tsx start.ts`
 
+Optional ACA deployment provisions:
+
+- One ACA-specific resource group
+- One Azure Container Registry
+- One Log Analytics workspace
+- One Azure Container Apps managed environment
+- One user-assigned managed identity for ACR pulls and Foundry runtime access
+- One Azure Container App running the same Node entrypoint in a container image
+
 The App Service is configured with:
 
 - `DEMO_MODE`
 - `DEPLOY_ADMIN_KEY`
+- `FOUNDRY_AUTH_MODE=managed-identity`
 - `FOUNDRY_ENDPOINT`
-- `FOUNDRY_API_KEY`
 - `FOUNDRY_PROJECT_ENDPOINT`
 - `FOUNDRY_MODEL`
 - `GATEWAY_PORT=8080`
@@ -58,6 +68,7 @@ For live mode, you also need:
 
 - An Azure subscription
 - Permission to create Azure OpenAI resources and model deployments in that subscription
+- Permission to create Azure RBAC role assignments for the managed identities used by App Service and ACA
 
 ## Local Setup
 
@@ -117,6 +128,7 @@ Live mode requires Foundry settings. Update `.env`:
 
 ```env
 DEMO_MODE=live
+FOUNDRY_AUTH_MODE=api-key
 FOUNDRY_API_KEY=<your-api-key>
 FOUNDRY_ENDPOINT=https://<your-resource>.openai.azure.com
 FOUNDRY_PROJECT_ENDPOINT=
@@ -134,6 +146,8 @@ npm start
 ```
 
 If `FOUNDRY_API_KEY` or `FOUNDRY_ENDPOINT` is missing, the gateway will fail fast at startup. `FOUNDRY_PROJECT_ENDPOINT` is optional and defaults to `FOUNDRY_ENDPOINT`.
+
+For Microsoft Entra authentication instead of key-based auth, set `FOUNDRY_AUTH_MODE=managed-identity`, keep `FOUNDRY_ENDPOINT`, and optionally set `FOUNDRY_MANAGED_IDENTITY_CLIENT_ID` when you are using a user-assigned identity.
 
 ## Local Validation
 
@@ -242,7 +256,7 @@ Open the UI:
 
 ## Live-Mode Azure Deployment
 
-The Azure infrastructure now provisions the Azure OpenAI account through Bicep and wires the generated endpoint and API key into App Service automatically. `FOUNDRY_PROJECT_ENDPOINT` remains optional and defaults to the same endpoint.
+The Azure infrastructure now provisions the Azure OpenAI account through Bicep, enables a system-assigned managed identity on App Service, and grants that identity `Cognitive Services OpenAI User` on the Azure OpenAI resource. `FOUNDRY_PROJECT_ENDPOINT` remains optional and defaults to the same endpoint.
 
 For live mode, set these `azd` environment values before deployment:
 
@@ -258,6 +272,47 @@ Then deploy:
 azd up
 ```
 
+## Azure Container Apps Deployment
+
+Use this path when you want containerized hosting, cleaner scale boundaries, or a future split between gateway and background agent workloads.
+
+The ACA deployment path uses the root GitHub Actions workflow at `.github/workflows/contract-agentops-deploy-aca.yml` and the infrastructure template at `infra/container-apps.bicep`.
+
+### Required GitHub Secrets
+
+Configure the same Azure service principal secrets used by the App Service workflow:
+
+- `AZURE_CLIENT_ID`
+- `AZURE_CLIENT_SECRET`
+- `AZURE_TENANT_ID`
+- `AZURE_SUBSCRIPTION_ID`
+
+### What the ACA workflow does
+
+1. Validates the app with lint, typecheck, tests, and build.
+2. Provisions ACA base infrastructure and Azure OpenAI resources.
+3. Builds the application image in Azure Container Registry.
+4. Creates or updates the Azure Container App.
+5. Verifies `/api/v1/health`, deployment mode, deployment status, and agent registration.
+
+### Manual ACA deployment trigger
+
+Run the root workflow `Contract AgentOps Deploy ACA` with these defaults unless you need overrides:
+
+- `demo_mode=live`
+- `environment_name=contract-agentops-aca-prod`
+- `azure_location=eastus2`
+- `foundry_model=gpt-5.4`
+- `foundry_model_version=2024-11-20`
+
+### ACA runtime notes
+
+- The container image starts the same `npm start` entrypoint used locally.
+- The container app exposes port `8000` and maps it to the gateway health endpoint at `/api/v1/health`.
+- The deployment still uses `FOUNDRY_PROJECT_ENDPOINT` fallback behavior and injects `DEPLOY_ADMIN_KEY` for live-mode registration.
+- The ACA runtime uses `FOUNDRY_AUTH_MODE=managed-identity` and the user-assigned identity from `infra/container-apps.bicep` instead of injecting `FOUNDRY_API_KEY`.
+- The App Service runtime now also uses `FOUNDRY_AUTH_MODE=managed-identity`, backed by its system-assigned identity and the same OpenAI data-plane RBAC role.
+
 Then verify:
 
 ```powershell
@@ -266,11 +321,7 @@ curl "$APP_URL/api/v1/deploy/mode"
 curl "$APP_URL/api/v1/deploy/status"
 ```
 
-The deploy workflow now follows the same default behavior on GitHub Actions:
-
-- Push to `main` -> auto deploy to `contract-agentops-main`
-- Push tag `v*` -> auto deploy to `contract-agentops-prod`
-- Manual dispatch -> override mode, environment, model, and model version
+The default GitHub Actions deployment path remains App Service. ACA is a manual opt-in workflow.
 
 ## Operational Notes
 
@@ -283,9 +334,9 @@ Current behavior in this repo:
 
 Current security posture:
 
-- Live mode uses API-key based Foundry access
-- That matches the current implementation
-- Managed identity and Key Vault references would be a stronger production pattern, but they are not wired into this repo today
+- App Service live mode uses API-key based Foundry access
+- ACA live mode uses managed identity for Foundry access
+- Both deployment lanes still use `DEPLOY_ADMIN_KEY` to protect registration routes
 
 ## Troubleshooting
 
@@ -293,9 +344,11 @@ Current security posture:
 
 Likely cause:
 
-- Missing `FOUNDRY_API_KEY`
+- Missing `FOUNDRY_API_KEY` when `FOUNDRY_AUTH_MODE=api-key`
 - Missing `FOUNDRY_ENDPOINT`
-- Missing `FOUNDRY_PROJECT_ENDPOINT`
+- Missing `Cognitive Services OpenAI User` role assignment for the Azure runtime identity
+
+`FOUNDRY_PROJECT_ENDPOINT` is optional and defaults to `FOUNDRY_ENDPOINT`.
 
 Check the deployment mode endpoint and App Service settings.
 
@@ -325,8 +378,9 @@ GitHub Actions workflows now live at the repository root:
 
 - `.github/workflows/contract-agentops-ci.yml`
 - `.github/workflows/contract-agentops-deploy.yml`
+- `.github/workflows/contract-agentops-deploy-aca.yml`
 
-See `docs/deployment/AZURE-GITHUB-ACTIONS.md` for required secrets and the deployment flow.
+See `docs/deployment/AZURE-GITHUB-ACTIONS.md` for both App Service and ACA deployment flows.
 
 ## Recommended Deployment Flow
 
@@ -337,6 +391,7 @@ For the current repo state, use this sequence:
 3. Verify health, UI, and deployment status on Azure.
 4. Switch the environment to `DEMO_MODE=live` once Foundry settings are available.
 5. Re-run `POST /api/v1/deploy/pipeline` or the deployment workflow and validate live behavior.
+6. Use the ACA workflow when you need a containerized runtime or want to evolve toward independently deployable agent workloads.
 
 ## Quick Reference
 
@@ -364,8 +419,6 @@ az login
 azd auth login
 azd env new contract-agentops-dev
 azd env set AZURE_LOCATION eastus2
-azd env set FOUNDRY_ENDPOINT https://<your-resource>.openai.azure.com
-azd env set FOUNDRY_API_KEY <your-api-key>
 azd env set FOUNDRY_MODEL gpt-5.4
 azd env set DEMO_MODE simulated
 azd up

@@ -1,0 +1,14 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "contract-agentops/renewal-result",
+	"title": "RenewalResult",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["renewal_window_days", "risk_level", "recommended_actions", "confidence_score"],
+	"properties": {
+		"renewal_window_days": { "type": "number", "minimum": 0 },
+		"risk_level": { "type": "string", "enum": ["low", "medium", "high"] },
+		"recommended_actions": { "type": "array", "items": { "type": "string" } },
+		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+	}
+}

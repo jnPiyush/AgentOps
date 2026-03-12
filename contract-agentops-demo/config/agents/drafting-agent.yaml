@@ -1,0 +1,70 @@
+# Declarative Agent Configuration - Drafting Agent
+
+agent_id: drafting
+name: Contract Drafting Agent
+version: 1.0.0
+created: 2026-03-12
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.1
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 30s
+
+prompts:
+  system_prompt: prompts/drafting-system.md
+  output_template: templates/extraction-result.json
+
+tools:
+  - name: extract_clauses
+    mcp_server: contract-extraction-mcp
+    description: Build a draft-ready clause package from approved language
+    required: true
+    timeout: 15s
+  - name: identify_parties
+    mcp_server: contract-extraction-mcp
+    description: Confirm parties and roles for the draft package
+    required: false
+    timeout: 10s
+  - name: extract_dates_values
+    mcp_server: contract-extraction-mcp
+    description: Surface dates and values that need drafting attention
+    required: false
+    timeout: 10s
+
+behavior:
+  role: "Assemble the initial draft package and recommend approved fallback language"
+  boundary: "Drafting support only - no compliance or approval decisions"
+  output_schema: config/schemas/drafting-result.json
+  validation:
+    required_fields: [draft_summary, recommended_clauses, open_questions]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 6s
+    max_latency: 15s
+
+workflow:
+  input_from: intake_agent
+  output_to: [review_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: false
+  routing:
+    - condition: "output.open_questions.length > 0"
+      action: route_to_legal_review
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, drafting_completeness]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

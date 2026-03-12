@@ -21,6 +21,5 @@ resource foundryAccount 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
   }
 }
 
-output apiKey string = listKeys(foundryAccount.id, '2024-10-01').key1
 output endpoint string = 'https://${foundryAccount.name}.openai.azure.com'
 output name string = foundryAccount.name

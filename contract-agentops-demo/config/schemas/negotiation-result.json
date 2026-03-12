@@ -1,0 +1,14 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "contract-agentops/negotiation-result",
+	"title": "NegotiationResult",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["counterparty_positions", "fallback_recommendations", "escalation_required", "confidence_score"],
+	"properties": {
+		"counterparty_positions": { "type": "array", "items": { "type": "string" } },
+		"fallback_recommendations": { "type": "array", "items": { "type": "string" } },
+		"escalation_required": { "type": "boolean" },
+		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+	}
+}

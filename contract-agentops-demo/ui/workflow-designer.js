@@ -363,10 +363,10 @@ const WorkflowDesigner = (() => {
   }
 
   function loadDefaultWorkflow() {
-    // Set the default workflow with the 4 core agents
+    // Set the default workflow with the active 6-stage pre-execution lifecycle
     currentWorkflow = {
       id: "default",
-      name: "Contract Processing Pipeline",
+      name: "Contract Lifecycle Pipeline",
       type: "sequential-hitl",
       agents: [
         {
@@ -386,13 +386,13 @@ const WorkflowDesigner = (() => {
         },
         {
           id: "agent-2",
-          name: "Extraction Agent",
-          role: "Extract key clauses, parties, dates, and monetary values",
-          icon: "E",
+          name: "Drafting Agent",
+          role: "Assemble the initial draft package and recommend approved clause language",
+          icon: "D",
           model: "GPT-5.4",
           tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
-          boundary: "Extract only",
-          output: "Structured clause data with confidence scores",
+          boundary: "Draft package only",
+          output: "Draft-ready clause package and fallback language recommendations",
           color: AGENT_COLORS[1],
           kind: "agent",
           stage: 1,
@@ -401,13 +401,13 @@ const WorkflowDesigner = (() => {
         },
         {
           id: "agent-3",
-          name: "Compliance Agent",
-          role: "Check extracted terms against company policies and flag risks",
-          icon: "C",
+          name: "Internal Review Agent",
+          role: "Summarize redlines, review comments, and internal decision points",
+          icon: "R",
           model: "GPT-5.4",
-          tools: ["check_policy", "flag_risk", "get_policy_rules"],
-          boundary: "Flag only",
-          output: "Policy compliance flags and risk assessment",
+          tools: ["get_audit_log", "create_audit_entry"],
+          boundary: "Internal review only",
+          output: "Redline summary and internal review disposition",
           color: AGENT_COLORS[2],
           kind: "agent",
           stage: 2,
@@ -416,6 +416,36 @@ const WorkflowDesigner = (() => {
         },
         {
           id: "agent-4",
+          name: "Compliance Agent",
+          role: "Check extracted terms against company policies and flag risks",
+          icon: "C",
+          model: "GPT-5.4",
+          tools: ["check_policy", "flag_risk", "get_policy_rules"],
+          boundary: "Flag only",
+          output: "Policy compliance flags and risk assessment",
+          color: AGENT_COLORS[3],
+          kind: "agent",
+          stage: 3,
+          lane: 0,
+          order: 3,
+        },
+        {
+          id: "agent-5",
+          name: "Negotiation Agent",
+          role: "Assess counterparty markup and recommend fallback negotiation positions",
+          icon: "N",
+          model: "GPT-5.4",
+          tools: ["route_approval", "notify_stakeholder"],
+          boundary: "Negotiation support only",
+          output: "Negotiation summary with fallback recommendations",
+          color: AGENT_COLORS[4],
+          kind: "agent",
+          stage: 4,
+          lane: 0,
+          order: 4,
+        },
+        {
+          id: "agent-6",
           name: "Approval Agent",
           role: "Route contracts for approval or escalate to human review",
           icon: "A",
@@ -423,18 +453,18 @@ const WorkflowDesigner = (() => {
           tools: ["route_approval", "escalate_to_human", "notify_stakeholder"],
           boundary: "Route only",
           output: "Routing decision and stakeholder notification",
-          color: AGENT_COLORS[3],
+          color: AGENT_COLORS[5],
           kind: "human",
-          stage: 3,
+          stage: 5,
           lane: 0,
-          order: 3,
+          order: 5,
         },
       ],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
     currentWorkflow = normalizeWorkflow(currentWorkflow);
-    nextAgentId = 5;
+    nextAgentId = 7;
   }
 
   // --- Render ---

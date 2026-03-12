@@ -7,12 +7,14 @@ on:
       - "contract-agentops-demo/**"
       - ".github/workflows/contract-agentops-ci.yml"
       - ".github/workflows/contract-agentops-deploy.yml"
+      - ".github/workflows/contract-agentops-deploy-aca.yml"
   pull_request:
     branches: [main]
     paths:
       - "contract-agentops-demo/**"
       - ".github/workflows/contract-agentops-ci.yml"
       - ".github/workflows/contract-agentops-deploy.yml"
+      - ".github/workflows/contract-agentops-deploy-aca.yml"
 
 permissions:
   contents: read
@@ -55,3 +57,9 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Validate Bicep templates
+        run: |
+          az bicep install
+          az bicep build --file infra/main.bicep
+          [ -f infra/container-apps.bicep ] && az bicep build --file infra/container-apps.bicep || true

@@ -155,6 +155,7 @@ jobs:
           fi
 
           deploy_admin_key="$(openssl rand -hex 32)"
+          echo "::add-mask::${deploy_admin_key}"
 
           {
             echo "demo_mode=${demo_mode}"
@@ -226,4 +227,4 @@ jobs:
         shell: pwsh
         run: |
           $appUrl = azd env get-value AZURE_APP_SERVICE_URL
-          ./scripts/deploy/verify-deployment.ps1 -AppUrl $appUrl
+          ./scripts/deploy/verify-deployment.ps1 -AppUrl $appUrl -DeployAdminKey '${{ steps.resolve.outputs.deploy_admin_key }}'

@@ -6,13 +6,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 dotenvConfig({ path: resolve(__dirname, "../../.env") });
 
 export type DemoMode = "live" | "simulated";
+export type FoundryAuthMode = "api-key" | "managed-identity";
 
 export interface AppConfig {
 	demoMode: DemoMode;
 	readonly deployAdminKey: string;
+	readonly foundryAuthMode: FoundryAuthMode;
 	readonly foundryApiKey: string;
 	readonly foundryEndpoint: string;
 	readonly foundryProjectEndpoint: string;
+	readonly foundryManagedIdentityClientId: string;
 	readonly foundryModel: string;
 	readonly foundryModelSwap: string;
 	readonly legalReviewEmail: string;
@@ -26,12 +29,23 @@ function envOrDefault(key: string, fallback: string): string {
 	return process.env[key] ?? fallback;
 }
 
+function readFoundryAuthMode(): FoundryAuthMode {
+	const value = envOrDefault("FOUNDRY_AUTH_MODE", "api-key");
+	if (value === "api-key" || value === "managed-identity") {
+		return value;
+	}
+
+	throw new Error("FOUNDRY_AUTH_MODE must be either 'api-key' or 'managed-identity'");
+}
+
 export const appConfig: AppConfig = {
 	demoMode: envOrDefault("DEMO_MODE", "simulated") as DemoMode,
 	deployAdminKey: envOrDefault("DEPLOY_ADMIN_KEY", ""),
+	foundryAuthMode: readFoundryAuthMode(),
 	foundryApiKey: envOrDefault("FOUNDRY_API_KEY", ""),
 	foundryEndpoint: envOrDefault("FOUNDRY_ENDPOINT", ""),
 	foundryProjectEndpoint: envOrDefault("FOUNDRY_PROJECT_ENDPOINT", envOrDefault("FOUNDRY_ENDPOINT", "")),
+	foundryManagedIdentityClientId: envOrDefault("FOUNDRY_MANAGED_IDENTITY_CLIENT_ID", ""),
 	foundryModel: envOrDefault("FOUNDRY_MODEL", "gpt-5.4"),
 	foundryModelSwap: envOrDefault("FOUNDRY_MODEL_SWAP", "gpt-4o-mini"),
 	legalReviewEmail: envOrDefault("LEGAL_REVIEW_EMAIL", "legal-review@company.com"),
@@ -54,7 +68,10 @@ export const MCP_SERVERS = [
 
 // Validate required env vars when running in live mode
 if (appConfig.demoMode === "live") {
-	const required = ["FOUNDRY_API_KEY", "FOUNDRY_ENDPOINT"] as const;
+	const required = ["FOUNDRY_ENDPOINT"];
+	if (appConfig.foundryAuthMode === "api-key") {
+		required.push("FOUNDRY_API_KEY");
+	}
 	const missing = required.filter((k) => !process.env[k]);
 	if (missing.length > 0) {
 		throw new Error(

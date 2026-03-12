@@ -1182,5 +1182,1005 @@
     "action": "approved",
     "reasoning": "Low risk, no flags",
     "timestamp": "2026-03-10T15:20:43.160Z"
+  },
+  {
+    "id": "ba250303-64a2-4ae9-8e8a-4b944073eecc",
+    "contract_id": "contract-fd83efeb",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-11T15:01:22.241Z"
+  },
+  {
+    "id": "1bf32a1b-013b-498c-85f7-267ea79b1a87",
+    "contract_id": "contract-fd83efeb",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-11T15:01:22.266Z"
+  },
+  {
+    "id": "dd92ed9f-bf2e-40e2-bcad-2b046fa0d027",
+    "contract_id": "contract-fd83efeb",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-11T15:01:22.273Z"
+  },
+  {
+    "id": "23d7f152-46d6-404c-a143-9581d64c7a52",
+    "contract_id": "contract-fd83efeb",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-11T15:01:22.285Z"
+  },
+  {
+    "id": "eab92616-a62b-4c81-b4bb-54b0c087a62b",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-11T15:01:22.299Z"
+  },
+  {
+    "id": "0072a0ac-e07f-488e-aa09-01b9c6ddc3b7",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-11T15:01:22.307Z"
+  },
+  {
+    "id": "f6d84f54-9b9f-477d-afa7-0d7213dc8f3c",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-11T15:01:22.315Z"
+  },
+  {
+    "id": "afb7fc32-04f9-4ff1-b74e-7c213e663559",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-11T15:01:22.328Z"
+  },
+  {
+    "id": "c0d83ed0-55d1-4a82-91bf-311436551a41",
+    "contract_id": "contract-7e71cc37",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-11T16:25:56.091Z"
+  },
+  {
+    "id": "d4d82cb8-a4bf-48af-8fe2-8b1e9a46bd72",
+    "contract_id": "contract-7e71cc37",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-11T16:25:56.099Z"
+  },
+  {
+    "id": "1ae31721-69e3-4c32-908d-dc60c4624970",
+    "contract_id": "contract-7e71cc37",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-11T16:25:56.105Z"
+  },
+  {
+    "id": "55ed1f6d-4278-4cfa-9352-ad71caaa7315",
+    "contract_id": "contract-7e71cc37",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-11T16:25:56.114Z"
+  },
+  {
+    "id": "296256f9-b15c-4726-ac5d-461bc82951b6",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-11T16:25:56.129Z"
+  },
+  {
+    "id": "7f8cc0ee-eecd-443e-815c-98a0d0a198da",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-11T16:25:56.134Z"
+  },
+  {
+    "id": "fed751f4-d66a-4b06-9d1f-257f450eb564",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-11T16:25:56.139Z"
+  },
+  {
+    "id": "818bd0dd-3b54-4344-beb1-f00d0acb838f",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-11T16:25:56.147Z"
+  },
+  {
+    "id": "6b9ee683-8768-40a9-ac8a-c9a9df6bc4fe",
+    "contract_id": "contract-8ae882a0",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:35:22.357Z"
+  },
+  {
+    "id": "3135a7da-fde2-4007-8a99-21839c82167b",
+    "contract_id": "contract-8ae882a0",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:35:22.366Z"
+  },
+  {
+    "id": "fdcea46b-87f3-4ab9-928b-5e87c93caac3",
+    "contract_id": "contract-8ae882a0",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:35:22.375Z"
+  },
+  {
+    "id": "3e3d971a-78df-4797-a8c8-894a74684d89",
+    "contract_id": "contract-8ae882a0",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:35:22.391Z"
+  },
+  {
+    "id": "07bd65a9-5402-4ff6-b178-c78767fd9b91",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:35:22.416Z"
+  },
+  {
+    "id": "78ef8f36-e9a9-4e77-bf2d-19a64a2d8ecc",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:35:22.424Z"
+  },
+  {
+    "id": "c77ec309-2386-466f-8fa5-578fc9f91a7c",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:35:22.434Z"
+  },
+  {
+    "id": "3c648514-f18b-4c48-9af2-25c08a65b157",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:35:22.450Z"
+  },
+  {
+    "id": "edca4a1e-2600-402c-a408-fb44cf8ea809",
+    "contract_id": "contract-4908efa9",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:42:47.239Z"
+  },
+  {
+    "id": "c66915a4-4a42-49e2-acd0-1aa0142c8f71",
+    "contract_id": "contract-4908efa9",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:42:47.257Z"
+  },
+  {
+    "id": "f631669c-a033-4c19-bc4a-dfa6d5396ee9",
+    "contract_id": "contract-4908efa9",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:42:47.266Z"
+  },
+  {
+    "id": "e42fba63-62a2-43fd-9d06-fcc2c22381d9",
+    "contract_id": "contract-4908efa9",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:42:47.282Z"
+  },
+  {
+    "id": "5f2fd71b-170f-4ff8-b09e-089fdebb4379",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:42:47.307Z"
+  },
+  {
+    "id": "5b147e5a-5cd6-499c-b6a7-140a727754df",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:42:47.316Z"
+  },
+  {
+    "id": "9e5a3219-ab2b-43ef-a2cf-389b73f4b3d6",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:42:47.324Z"
+  },
+  {
+    "id": "d0257473-a235-4376-9a39-d9a16e3cfef0",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:42:47.337Z"
+  },
+  {
+    "id": "edb25b39-e682-4005-86eb-65009746779f",
+    "contract_id": "contract-0bec21b1",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:47:32.185Z"
+  },
+  {
+    "id": "0bbff1bf-07e7-4931-a2f8-652bc4c13284",
+    "contract_id": "contract-0bec21b1",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:47:32.205Z"
+  },
+  {
+    "id": "1b660cfa-d077-4c60-b850-608b4ac256f9",
+    "contract_id": "contract-0bec21b1",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:47:32.222Z"
+  },
+  {
+    "id": "404608d5-f39d-4ddb-b48e-2ba8e2cae083",
+    "contract_id": "contract-0bec21b1",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:47:32.240Z"
+  },
+  {
+    "id": "8f7e292b-8884-4d10-8e22-2cd686d486aa",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:47:32.294Z"
+  },
+  {
+    "id": "6346f19c-b5e9-434d-b3f0-3dcf0f69867d",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:47:32.352Z"
+  },
+  {
+    "id": "32993813-302f-48c7-912b-7a97d6f64229",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:47:32.429Z"
+  },
+  {
+    "id": "c851c7df-3e3d-472e-a62e-12a1e9e1b60b",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:47:32.525Z"
+  },
+  {
+    "id": "bbdea87c-f8c5-47cc-b566-7f30d1f45d9c",
+    "contract_id": "contract-166117c7",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:52:07.429Z"
+  },
+  {
+    "id": "7f32701d-adeb-4e3b-b0ec-31bc2184bd07",
+    "contract_id": "contract-166117c7",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:52:07.440Z"
+  },
+  {
+    "id": "40668f17-978c-4a1b-8e00-52bc150af6c6",
+    "contract_id": "contract-166117c7",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:52:07.450Z"
+  },
+  {
+    "id": "1ad97408-96fd-42e1-a389-217f0967145f",
+    "contract_id": "contract-166117c7",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:52:07.466Z"
+  },
+  {
+    "id": "25a5356f-1cdb-4cc8-ba9f-a5514de90b1d",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:52:07.503Z"
+  },
+  {
+    "id": "e4465c6a-3e94-4ba3-a930-d4fb3dfcfdf4",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:52:07.515Z"
+  },
+  {
+    "id": "7cb2fe8b-a15b-4be4-9a7f-729a765dad4f",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:52:07.526Z"
+  },
+  {
+    "id": "6b2d2d17-0188-4180-a815-b9ef41d9e592",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:52:07.612Z"
+  },
+  {
+    "id": "15aaa87e-a3a7-4647-9d97-d54a73376637",
+    "contract_id": "contract-fa170145",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:57:14.539Z"
+  },
+  {
+    "id": "b146584a-2337-4e60-bfca-51726af79ac3",
+    "contract_id": "contract-fa170145",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:57:14.554Z"
+  },
+  {
+    "id": "277efd8f-e9c4-4231-9fd3-dcc5504d32bd",
+    "contract_id": "contract-fa170145",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:57:14.562Z"
+  },
+  {
+    "id": "9429051f-c6c6-4f6e-8602-bb5546b3f6e5",
+    "contract_id": "contract-fa170145",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:57:14.580Z"
+  },
+  {
+    "id": "1d59411b-4fcf-4959-a1df-6dd07f214b38",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:57:14.606Z"
+  },
+  {
+    "id": "7c21be6f-2198-42e9-862a-0c919b3f68e7",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:57:14.615Z"
+  },
+  {
+    "id": "f56c1786-c93f-4259-9eeb-9ca777258754",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:57:14.624Z"
+  },
+  {
+    "id": "0584f3da-9a6a-4b23-92ad-600160fac5b1",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:57:14.638Z"
+  },
+  {
+    "id": "0439c58c-8db5-4fe3-8987-6b3999bc039d",
+    "contract_id": "contract-0ae079fb",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:58:04.314Z"
+  },
+  {
+    "id": "9014063b-b2c2-4d6f-8c19-faf7aad99291",
+    "contract_id": "contract-0ae079fb",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:58:04.351Z"
+  },
+  {
+    "id": "b49939eb-6ba3-4c4c-9745-a48e91320f40",
+    "contract_id": "contract-0ae079fb",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:58:04.391Z"
+  },
+  {
+    "id": "83f78233-061d-464c-86bc-db9c306daa7a",
+    "contract_id": "contract-0ae079fb",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:58:04.434Z"
+  },
+  {
+    "id": "3ed55aaa-2650-41a5-8800-e831f303c585",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:58:04.494Z"
+  },
+  {
+    "id": "d9724c8e-258f-4802-9b4f-1d5cfe47fb40",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:58:04.510Z"
+  },
+  {
+    "id": "52c9e309-3c53-4d9b-813d-9cca7a55d68c",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:58:04.536Z"
+  },
+  {
+    "id": "78538aa3-e89f-430c-a353-fe933f1ca54b",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:58:04.572Z"
+  },
+  {
+    "id": "3104ae9d-aca1-4630-b560-261dafbbe8a0",
+    "contract_id": "contract-27e94579",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:58:51.721Z"
+  },
+  {
+    "id": "c4d180b7-a053-41d9-ad2a-fdbb04722b74",
+    "contract_id": "contract-27e94579",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:58:51.811Z"
+  },
+  {
+    "id": "562651f2-9419-4a4e-93aa-f2569573eb76",
+    "contract_id": "contract-27e94579",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:58:51.882Z"
+  },
+  {
+    "id": "2eaeeab3-2553-4e50-9999-dd466671889f",
+    "contract_id": "contract-27e94579",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:58:52.005Z"
+  },
+  {
+    "id": "95e3f9f1-3255-4928-b33b-7be34895c592",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T01:58:52.274Z"
+  },
+  {
+    "id": "eb6b70e4-2c37-426d-a90b-6c241aa40da7",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T01:58:52.321Z"
+  },
+  {
+    "id": "d839bcdd-4cbe-485d-8a3a-3232c8513c59",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T01:58:52.390Z"
+  },
+  {
+    "id": "1505a072-8d27-4bb7-afe6-8e7150f11e8d",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T01:58:52.460Z"
+  },
+  {
+    "id": "audit-mmmtkakg",
+    "contract_id": "contract-audit-mmmtkajf",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "Requires human review",
+    "timestamp": "2026-03-12T01:58:53.019Z"
+  },
+  {
+    "id": "48bc4f3e-067f-44c3-9a1e-a338a0a3fe15",
+    "contract_id": "contract-52f13c95",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T02:24:57.138Z"
+  },
+  {
+    "id": "8de5790b-2f2e-455a-9efb-f6fd8b18e121",
+    "contract_id": "contract-52f13c95",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T02:24:57.148Z"
+  },
+  {
+    "id": "d915f3ce-be2b-4c4e-adc7-478b524f9e57",
+    "contract_id": "contract-52f13c95",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T02:24:57.158Z"
+  },
+  {
+    "id": "bd0acb92-7218-4675-814e-a8129bcc9f6b",
+    "contract_id": "contract-52f13c95",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T02:24:57.173Z"
+  },
+  {
+    "id": "a81e8c24-e74a-44d9-94fe-478470f59f52",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T02:24:57.201Z"
+  },
+  {
+    "id": "489571be-714d-4560-86fd-9e09c37bdea2",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T02:24:57.209Z"
+  },
+  {
+    "id": "9be4e429-84a1-4ef9-90ef-63d1573c4519",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T02:24:57.218Z"
+  },
+  {
+    "id": "e6ced573-f70c-46e4-ba8d-101ebcddbbae",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T02:24:57.258Z"
+  },
+  {
+    "id": "audit-mmmuhu4e",
+    "contract_id": "contract-audit-mmmuhu47",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "Requires human review",
+    "timestamp": "2026-03-12T02:24:58.039Z"
+  },
+  {
+    "id": "1554d2fb-4440-40fb-9f08-9368e53cb23a",
+    "contract_id": "contract-7a91db6e",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T02:25:50.578Z"
+  },
+  {
+    "id": "831a3053-73b2-4628-8fbc-3a47836c1982",
+    "contract_id": "contract-7a91db6e",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T02:25:50.587Z"
+  },
+  {
+    "id": "f8b15967-3399-436a-ae88-19f25a45ee9e",
+    "contract_id": "contract-7a91db6e",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T02:25:50.596Z"
+  },
+  {
+    "id": "232c9b61-22f3-403c-9f88-7c3f09e4bf06",
+    "contract_id": "contract-7a91db6e",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T02:25:50.609Z"
+  },
+  {
+    "id": "67c7521d-59a6-4908-8a56-c93528159eaf",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T02:25:50.640Z"
+  },
+  {
+    "id": "7443b037-62cb-4615-8915-831481bc8c87",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T02:25:50.652Z"
+  },
+  {
+    "id": "audit-mmmuiysn",
+    "contract_id": "contract-audit-mmmuiyry",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "Requires human review",
+    "timestamp": "2026-03-12T02:25:50.734Z"
+  },
+  {
+    "id": "fc3695dd-a7d0-43de-a323-86c86e6b72a3",
+    "contract_id": "contract-a6641f0a",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:24:46.923Z"
+  },
+  {
+    "id": "60cdd063-325d-4341-a484-e7dbf3cc448f",
+    "contract_id": "contract-a6641f0a",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:24:46.931Z"
+  },
+  {
+    "id": "5ad4d86f-0cd5-4bf7-b839-82bb0587bc18",
+    "contract_id": "contract-a6641f0a",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:24:46.940Z"
+  },
+  {
+    "id": "0d63f3a5-27f4-4c08-9ad6-9f9eb757a303",
+    "contract_id": "contract-a6641f0a",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:24:46.949Z"
+  },
+  {
+    "id": "6b554a50-c410-4d01-944b-6d1636eb45da",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:24:46.968Z"
+  },
+  {
+    "id": "8b2860c6-25ed-480d-852e-4ba49cc1991c",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:24:46.974Z"
+  },
+  {
+    "id": "a0e2fd9b-f486-42c5-b24b-7cb9fbd87623",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:24:46.980Z"
+  },
+  {
+    "id": "4f6e7c44-c93b-4f6f-9cad-c18def10912a",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:24:46.989Z"
+  },
+  {
+    "id": "audit-mmnmcp6g",
+    "contract_id": "contract-audit-mmnmcp6c",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "Requires human review",
+    "timestamp": "2026-03-12T15:24:47.604Z"
+  },
+  {
+    "id": "097597e6-5157-4cf7-b536-4a12a4e53122",
+    "contract_id": "contract-943af309",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:25:15.098Z"
+  },
+  {
+    "id": "d3f30820-1d4c-4332-a7ad-4a5ea3789e5d",
+    "contract_id": "contract-943af309",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:25:15.115Z"
+  },
+  {
+    "id": "afa1086c-0424-475d-aa64-ce4cf311dcf0",
+    "contract_id": "contract-943af309",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:25:15.120Z"
+  },
+  {
+    "id": "b92b6ef3-8184-457e-a7c0-6691e22d2190",
+    "contract_id": "contract-943af309",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:25:15.129Z"
+  },
+  {
+    "id": "4e2fa112-7dea-4212-8a17-72c98b4a1c46",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:25:15.148Z"
+  },
+  {
+    "id": "e3b0b30d-3fef-4caf-ae12-caf59d1147d8",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:25:15.154Z"
+  },
+  {
+    "id": "06b115aa-f8a6-4894-a3b2-42b512c9e0ca",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:25:15.161Z"
+  },
+  {
+    "id": "da2fbfa6-8a1c-419c-9422-11d7b708c8a4",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:25:15.174Z"
+  },
+  {
+    "id": "audit-mmnmdasj",
+    "contract_id": "contract-audit-mmnmdasf",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "Requires human review",
+    "timestamp": "2026-03-12T15:25:15.615Z"
+  },
+  {
+    "id": "30d7ac37-e3b1-44fa-8a74-c4402041201c",
+    "contract_id": "contract-34ce6d7f",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:25:42.800Z"
+  },
+  {
+    "id": "d445203a-1881-402c-b864-0224e5006918",
+    "contract_id": "contract-34ce6d7f",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:25:42.808Z"
+  },
+  {
+    "id": "5a640417-d89b-4f4f-8c26-bf7216610109",
+    "contract_id": "contract-34ce6d7f",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:25:42.813Z"
+  },
+  {
+    "id": "c4abab62-ae0e-41bd-b4bc-f11f5d938324",
+    "contract_id": "contract-34ce6d7f",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:25:42.823Z"
+  },
+  {
+    "id": "33ce0f8a-a8f1-4d3d-90ac-4081aeb07296",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:25:42.840Z"
+  },
+  {
+    "id": "df051fc9-69a5-4273-ac4f-40b5c49db693",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:25:42.846Z"
+  },
+  {
+    "id": "4a6b3efa-abc4-4b13-a86e-f96abc8d682e",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:25:42.852Z"
+  },
+  {
+    "id": "30e27db7-6822-451c-bf5a-5fef1bbad6f6",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:25:42.862Z"
+  },
+  {
+    "id": "audit-mmnmdvya",
+    "contract_id": "contract-audit-mmnmdvy6",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "Requires human review",
+    "timestamp": "2026-03-12T15:25:43.038Z"
+  },
+  {
+    "id": "b97eb77a-4a7e-4bdd-8d5f-cf22ea855b72",
+    "contract_id": "contract-9a3541eb",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:25:48.507Z"
+  },
+  {
+    "id": "448ccfe9-4ac4-4037-8f09-afd5bbc21062",
+    "contract_id": "contract-9a3541eb",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:25:48.513Z"
+  },
+  {
+    "id": "4a4c81c9-9bb5-45ac-a74a-3f8b70cdfcf0",
+    "contract_id": "contract-9a3541eb",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:25:48.526Z"
+  },
+  {
+    "id": "396e0f87-a98a-416f-95d2-d3a594d83ec2",
+    "contract_id": "contract-9a3541eb",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:25:48.538Z"
+  },
+  {
+    "id": "a2ec893f-e343-4ba9-9cbf-c322af89a5b9",
+    "contract_id": "contract-custom42",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-12T15:25:48.555Z"
+  },
+  {
+    "id": "bc7cab6b-5a38-4ce3-bfa8-555237eb9971",
+    "contract_id": "contract-custom42",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-12T15:25:48.560Z"
+  },
+  {
+    "id": "8f6b11f9-a5c4-42a9-be54-98e9e8a27647",
+    "contract_id": "contract-custom42",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-12T15:25:48.567Z"
+  },
+  {
+    "id": "171c1f88-5e6d-45a5-898b-c4e3a984df7a",
+    "contract_id": "contract-custom42",
+    "agent": "approval",
+    "action": "approved",
+    "reasoning": "Low risk, no flags",
+    "timestamp": "2026-03-12T15:25:48.580Z"
+  },
+  {
+    "id": "audit-mmnme0oi",
+    "contract_id": "contract-audit-mmnme0oe",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "Requires human review",
+    "timestamp": "2026-03-12T15:25:49.166Z"
   }
 ]

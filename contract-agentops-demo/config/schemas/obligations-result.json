@@ -1,0 +1,26 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "contract-agentops/obligations-result",
+	"title": "ObligationsResult",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["obligations", "owner_assignments", "follow_up_window_days", "confidence_score"],
+	"properties": {
+		"obligations": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"additionalProperties": false,
+				"required": ["title", "owner", "due_window"],
+				"properties": {
+					"title": { "type": "string" },
+					"owner": { "type": "string" },
+					"due_window": { "type": "string" }
+				}
+			}
+		},
+		"owner_assignments": { "type": "array", "items": { "type": "string" } },
+		"follow_up_window_days": { "type": "number", "minimum": 0 },
+		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+	}
+}

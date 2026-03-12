@@ -5,7 +5,15 @@ import { SimulatedAdapter } from "./simulatedAdapter.js";
 
 export function createLlmAdapter(): ILlmAdapter {
 	if (appConfig.demoMode === "live") {
-		return new FoundryAdapter(appConfig.foundryEndpoint, appConfig.foundryApiKey, appConfig.foundryModel);
+		return new FoundryAdapter(
+			appConfig.foundryEndpoint,
+			{
+				authMode: appConfig.foundryAuthMode,
+				apiKey: appConfig.foundryApiKey,
+				managedIdentityClientId: appConfig.foundryManagedIdentityClientId,
+			},
+			appConfig.foundryModel,
+		);
 	}
 	return new SimulatedAdapter(appConfig.dataDir);
 }

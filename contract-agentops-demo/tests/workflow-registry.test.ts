@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
 	buildWorkflowPackage,
+	getContractStageCatalog,
 	validateWorkflowInput,
 	type WorkflowDefinition,
 } from "../gateway/src/services/workflowRegistry.js";
@@ -43,6 +44,23 @@ const baseWorkflow: WorkflowDefinition = {
 			lane: 0,
 			order: 1,
 		},
+	],
+};
+
+const lifecycleWorkflow: WorkflowDefinition = {
+	id: "wf-contract-lifecycle",
+	name: "Contract Lifecycle Pipeline",
+	type: "sequential-hitl",
+	active: false,
+	createdAt: "2026-03-12T08:00:00.000Z",
+	updatedAt: "2026-03-12T08:05:00.000Z",
+	agents: [
+		{ id: "intake-1", name: "Intake Agent", role: "Classify contracts and extract metadata", icon: "I", model: "gpt-5.4", tools: ["upload_contract", "classify_document", "extract_metadata"], boundary: "Classify only", output: "Contract metadata", color: "#3B82F6", kind: "agent", stage: 0, lane: 0, order: 0 },
+		{ id: "drafting-1", name: "Drafting Agent", role: "Assemble the initial draft package and recommend approved clause language", icon: "D", model: "gpt-5.4", tools: ["extract_clauses", "identify_parties", "extract_dates_values"], boundary: "Draft only", output: "Draft package", color: "#2563EB", kind: "agent", stage: 1, lane: 0, order: 1 },
+		{ id: "review-1", name: "Internal Review Agent", role: "Summarize redlines and internal review decisions", icon: "R", model: "gpt-5.4", tools: ["get_audit_log", "create_audit_entry"], boundary: "Review only", output: "Review summary", color: "#7C3AED", kind: "agent", stage: 2, lane: 0, order: 2 },
+		{ id: "compliance-1", name: "Compliance Agent", role: "Check policies and flag risk", icon: "C", model: "gpt-5.4", tools: ["check_policy", "flag_risk", "get_policy_rules"], boundary: "Compliance only", output: "Risk findings", color: "#F59E0B", kind: "agent", stage: 3, lane: 0, order: 3 },
+		{ id: "negotiation-1", name: "Negotiation Agent", role: "Assess counterparty changes and recommend fallback positions", icon: "N", model: "gpt-5.4", tools: ["route_approval", "notify_stakeholder"], boundary: "Negotiation only", output: "Negotiation brief", color: "#B45309", kind: "agent", stage: 4, lane: 0, order: 4 },
+		{ id: "approval-1", name: "Approval Agent", role: "Route approvals and escalate when required", icon: "A", model: "gpt-5.4", tools: ["route_approval", "escalate_to_human", "notify_stakeholder"], boundary: "Approval only", output: "Approval decision", color: "#10B981", kind: "human", stage: 5, lane: 0, order: 5 },
 	],
 };
 
@@ -118,6 +136,22 @@ describe("workflow registry validation", () => {
 });
 
 describe("workflow package generation", () => {
+	it("exposes the active six-stage contract lifecycle catalog", () => {
+		const catalog = getContractStageCatalog();
+
+		expect(catalog).toHaveLength(6);
+		expect(catalog[0]).toMatchObject({
+			id: "request-initiation",
+			order: 1,
+			name: "Request and Initiation",
+		});
+		expect(catalog[5]).toMatchObject({
+			id: "approval-routing",
+			order: 6,
+			name: "Approval Routing",
+		});
+	});
+
 	it("builds a canonical workflow package with declarative references", () => {
 		const workflowPackage = buildWorkflowPackage(baseWorkflow);
 
@@ -132,5 +166,49 @@ describe("workflow package generation", () => {
 		expect(workflowPackage.manifest_references).toContain(
 			"config/schemas/workflow-package.json",
 		);
+		expect(workflowPackage.manifest_references).toContain(
+			"config/stages/contract-lifecycle.json",
+		);
+		expect(workflowPackage.contract_stage_map.catalog_reference).toBe(
+			"config/stages/contract-lifecycle.json",
+		);
+		expect(workflowPackage.contract_stage_map.stages).toHaveLength(6);
+		expect(
+			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "request-initiation")?.execution_groups[0],
+		).toMatchObject({
+			id: "group-request-initiation",
+			runtime_agent_ids: ["intake-1"],
+			runtime_role_keys: ["intake"],
+		});
+		expect(
+			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "approval-routing")?.execution_groups[0],
+		).toMatchObject({
+			id: "group-approval-routing",
+			runtime_agent_ids: ["approval-1"],
+			runtime_role_keys: ["approval"],
+		});
+		expect(workflowPackage.contract_stage_map.unmapped_agent_ids).toHaveLength(0);
+	});
+
+	it("maps dedicated lifecycle agents to the active six-stage catalog", () => {
+		const workflowPackage = buildWorkflowPackage(lifecycleWorkflow);
+
+		expect(workflowPackage.agents).toHaveLength(6);
+		expect(workflowPackage.agents.find((agent) => agent.id === "drafting-1")?.runtime_role_key).toBe("drafting");
+		expect(workflowPackage.agents.find((agent) => agent.id === "review-1")?.runtime_role_key).toBe("review");
+		expect(workflowPackage.agents.find((agent) => agent.id === "negotiation-1")?.runtime_role_key).toBe("negotiation");
+		expect(
+			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "internal-review")?.execution_groups[0],
+		).toMatchObject({
+			runtime_agent_ids: ["review-1"],
+			runtime_role_keys: ["review"],
+		});
+		expect(
+			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "approval-routing")?.execution_groups[0],
+		).toMatchObject({
+			runtime_agent_ids: ["approval-1"],
+			runtime_role_keys: ["approval"],
+		});
+		expect(workflowPackage.contract_stage_map.unmapped_agent_ids).toHaveLength(0);
 	});
 });

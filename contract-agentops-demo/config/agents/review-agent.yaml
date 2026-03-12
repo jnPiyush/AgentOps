@@ -1,0 +1,65 @@
+# Declarative Agent Configuration - Internal Review Agent
+
+agent_id: review
+name: Contract Internal Review Agent
+version: 1.0.0
+created: 2026-03-12
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.0
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 30s
+
+prompts:
+  system_prompt: prompts/review-system.md
+  output_template: templates/approval-result.json
+
+tools:
+  - name: get_audit_log
+    mcp_server: contract-audit-mcp
+    description: Retrieve prior drafting and revision history
+    required: true
+    timeout: 10s
+  - name: create_audit_entry
+    mcp_server: contract-audit-mcp
+    description: Record review decisions and unresolved items
+    required: false
+    timeout: 10s
+
+behavior:
+  role: "Summarize redlines, version differences, and internal review outcomes"
+  boundary: "Internal review only - no external negotiation or approval decisions"
+  output_schema: config/schemas/review-result.json
+  validation:
+    required_fields: [review_summary, material_changes, unresolved_items]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 5s
+    max_latency: 15s
+
+workflow:
+  input_from: drafting_agent
+  output_to: [compliance_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: false
+  routing:
+    - condition: "output.material_changes.length > 0"
+      action: continue_to_extraction
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, review_coverage]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

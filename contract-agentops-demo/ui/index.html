@@ -175,7 +175,7 @@
         </div>
       </div>
 
-      <h2 class="section-header">Agent 365 Registration</h2>
+      <h2 class="section-header">Execution Agent Registration</h2>
       <table class="data-table" id="agent-registry-table">
         <thead>
           <tr>
@@ -186,7 +186,7 @@
           </tr>
         </thead>
         <tbody id="agent-registry-body">
-          <tr><td colspan="4" style="color:var(--color-text-disabled);text-align:center;padding:24px">Click "Deploy Pipeline" to begin registration</td></tr>
+          <tr><td colspan="4" style="color:var(--color-text-disabled);text-align:center;padding:24px">Activate a workflow in Design to preview its contract-stage mapping.</td></tr>
         </tbody>
       </table>
 
@@ -205,7 +205,7 @@
         </div>
       </div>
 
-      <div class="deploy-summary" id="deploy-summary">4 agents ready | 12 tools registered | 0 errors</div>
+      <div class="deploy-summary" id="deploy-summary">No active workflow package. Activate a workflow in Design to map contract stages.</div>
     </section>
 
     <!-- ========== VIEW 4: Live Workflow ========== -->
@@ -226,41 +226,19 @@
       </div>
 
       <div class="workflow-canvas" id="workflow-canvas">
-        <div class="workflow-node" id="wf-intake">
-          <div class="workflow-node-name">Intake</div>
-          <div class="workflow-node-status">Waiting</div>
-          <div class="workflow-node-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-intake)"></div></div>
-          </div>
-          <div class="workflow-node-tools" id="wf-intake-tools"></div>
+      <div class="workflow-stage workflow-stage-sequential">
+        <div class="workflow-stage-label">Contract stage map</div>
+        <div class="workflow-stage-summary">Activate a workflow in Design to render the business-stage execution path.</div>
+        <div class="workflow-node">
+        <div class="workflow-node-name">No active workflow</div>
+        <div class="workflow-node-role">Awaiting activation</div>
+        <div class="workflow-node-status">Waiting</div>
+        <div class="workflow-node-progress">
+          <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-text-disabled)"></div></div>
         </div>
-        <div class="workflow-arrow">&rarr;</div>
-        <div class="workflow-node" id="wf-extraction">
-          <div class="workflow-node-name">Extraction</div>
-          <div class="workflow-node-status">Waiting</div>
-          <div class="workflow-node-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-extraction)"></div></div>
-          </div>
-          <div class="workflow-node-tools" id="wf-extraction-tools"></div>
+        <div class="workflow-node-tools">Push a workflow from Design or switch to Real mode to load the active package.</div>
         </div>
-        <div class="workflow-arrow">&rarr;</div>
-        <div class="workflow-node" id="wf-compliance">
-          <div class="workflow-node-name">Compliance</div>
-          <div class="workflow-node-status">Waiting</div>
-          <div class="workflow-node-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-compliance)"></div></div>
-          </div>
-          <div class="workflow-node-tools" id="wf-compliance-tools"></div>
-        </div>
-        <div class="workflow-arrow">&rarr;</div>
-        <div class="workflow-node" id="wf-approval">
-          <div class="workflow-node-name">Approval</div>
-          <div class="workflow-node-status">Waiting</div>
-          <div class="workflow-node-progress">
-            <div class="progress-bar"><div class="progress-fill" style="width:0%;background:var(--color-approval)"></div></div>
-          </div>
-          <div class="workflow-node-tools" id="wf-approval-tools"></div>
-        </div>
+      </div>
       </div>
 
       <div class="contract-details-bar" id="contract-details" style="display:none">
@@ -320,112 +298,39 @@
       <div class="monitor-layout">
         <!-- Trace Tree -->
         <div class="card">
-          <div class="card-header">Trace Tree</div>
+          <div class="card-header">Contract Stage Trace</div>
           <div class="trace-tree">
-            <div class="trace-agent">
-              <div class="trace-agent-header" onclick="toggleTrace(this)">
-                <span class="trace-toggle">[-]</span>
-                <span class="trace-agent-name" style="color:var(--color-intake)">Intake</span>
-                <span class="trace-agent-time">1.2s</span>
-              </div>
-              <div class="trace-tools">
-                <div class="trace-tool"><span class="trace-tool-time">0.4s</span> classify_document <span class="badge badge-pass">[PASS]</span></div>
-                <div class="trace-tool"><span class="trace-tool-time">0.8s</span> extract_metadata <span class="badge badge-pass">[PASS]</span></div>
-              </div>
-            </div>
-            <div class="trace-agent">
-              <div class="trace-agent-header" onclick="toggleTrace(this)">
-                <span class="trace-toggle">[-]</span>
-                <span class="trace-agent-name" style="color:var(--color-extraction)">Extraction</span>
-                <span class="trace-agent-time">2.8s</span>
-              </div>
-              <div class="trace-tools">
-                <div class="trace-tool"><span class="trace-tool-time">1.9s</span> extract_clauses <span class="badge badge-pass">[PASS]</span></div>
-                <div class="trace-tool"><span class="trace-tool-time">0.5s</span> identify_parties <span class="badge badge-pass">[PASS]</span></div>
-                <div class="trace-tool"><span class="trace-tool-time">0.4s</span> extract_dates_values <span class="badge badge-pass">[PASS]</span></div>
-              </div>
-            </div>
-            <div class="trace-agent">
-              <div class="trace-agent-header" onclick="toggleTrace(this)">
-                <span class="trace-toggle">[-]</span>
-                <span class="trace-agent-name" style="color:var(--color-compliance)">Compliance</span>
-                <span class="trace-agent-time">1.5s</span>
-              </div>
-              <div class="trace-tools">
-                <div class="trace-tool"><span class="trace-tool-time">0.8s</span> check_policy <span class="badge badge-warn">[WARN]</span></div>
-                <div class="trace-tool"><span class="trace-tool-time">0.7s</span> flag_risk <span class="badge badge-warn">[WARN]</span></div>
-              </div>
-            </div>
-            <div class="trace-agent">
-              <div class="trace-agent-header" onclick="toggleTrace(this)">
-                <span class="trace-toggle">[-]</span>
-                <span class="trace-agent-name" style="color:var(--color-approval)">Approval</span>
-                <span class="trace-agent-time">0.3s</span>
-              </div>
-              <div class="trace-tools">
-                <div class="trace-tool"><span class="trace-tool-time">0.2s</span> route_approval <span class="badge badge-pass">[PASS]</span></div>
-                <div class="trace-tool"><span class="trace-tool-time">0.1s</span> escalate_to_human <span class="badge badge-pass">[PASS]</span></div>
-              </div>
-            </div>
+            <div class="trace-empty">Activate a workflow in Design to render contract-stage observability.</div>
           </div>
         </div>
 
         <div class="monitor-right">
           <!-- Latency Breakdown -->
           <div class="card">
-            <div class="card-header">Latency Breakdown</div>
+            <div class="card-header">Latency by Contract Stage</div>
             <div id="latency-bars">
-            <div class="latency-bar">
-              <div class="latency-label">Intake</div>
-              <div class="latency-fill-wrapper"><div class="latency-fill fast" style="width:21%"></div></div>
-              <div class="latency-time">1.2s</div>
-            </div>
-            <div class="latency-bar">
-              <div class="latency-label">Extraction</div>
-              <div class="latency-fill-wrapper"><div class="latency-fill medium" style="width:48%"></div></div>
-              <div class="latency-time">2.8s</div>
-            </div>
-            <div class="latency-bar">
-              <div class="latency-label">Compliance</div>
-              <div class="latency-fill-wrapper"><div class="latency-fill fast" style="width:26%"></div></div>
-              <div class="latency-time">1.5s</div>
-            </div>
-            <div class="latency-bar">
-              <div class="latency-label">Approval</div>
-              <div class="latency-fill-wrapper"><div class="latency-fill fast" style="width:5%"></div></div>
-              <div class="latency-time">0.3s</div>
-            </div>
-            <div style="margin-top:12px;font-size:13px;color:var(--color-text-tertiary);">Total: 5.8s (agent) + 45s (human)</div>
+            <div class="trace-empty">Stage latency will appear after a workflow is activated.</div>
             </div>
           </div>
 
           <!-- Token Usage -->
           <div class="card">
-            <div class="card-header">Token Usage</div>
+            <div class="card-header">Stage Token Usage</div>
             <table class="data-table">
-              <thead><tr><th>Agent</th><th>In</th><th>Out</th><th>Cost</th></tr></thead>
+              <thead><tr><th>Stage</th><th>In</th><th>Out</th><th>Cost</th></tr></thead>
               <tbody id="token-usage-body">
-                <tr><td>Intake</td><td>1,204</td><td>342</td><td>$0.01</td></tr>
-                <tr><td>Extraction</td><td>3,891</td><td>1,205</td><td>$0.03</td></tr>
-                <tr><td>Compliance</td><td>2,156</td><td>678</td><td>$0.02</td></tr>
-                <tr><td>Approval</td><td>456</td><td>123</td><td>$0.00</td></tr>
-                <tr style="font-weight:600"><td>Total</td><td>7,707</td><td>2,348</td><td>$0.06</td></tr>
+                <tr><td colspan="4" style="color:var(--color-text-disabled);text-align:center;padding:24px">Activate a workflow to preview stage-level token accounting.</td></tr>
               </tbody>
             </table>
           </div>
 
           <!-- Decision Audit Trail -->
           <div class="card">
-            <div class="card-header">Decision Audit Trail</div>
+            <div class="card-header">Contract Stage Audit Trail</div>
             <table class="data-table">
-              <thead><tr><th>Time</th><th>Agent</th><th>Decision</th><th>Reasoning</th></tr></thead>
+              <thead><tr><th>Time</th><th>Stage</th><th>Decision</th><th>Reasoning</th></tr></thead>
               <tbody id="audit-trail-body">
-                <tr><td>10:04:01</td><td>Intake</td><td>Classified as NDA</td><td>97% conf, keyword match</td></tr>
-                <tr><td>10:04:04</td><td>Extraction</td><td>Extracted 6 clauses</td><td>Structured output, sections 1-8</td></tr>
-                <tr><td>10:04:06</td><td>Compliance</td><td>Flagged Section 5.2</td><td>Liability $2.5M > policy max $1M</td></tr>
-                <tr><td>10:04:06</td><td>Compliance</td><td>Flagged Section 8.1</td><td>Missing termination for convenience</td></tr>
-                <tr><td>10:04:07</td><td>Approval</td><td>Escalated to human</td><td>Risk level: HIGH (2 compliance flags)</td></tr>
-                <tr><td>10:04:52</td><td>Human</td><td>Approved with comment</td><td>"Acceptable for strategic partner"</td></tr>
+                <tr><td colspan="4" style="color:var(--color-text-disabled);text-align:center;padding:24px">Stage audit events will populate when runtime telemetry is available.</td></tr>
               </tbody>
             </table>
           </div>

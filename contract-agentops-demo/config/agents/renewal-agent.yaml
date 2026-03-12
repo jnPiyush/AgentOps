@@ -1,0 +1,65 @@
+# Declarative Agent Configuration - Renewal Agent
+
+agent_id: renewal
+name: Contract Renewal Agent
+version: 1.0.0
+created: 2026-03-12
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.0
+  max_tokens: 1536
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 30s
+
+prompts:
+  system_prompt: prompts/renewal-system.md
+  output_template: templates/approval-result.json
+
+tools:
+  - name: detect_drift
+    mcp_server: contract-drift-mcp
+    description: Detect upcoming renewal and expiry risk signals
+    required: true
+    timeout: 10s
+  - name: model_swap_analysis
+    mcp_server: contract-drift-mcp
+    description: Evaluate material changes that affect renewal posture
+    required: false
+    timeout: 10s
+
+behavior:
+  role: "Detect renewal and expiry risk before deadlines are missed"
+  boundary: "Renewal monitoring only - no contract redrafting"
+  output_schema: config/schemas/renewal-result.json
+  validation:
+    required_fields: [renewal_window_days, risk_level, recommended_actions]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 5s
+    max_latency: 15s
+
+workflow:
+  input_from: obligations_agent
+  output_to: [analytics_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: false
+  routing:
+    - condition: "output.risk_level == 'high'"
+      action: notify_stakeholder
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, renewal_alert_accuracy]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

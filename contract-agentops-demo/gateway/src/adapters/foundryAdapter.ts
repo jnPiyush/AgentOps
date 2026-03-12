@@ -1,13 +1,20 @@
 import type { ILlmAdapter, LlmRequest, LlmResponse } from "../types.js";
+import { withFoundryAuthHeaders, type FoundryAuthConfig } from "../services/foundryAuth.js";
+
+const DEPLOY_API_VERSION = "2024-10-21";
 
 export class FoundryAdapter implements ILlmAdapter {
 	constructor(
 		private readonly endpoint: string,
-		private readonly apiKey: string,
+		private readonly authConfig: FoundryAuthConfig,
 		private readonly model: string,
 	) {
-		if (!endpoint || !apiKey) {
-			throw new Error("FOUNDRY_ENDPOINT and FOUNDRY_API_KEY required for live mode");
+		if (!endpoint) {
+			throw new Error("FOUNDRY_ENDPOINT is required for live mode");
+		}
+
+		if (authConfig.authMode === "api-key" && !authConfig.apiKey) {
+			throw new Error("FOUNDRY_API_KEY is required when FOUNDRY_AUTH_MODE=api-key");
 		}
 	}
 
@@ -15,7 +22,6 @@ export class FoundryAdapter implements ILlmAdapter {
 		const startTime = Date.now();
 
 		const body = {
-			model: this.model,
 			messages: [
 				...(request.system_prompt ? [{ role: "system" as const, content: request.system_prompt }] : []),
 				{ role: "user" as const, content: request.prompt },
@@ -25,15 +31,17 @@ export class FoundryAdapter implements ILlmAdapter {
 			...(request.response_format === "json" ? { response_format: { type: "json_object" } } : {}),
 		};
 
-		const response = await fetch(`${this.endpoint}/chat/completions`, {
-			method: "POST",
-			headers: {
-				"Content-Type": "application/json",
-				"api-key": this.apiKey,
+		const response = await fetch(
+			`${this.endpoint}/openai/deployments/${encodeURIComponent(this.model)}/chat/completions?api-version=${DEPLOY_API_VERSION}`,
+			{
+				method: "POST",
+				headers: await withFoundryAuthHeaders(this.authConfig, {
+					"Content-Type": "application/json",
+				}),
+				body: JSON.stringify(body),
+				signal: AbortSignal.timeout(30_000),
 			},
-			body: JSON.stringify(body),
-			signal: AbortSignal.timeout(30_000),
-		});
+		);
 
 		if (!response.ok) {
 			const errorText = await response.text();

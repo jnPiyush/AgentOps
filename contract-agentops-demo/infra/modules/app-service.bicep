@@ -14,10 +14,6 @@ param appServicePlanId string
 @secure()
 param foundryEndpoint string
 
-@description('Azure OpenAI API key')
-@secure()
-param foundryApiKey string
-
 @description('Model deployment name')
 param foundryModel string = 'gpt-5.4'
 
@@ -32,6 +28,9 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
   name: name
   location: location
   tags: union(tags, { 'azd-service-name': 'app' })
+  identity: {
+    type: 'SystemAssigned'
+  }
   properties: {
     serverFarmId: appServicePlanId
     httpsOnly: true
@@ -43,8 +42,8 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
       appSettings: [
         { name: 'DEMO_MODE', value: demoMode }
         { name: 'DEPLOY_ADMIN_KEY', value: deployAdminKey }
+        { name: 'FOUNDRY_AUTH_MODE', value: 'managed-identity' }
         { name: 'FOUNDRY_ENDPOINT', value: foundryEndpoint }
-        { name: 'FOUNDRY_API_KEY', value: foundryApiKey }
         { name: 'FOUNDRY_PROJECT_ENDPOINT', value: foundryEndpoint }
         { name: 'FOUNDRY_MODEL', value: foundryModel }
         { name: 'GATEWAY_PORT', value: '8080' }
@@ -58,3 +57,4 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
 
 output url string = 'https://${appService.properties.defaultHostName}'
 output name string = appService.name
+output principalId string = appService.identity.principalId

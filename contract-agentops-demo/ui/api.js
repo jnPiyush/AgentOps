@@ -24,12 +24,14 @@ function setMode(mode) {
 				checkGatewayHealth();
 				loadToolListReal();
 				loadMonitorContractListReal();
+				if (typeof refreshActiveWorkflowFromGateway === "function") refreshActiveWorkflowFromGateway();
 				if (typeof syncTestTab === "function") syncTestTab();
 			})
 			.catch(() => {
 				checkGatewayHealth();
 				loadToolListReal();
 				loadMonitorContractListReal();
+				if (typeof refreshActiveWorkflowFromGateway === "function") refreshActiveWorkflowFromGateway();
 				if (typeof syncTestTab === "function") syncTestTab();
 			});
 	} else {
@@ -269,16 +271,22 @@ function handleWorkflowEvent(msg) {
 		approval: "wf-approval",
 	};
 
-	const nodeId = agentNodeMap[agentName.toLowerCase()] || "";
+	const nodeId = (typeof window.getWorkflowNodeIdForAgentName === "function")
+		? window.getWorkflowNodeIdForAgentName(agentName)
+		: (agentNodeMap[agentName.toLowerCase()] || "");
+	const liveStageContext = (typeof window.getLiveStageContextForRole === "function")
+		? window.getLiveStageContextForRole(agentName)
+		: null;
+	const logActor = liveStageContext?.stageName || agentName || "System";
 
 	if (event === "pipeline_status" && status === "processing_started") {
-		addLog(time, "System", "Pipeline started");
+		addLog(time, "System", "Contract-stage execution started");
 	} else if (event === "agent_step_complete") {
 		if (nodeId) {
 			setNodeState(nodeId, "complete", "Complete");
 			setNodeProgress(nodeId, 100);
 		}
-		addLog(time, agentName, `[PASS] ${status.replace(/_/g, " ")}`);
+		addLog(time, logActor, `[PASS] ${status.replace(/_/g, " ")}`);
 
 		// Update contract details from result
 		if (msg.result) {
@@ -299,11 +307,11 @@ function handleWorkflowEvent(msg) {
 			}
 		}
 	} else if (event === "pipeline_status" && status === "awaiting_human_review") {
-		if (nodeId) setNodeState(nodeId, "hitl", "Awaiting Human");
+		if (nodeId) setNodeState(nodeId, "hitl", "Awaiting review");
 		document.getElementById("hitl-panel").classList.add("visible");
-		addLog(time, "System", "--- PAUSED: Awaiting human review ---");
+		addLog(time, "System", `--- PAUSED: ${(liveStageContext?.stageName || "Approval and Routing")} awaiting human review ---`);
 		const dropArea = document.getElementById("drop-area");
-		dropArea.textContent = "Pipeline paused - Human review required";
+		dropArea.textContent = `Pipeline paused - ${(liveStageContext?.stageName || "Approval and Routing")} requires review`;
 		dropArea.style.borderColor = "var(--color-approval)";
 		dropArea.style.color = "var(--color-approval)";
 	} else if (
@@ -350,8 +358,11 @@ function resolveHitlReal(decision) {
 		changes: { text: "Changes Requested", log: "Requested changes" },
 	};
 	const result = statusMap[decision];
-	setNodeState("wf-approval", decision === "approved" ? "complete" : "warning", result.text);
-	addLog(new Date().toLocaleTimeString(), "Human", result.log);
+	const approvalStage = (typeof window.getLiveStageContextForRole === "function")
+		? window.getLiveStageContextForRole("approval")
+		: { nodeId: "wf-approval", stageName: "Approval and Routing" };
+	setNodeState(approvalStage.nodeId, decision === "approved" ? "complete" : "warning", result.text);
+	addLog(new Date().toLocaleTimeString(), `${approvalStage.stageName} - Human review`, result.log);
 	addLog(
 		new Date().toLocaleTimeString(),
 		"System",
@@ -643,6 +654,11 @@ function loadMonitorContractListReal() {
 }
 
 function renderMonitorData(data) {
+	if (typeof window.renderMonitorStageMap === "function") {
+		window.renderMonitorStageMap(data);
+		return;
+	}
+
 	if (!data || !data.agents) return;
 
 	const agentColors = {

@@ -1,0 +1,14 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "contract-agentops/review-result",
+	"title": "ReviewResult",
+	"type": "object",
+	"additionalProperties": false,
+	"required": ["review_summary", "material_changes", "unresolved_items", "confidence_score"],
+	"properties": {
+		"review_summary": { "type": "string" },
+		"material_changes": { "type": "array", "items": { "type": "string" } },
+		"unresolved_items": { "type": "array", "items": { "type": "string" } },
+		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
+	}
+}

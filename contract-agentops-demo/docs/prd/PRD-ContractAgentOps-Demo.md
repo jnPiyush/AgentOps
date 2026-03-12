@@ -2,6 +2,7 @@
 
 > **Architecture Update (2026-03-07)**: The React dashboard has been archived. The primary UI is now a static vanilla HTML/CSS/JS dashboard under `ui/`, served at `http://localhost:8000`. References to "React dashboard" below are historical.
 > **Product Scope Update (2026-03-10)**: The Interactive Workflow Designer Canvas scope has been merged into this document. This is the single canonical PRD for the contract demo.
+> **Lifecycle Clarification (2026-03-11)**: This demo now explicitly preserves two lifecycle models. **Contract Lifecycle** is the business workflow for agreements, with the active MVP focused on the pre-execution path from intake through approval. **AgentOps** remains the SDLC and operational lifecycle for AI systems (design, test, deploy, run, monitor, evaluate, detect, feedback). The demo shows how AgentOps supports and governs the contract business workflow rather than replacing it.
 
 **Epic**: Contract AgentOps Demo
 **Status**: Draft
@@ -35,12 +36,35 @@
 
 Organizations struggle to operationalize AI agents beyond initial prototypes. While building an AI agent is straightforward with modern SDKs, the hard part is **operating** it at enterprise scale -- monitoring for drift, collecting human feedback, evaluating quality, managing model changes, and governing agent behavior. There is no end-to-end demo that shows the full AgentOps lifecycle using a realistic business scenario with Microsoft Foundry.
 
+In this demo, the realistic business scenario is a **contract lifecycle workflow**. The contract lifecycle is the domain workflow being executed by the system, while AgentOps is the lifecycle used to design, validate, deploy, observe, and improve the AI capabilities that support that business workflow.
+
 ### Why is this important?
 
 - **Education Gap**: Teams understand "build an agent" but not "operate an agent" -- the 80% of work that happens after deployment
 - **Microsoft Foundry Showcase**: Demonstrates the complete Foundry + Agent 365 value proposition in a tangible, relatable scenario
 - **Enterprise Relevance**: Contract management is universal -- every organization handles contracts, making the demo immediately relatable
 - **Visual Impact**: The interactive design canvas, workflow test surfaces, and operational dashboard make the invisible (drift, evaluations, feedback loops) visible and interactive
+
+### Dual-Lifecycle Framing
+
+| Lifecycle | Purpose | Example Stages |
+|-----------|---------|----------------|
+| Contract Lifecycle | Business workflow for agreements | Request, Drafting, Review, Compliance, Negotiation, Approval |
+| AgentOps Lifecycle | SDLC and operational workflow for the AI system | Design, Test, Deploy, Run, Monitor, Evaluate, Detect, Feedback |
+
+The demo must make this distinction legible:
+
+- The **Contract Lifecycle** explains where an agreement is in the active pre-execution business process.
+- The **AgentOps Lifecycle** explains how the AI system supporting that process is authored, validated, deployed, observed, and improved.
+- The contract domain gives the AgentOps demo a concrete business narrative.
+
+### Agentized Business Workflow Principle
+
+The contract business workflow should fit naturally into AgentOps by treating business stages as **agentized execution units**:
+
+- A contract stage may be powered by one or more specialized agents.
+- Those agents are designed in **Design**, validated in **Test**, packaged in **Deploy**, executed in **Run/Live Workflow**, and observed or improved through **Monitor, Evaluate, Detect, and Feedback**.
+- The audience should understand that AgentOps governs the agent implementation of the contract workflow, while the contract lifecycle remains the business narrative.
 
 ### What happens if we don't solve this?
 
@@ -81,12 +105,14 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 1. **Demo Impact**: Audience clearly understands all 8 AgentOps stages after watching the demo
 2. **Reusability**: Demo can be adapted for different industries by swapping the contract domain
 3. **Learning Tool**: Developers can clone, run, and learn from the codebase independently
+4. **Lifecycle Clarity**: Audience understands that Contract Lifecycle is the business workflow and AgentOps is the AI system lifecycle governing it
 
 ### Success Metrics (KPIs)
 
 | Metric | Current | Target | Timeline |
 |--------|---------|--------|----------|
 | AgentOps stages visually demonstrated | 0 (slides only) | 8/8 stages with live UI | MVP |
+| Contract lifecycle stages represented in the business narrative | Partial | 6/6 active pre-execution stages mapped to the demo storyline | MVP |
 | Interactive design canvas capabilities | Partial | Full agent CRUD, workflow types, save/load, push to pipeline | MVP |
 | MCP servers operational | 0 | 8 purpose-built MCP servers | MVP |
 | Dashboard views | 0 | 8 interactive views (one per stage) | MVP |
@@ -118,6 +144,7 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
    - [ ] One view per AgentOps stage with real-time data
    - [ ] Navigation between stages follows the lifecycle flow
    - [ ] Visual indicators (traffic lights, progress bars, trend lines) for status
+   - [ ] Views clearly distinguish AgentOps stage context from contract business-stage context where both are present
 
 3. **Interactive Workflow Designer Canvas**: Design Canvas must support authoring and activating custom agent workflows
    - **Acceptance Criteria**:
@@ -128,20 +155,35 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
    - [ ] Users can save, load, and activate workflows for Test, Deploy, and Live stages
    - [ ] Design validation blocks invalid save and push actions while preserving warnings
 
-4. **4 Contract Agents**: Specialized agents orchestrated via Microsoft Foundry and Microsoft Agent Framework
+4. **6 Contract Agents**: Specialized agents orchestrated via Microsoft Foundry and Microsoft Agent Framework
    - **Acceptance Criteria**:
    - [ ] Intake Agent classifies contracts by type
-   - [ ] Extraction Agent pulls key terms and clauses
+   - [ ] Drafting Agent creates the first-pass contract package
+   - [ ] Internal Review Agent summarizes edits and review findings
    - [ ] Compliance Agent checks terms against company policies
+   - [ ] Negotiation Agent recommends fallback positions for counterparty changes
    - [ ] Approval Agent routes for human approval based on risk level
+   - [ ] Contract processing shown in the demo is explicitly framed as business workflow execution, not as the AgentOps lifecycle itself
 
-5. **Sample Contract Dataset**: 5 realistic contract PDFs for demo
+5. **Dual-Lifecycle Narrative**: The demo must keep business workflow and AgentOps workflow separate but connected
+   - **Acceptance Criteria**:
+   - [ ] Design, Test, Deploy, Run, Monitor, Evaluate, Detect, and Feedback remain the AgentOps stage model
+   - [ ] Contract lifecycle stages are shown as the business process that the Run and related operational views support
+   - [ ] Documentation, UI labels, and walkthrough narrative do not collapse both lifecycle models into one status model
+
+6. **Agentized Contract Stage Model**: Contract lifecycle stages can be represented by one or more agents so they fit cleanly into AgentOps stages
+   - **Acceptance Criteria**:
+   - [ ] The demo narrative explains that a contract stage may be implemented by multiple agents
+   - [ ] Design stage supports stage-to-agent composition rather than only a flat pipeline metaphor
+   - [ ] Live workflow and monitoring can show both contract-stage progress and underlying agent activity
+
+7. **Sample Contract Dataset**: 5 realistic contract PDFs for demo
    - **Acceptance Criteria**:
    - [ ] NDA, MSA, SOW, Amendment, SLA -- each with distinct clauses
    - [ ] No real PII or company data (synthetic but realistic)
    - [ ] Ground truth annotations for evaluation comparisons
 
-6. **Human-in-the-Loop Flow**: Approval escalation with human review
+8. **Human-in-the-Loop Flow**: Approval escalation with human review
    - **Acceptance Criteria**:
    - [ ] High-risk contracts pause for human review in the UI
    - [ ] Reviewer can approve/reject/request-changes with comments
@@ -377,12 +419,15 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 **Steps**:
 
 1. **Act 1 -- Design Canvas**: Presenter creates or loads a workflow, configures agents, validates the design, and activates it. The audience sees that workflow design is interactive rather than hardcoded.
+   The presenter can explain that one contract stage may map to one or more agents, depending on complexity.
 
 2. **Act 2 -- Workflow Test Lab**: Presenter selects a representative scenario such as a high-risk MSA and runs the workflow test. The dashboard shows expected outcomes, workflow coverage, and pass/warn/fail results. Audience sees whether the designed workflow is fit for purpose.
 
 3. **Act 3 -- Deploy Dashboard**: Presenter triggers a simulated deployment pipeline. Shows stages: Build -> Test -> Deploy -> Register. Agent 365 IDs appear. Agents are now "live."
 
 4. **Act 4 -- Live Workflow**: Presenter drops a sample NDA into the intake. The workflow view animates: Intake (classifies) -> Extraction (pulls terms) -> Compliance (checks policies -- flags liability cap > $1M) -> Approval (routes to human). Pipeline pauses. Presenter approves. Contract moves to "Archived."
+   This act represents the **business contract lifecycle in motion** inside the AgentOps **Run** stage.
+   Under the hood, each visible business stage may be backed by multiple agents or sub-agents, but the audience still sees a coherent contract-stage story.
 
 5. **Act 5 -- Monitor Panel**: Presenter switches to the monitor view. Shows traces for the NDA just processed -- every agent step, every tool call, latency bars. Expands the Compliance Agent trace to show its reasoning.
 
@@ -432,6 +477,8 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 - All sample data must be synthetic -- no real contracts or PII
 - MCP servers must follow the standard MCP protocol for interoperability
 - All prompts stored in `prompts/` directory as `.md` files (not inline in code)
+- Contract business-stage state and AgentOps stage state must remain separate conceptual models even when displayed in the same operator experience
+- Contract stages should be implementable as one or more agents so the business workflow composes naturally into the AgentOps lifecycle
 
 ### Resource Constraints
 
@@ -577,6 +624,31 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 | Compliance Agent | GPT-5.4 | Compliance MCP | Flag risks against policy -- no approval authority |
 | Approval Agent | GPT-5.4 | Workflow MCP | Route approvals, escalate -- no policy changes |
 
+### Lifecycle Model
+
+| Layer | Meaning in the Demo |
+|-------|----------------------|
+| Contract Lifecycle | The business workflow of an agreement from request through analytics |
+| AgentOps Lifecycle | The lifecycle for designing, validating, deploying, observing, evaluating, detecting drift, and improving the AI system |
+
+**Mapping principle**:
+
+- **Design / Test / Deploy** are AgentOps lifecycle views that prepare the AI system.
+- **Live Workflow** is where the contract business workflow is visualized during the AgentOps **Run** stage.
+- **Monitor / Evaluate / Drift / Feedback** remain AgentOps lifecycle views, but they can reference contracts, contract stages, and business outcomes as evidence.
+- The contract lifecycle should enrich the demo narrative without replacing the AgentOps stage model.
+
+### Stage-To-Agent Mapping Principle
+
+| Business Concept | AgentOps-Aligned Implementation Concept |
+|------------------|-----------------------------------------|
+| Contract lifecycle stage | One or more agents collaborating on a business step |
+| Stage design | Agent composition, prompts, tools, boundaries, schemas |
+| Stage validation | Agent tests, scenario tests, evaluation suites |
+| Stage deployment | Agent package promotion and registration |
+| Stage execution | Agent runtime activity inside the business workflow |
+| Stage monitoring | Trace, latency, tool calls, evaluations, drift, and feedback for the agents backing that stage |
+
 ### Design Canvas Notes
 
 | Topic | Decision |
@@ -630,5 +702,5 @@ AgentOps remains a theoretical concept in slide decks. Decision-makers cannot vi
 ---
 
 **Generated by AgentX Product Manager Agent**
-**Last Updated**: 2026-03-04
-**Version**: 1.0
+**Last Updated**: 2026-03-11
+**Version**: 1.1

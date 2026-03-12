@@ -1,0 +1,65 @@
+# Declarative Agent Configuration - Negotiation Agent
+
+agent_id: negotiation
+name: Contract Negotiation Agent
+version: 1.0.0
+created: 2026-03-12
+
+model:
+  provider: microsoft_foundry
+  name: gpt-5.1-2026-01-15
+  temperature: 0.1
+  max_tokens: 2048
+  top_p: 1.0
+  response_format: json_schema
+  timeout: 30s
+
+prompts:
+  system_prompt: prompts/negotiation-system.md
+  output_template: templates/approval-result.json
+
+tools:
+  - name: route_approval
+    mcp_server: contract-workflow-mcp
+    description: Align negotiation outcomes with required approval path
+    required: false
+    timeout: 10s
+  - name: notify_stakeholder
+    mcp_server: contract-workflow-mcp
+    description: Notify legal and business owners about negotiation actions
+    required: true
+    timeout: 10s
+
+behavior:
+  role: "Assess counterparty markups and recommend fallback negotiation positions"
+  boundary: "Negotiation guidance only - does not finalize approval"
+  output_schema: config/schemas/negotiation-result.json
+  validation:
+    required_fields: [counterparty_positions, fallback_recommendations, escalation_required]
+    confidence_threshold: 0.7
+  retry_policy:
+    max_attempts: 3
+    backoff: exponential
+    base_delay: 1s
+  performance:
+    target_latency: 6s
+    max_latency: 15s
+
+workflow:
+  input_from: compliance_agent
+  output_to: [approval_agent, audit_log]
+  execution_mode: sequential
+  human_in_loop: false
+  routing:
+    - condition: "output.escalation_required == true"
+      action: escalate_to_human
+
+observability:
+  tracing: enabled
+  metrics: [latency, token_usage, negotiation_resolution_rate]
+
+security:
+  input_validation: enabled
+  output_sanitization: enabled
+  pii_detection: enabled
+  audit_logging: enabled

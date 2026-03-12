@@ -1,8 +1,12 @@
 import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { appConfig } from "../config.js";
 import { JsonStore } from "../stores/jsonStore.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export interface WorkflowAgent {
 	id: string;
@@ -50,6 +54,35 @@ export interface RuntimeAgentBinding {
 	};
 }
 
+export interface ContractStageCatalogRecord {
+	id: string;
+	order: number;
+	name: string;
+	summary: string;
+	primary_mcp_affinity: string[];
+	mvp_shape: string;
+	notes: string;
+	default_execution_group_name: string;
+}
+
+export interface ContractStageExecutionGroup {
+	id: string;
+	name: string;
+	runtime_agent_ids: string[];
+	runtime_role_keys: string[];
+	primary_mcp_affinity: string[];
+}
+
+export interface ContractStageMapEntry extends ContractStageCatalogRecord {
+	execution_groups: ContractStageExecutionGroup[];
+}
+
+export interface ContractStageMap {
+	catalog_reference: string;
+	stages: ContractStageMapEntry[];
+	unmapped_agent_ids: string[];
+}
+
 export interface WorkflowPackage {
 	id: string;
 	workflow_id: string;
@@ -79,6 +112,7 @@ export interface WorkflowPackage {
 	};
 	manifest_references: string[];
 	policy_references: string[];
+	contract_stage_map: ContractStageMap;
 	agents: RuntimeAgentBinding[];
 }
 
@@ -91,9 +125,20 @@ interface RoleAssetDefinition {
 const workflowStore = new JsonStore<WorkflowDefinition>(
 	resolve(appConfig.dataDir, "workflows", "definitions.json"),
 );
+const contractStageCatalogReference = "config/stages/contract-lifecycle.json";
 const runtimeDir = resolve(appConfig.dataDir, "runtime");
 const activePackagePath = resolve(runtimeDir, "active-workflow.json");
 const packagesDir = resolve(runtimeDir, "packages");
+const contractStageCatalogPath = resolve(__dirname, "../../../config/stages/contract-lifecycle.json");
+
+interface ContractStageCatalogAsset {
+	catalog_version: string;
+	stages: ContractStageCatalogRecord[];
+}
+
+const contractStageCatalogAsset = JSON.parse(
+	readFileSync(contractStageCatalogPath, "utf-8"),
+) as ContractStageCatalogAsset;
 
 const roleAssetMap: Record<string, RoleAssetDefinition> = {
 	intake: {
@@ -101,20 +146,55 @@ const roleAssetMap: Record<string, RoleAssetDefinition> = {
 		prompt: "prompts/intake-system.md",
 		outputSchema: "config/schemas/intake-result.json",
 	},
+	drafting: {
+		agentConfig: "config/agents/drafting-agent.yaml",
+		prompt: "prompts/drafting-system.md",
+		outputSchema: "config/schemas/drafting-result.json",
+	},
 	extraction: {
 		agentConfig: "config/agents/extraction-agent.yaml",
 		prompt: "prompts/extraction-system.md",
 		outputSchema: "config/schemas/extraction-result.json",
+	},
+	review: {
+		agentConfig: "config/agents/review-agent.yaml",
+		prompt: "prompts/review-system.md",
+		outputSchema: "config/schemas/review-result.json",
 	},
 	compliance: {
 		agentConfig: "config/agents/compliance-agent.yaml",
 		prompt: "prompts/compliance-system.md",
 		outputSchema: "config/schemas/compliance-result.json",
 	},
+	negotiation: {
+		agentConfig: "config/agents/negotiation-agent.yaml",
+		prompt: "prompts/negotiation-system.md",
+		outputSchema: "config/schemas/negotiation-result.json",
+	},
 	approval: {
 		agentConfig: "config/agents/approval-agent.yaml",
 		prompt: "prompts/approval-system.md",
 		outputSchema: "config/schemas/approval-result.json",
+	},
+	signature: {
+		agentConfig: "config/agents/signature-agent.yaml",
+		prompt: "prompts/signature-system.md",
+		outputSchema: "config/schemas/signature-result.json",
+	},
+	obligations: {
+		agentConfig: "config/agents/obligations-agent.yaml",
+		prompt: "prompts/obligations-system.md",
+		outputSchema: "config/schemas/obligations-result.json",
+	},
+	renewal: {
+		agentConfig: "config/agents/renewal-agent.yaml",
+		prompt: "prompts/renewal-system.md",
+		outputSchema: "config/schemas/renewal-result.json",
+	},
+	analytics: {
+		agentConfig: "config/agents/analytics-agent.yaml",
+		prompt: "prompts/analytics-system.md",
+		outputSchema: "config/schemas/analytics-result.json",
 	},
 };
 
@@ -129,6 +209,68 @@ function inferRoleKey(agent: WorkflowAgent): string {
 	const tools = new Set(agent.tools.map((tool) => normalizeText(tool)));
 	const name = normalizeText(agent.name);
 	const role = normalizeText(agent.role);
+	const searchable = `${name} ${role}`;
+
+	if (
+		searchable.includes("draft") ||
+		searchable.includes("authoring") ||
+		searchable.includes("clause library") ||
+		searchable.includes("fallback language")
+	) {
+		return "drafting";
+	}
+
+	if (
+		searchable.includes("internal review") ||
+		searchable.includes("redline") ||
+		searchable.includes("version diff") ||
+		searchable.includes("review summary")
+	) {
+		return "review";
+	}
+
+	if (
+		searchable.includes("negotiat") ||
+		searchable.includes("counterparty") ||
+		searchable.includes("fallback recommendation") ||
+		searchable.includes("external review")
+	) {
+		return "negotiation";
+	}
+
+	if (
+		searchable.includes("signature") ||
+		searchable.includes("execution") ||
+		searchable.includes("signing")
+	) {
+		return "signature";
+	}
+
+	if (
+		searchable.includes("obligation") ||
+		searchable.includes("task assignment") ||
+		searchable.includes("post-execution") ||
+		searchable.includes("milestone")
+	) {
+		return "obligations";
+	}
+
+	if (
+		searchable.includes("renewal") ||
+		searchable.includes("expiry") ||
+		searchable.includes("expiration")
+	) {
+		return "renewal";
+	}
+
+	if (
+		searchable.includes("analytic") ||
+		searchable.includes("insight") ||
+		searchable.includes("reporting") ||
+		searchable.includes("executive summary")
+	) {
+		return "analytics";
+	}
 
 	if (
 		tools.has("upload_contract") ||
@@ -140,21 +282,21 @@ function inferRoleKey(agent: WorkflowAgent): string {
 	}
 
 	if (
-		tools.has("extract_clauses") ||
-		tools.has("identify_parties") ||
-		name.includes("extract") ||
-		role.includes("extract")
-	) {
-		return "extraction";
-	}
-
-	if (
 		tools.has("check_policy") ||
 		tools.has("flag_risk") ||
 		name.includes("compliance") ||
 		role.includes("compliance")
 	) {
 		return "compliance";
+	}
+
+	if (
+		tools.has("extract_clauses") ||
+		tools.has("identify_parties") ||
+		name.includes("extract") ||
+		role.includes("extract")
+	) {
+		return "extraction";
 	}
 
 	if (
@@ -168,6 +310,51 @@ function inferRoleKey(agent: WorkflowAgent): string {
 
 	const nonAgentKind: Partial<Record<string, string>> = { human: "human", merge: "merge", orchestrator: "orchestrator" };
 	return nonAgentKind[agent.kind ?? ""] ?? "custom";
+}
+
+const stageIdByIndex = [
+	"request-initiation",
+	"authoring-drafting",
+	"internal-review",
+	"compliance-check",
+	"negotiation-external-review",
+	"approval-routing",
+] as const;
+
+function inferContractStageId(agent: WorkflowAgent, runtimeRoleKey: string): string | null {
+	const searchable = `${normalizeText(agent.name)} ${normalizeText(agent.role)}`;
+
+	if (runtimeRoleKey === "intake") {
+		return "request-initiation";
+	}
+	if (runtimeRoleKey === "drafting") {
+		return "authoring-drafting";
+	}
+	if (runtimeRoleKey === "extraction") {
+		return "authoring-drafting";
+	}
+	if (runtimeRoleKey === "review") {
+		return "internal-review";
+	}
+	if (runtimeRoleKey === "compliance") {
+		return "compliance-check";
+	}
+	if (runtimeRoleKey === "negotiation") {
+		return "negotiation-external-review";
+	}
+	if (runtimeRoleKey === "approval") {
+		return "approval-routing";
+	}
+	if (searchable.includes("review") || searchable.includes("redline") || searchable.includes("diff")) {
+		return "internal-review";
+	}
+	if (searchable.includes("negotiat") || searchable.includes("counterparty") || searchable.includes("fallback")) {
+		return "negotiation-external-review";
+	}
+	if (typeof agent.stage === "number" && agent.stage >= 0 && agent.stage < stageIdByIndex.length) {
+		return stageIdByIndex[agent.stage];
+	}
+	return null;
 }
 
 function buildRuntimeAgentBinding(agent: WorkflowAgent): RuntimeAgentBinding {
@@ -194,6 +381,73 @@ function buildRuntimeAgentBinding(agent: WorkflowAgent): RuntimeAgentBinding {
 				output_schema: declarativeAssets.outputSchema,
 			}
 			: {},
+	};
+}
+
+export function getContractStageCatalog(): ContractStageCatalogRecord[] {
+	return contractStageCatalogAsset.stages.map((stage) => ({
+		...stage,
+		primary_mcp_affinity: [...stage.primary_mcp_affinity],
+	}));
+}
+
+function buildContractStageMap(bindings: RuntimeAgentBinding[]): ContractStageMap {
+	const stageAssignments = new Map<string, RuntimeAgentBinding[]>();
+	const unmappedAgentIds: string[] = [];
+
+	for (const binding of bindings) {
+		const stageId = inferContractStageId(
+			{
+				id: binding.id,
+				name: binding.name,
+				role: binding.role,
+				icon: "",
+				model: binding.model,
+				tools: binding.tools,
+				boundary: binding.boundary,
+				output: binding.output,
+				color: "",
+				kind: binding.kind,
+				stage: binding.stage,
+				lane: binding.lane,
+				order: binding.order,
+			},
+			binding.runtime_role_key,
+		);
+		if (!stageId) {
+			unmappedAgentIds.push(binding.id);
+			continue;
+		}
+		const assigned = stageAssignments.get(stageId) ?? [];
+		assigned.push(binding);
+		stageAssignments.set(stageId, assigned);
+	}
+
+	const stages = getContractStageCatalog().map((stage) => {
+		const assignedBindings = (stageAssignments.get(stage.id) ?? []).slice().sort((left, right) => left.order - right.order);
+		const executionGroups: ContractStageExecutionGroup[] = assignedBindings.length
+			? [
+				{
+					id: `group-${stage.id}`,
+					name: stage.default_execution_group_name,
+					runtime_agent_ids: assignedBindings.map((binding) => binding.id),
+					runtime_role_keys: assignedBindings.map((binding) => binding.runtime_role_key),
+					primary_mcp_affinity: [...stage.primary_mcp_affinity],
+				},
+			]
+			: [];
+
+		return {
+			...stage,
+			primary_mcp_affinity: [...stage.primary_mcp_affinity],
+			execution_groups: executionGroups,
+		};
+	});
+
+	return {
+		catalog_reference: contractStageCatalogReference,
+		stages,
+		unmapped_agent_ids: unmappedAgentIds,
 	};
 }
 
@@ -271,6 +525,7 @@ export function buildWorkflowPackage(workflow: WorkflowDefinition): WorkflowPack
 		.slice()
 		.sort((left, right) => left.order - right.order)
 		.map(buildRuntimeAgentBinding);
+	const contractStageMap = buildContractStageMap(bindings);
 	const hasApprovalAgent = bindings.some((binding) => binding.runtime_role_key === "approval");
 
 	return {
@@ -303,12 +558,14 @@ export function buildWorkflowPackage(workflow: WorkflowDefinition): WorkflowPack
 		manifest_references: [
 			"config/workflows/contract-processing.yaml",
 			"config/schemas/workflow-package.json",
+			contractStageCatalogReference,
 		],
 		policy_references: [
 			"data/policies/contract_policies.json",
 			"data/policies.json",
 			"data/clauses.json",
 		],
+		contract_stage_map: contractStageMap,
 		agents: bindings,
 	};
 }
