@@ -1075,7 +1075,7 @@ const WorkflowDesigner = (() => {
     const wfCopy = JSON.parse(JSON.stringify(currentWorkflow));
 
     // Save to backend gateway
-    fetch(`${window.GATEWAY_URL || "http://localhost:8000"}/api/v1/workflows`, {
+    fetch(`${window.GATEWAY_URL || ""}/api/v1/workflows`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -1089,7 +1089,7 @@ const WorkflowDesigner = (() => {
       .then(saved => {
         const wfId = saved.id || wfCopy.id;
         // Activate this workflow
-        return fetch(`${window.GATEWAY_URL || "http://localhost:8000"}/api/v1/workflows/${encodeURIComponent(wfId)}/activate`, {
+        return fetch(`${window.GATEWAY_URL || ""}/api/v1/workflows/${encodeURIComponent(wfId)}/activate`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({}),

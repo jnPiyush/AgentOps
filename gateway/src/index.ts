@@ -58,6 +58,14 @@ export async function startGateway(): Promise<void> {
 		return reply.send({ mode: appConfig.demoMode });
 	});
 
+	// Client config (returns non-secret UI settings)
+	app.get("/api/v1/client-config", async (_request, reply) => {
+		return reply.send({
+			deployAdminKey: appConfig.deployAdminKey || "",
+			mode: appConfig.demoMode,
+		});
+	});
+
 	// Health check
 	app.get("/api/v1/health", async (_request, reply) => {
 		const serverStatuses: Record<string, string> = {};

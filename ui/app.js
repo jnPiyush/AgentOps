@@ -99,7 +99,7 @@ function updatePipelineStatus(workflow) {
 }
 
 function refreshActiveWorkflowFromGateway() {
-	const gatewayUrl = window.GATEWAY_URL || "http://localhost:8000";
+	const gatewayUrl = window.GATEWAY_URL || "";
 	return fetch(`${gatewayUrl}/api/v1/workflows/active/package`, { signal: AbortSignal.timeout(4000) })
 		.then((res) => {
 			if (!res.ok) {
@@ -249,7 +249,7 @@ let liveToolRegistry = null;
 
 async function loadTestScenarios() {
 	try {
-		const gatewayUrl = window.GATEWAY_URL || `${location.protocol}//${location.hostname}:8000`;
+		const gatewayUrl = window.GATEWAY_URL || "";
 		const resp = await fetch(`${gatewayUrl}/api/v1/test-scenarios`, { signal: AbortSignal.timeout(5000) });
 		if (!resp.ok) return;
 		const scenarios = await resp.json();
@@ -265,7 +265,7 @@ async function loadTestScenarios() {
 
 async function loadToolRegistry() {
 	try {
-		const gatewayUrl = window.GATEWAY_URL || `${location.protocol}//${location.hostname}:8000`;
+		const gatewayUrl = window.GATEWAY_URL || "";
 		const resp = await fetch(`${gatewayUrl}/api/v1/tools`, { signal: AbortSignal.timeout(5000) });
 		if (!resp.ok) return;
 		liveToolRegistry = await resp.json();
@@ -669,7 +669,7 @@ async function evaluateWorkflowScenario(workflow, scenario) {
 	// In real mode, add a gateway connectivity check
 	if (isReal) {
 		try {
-			const gatewayUrl = window.GATEWAY_URL || `${location.protocol}//${location.hostname}:8000`;
+			const gatewayUrl = window.GATEWAY_URL || "";
 			const healthResp = await fetch(`${gatewayUrl}/api/v1/health`, { signal: AbortSignal.timeout(3000) });
 			const healthData = await healthResp.json();
 			const servers = healthData.servers || {};
@@ -878,7 +878,7 @@ async function loadSampleContracts() {
 	const select = document.getElementById("live-contract-select");
 	if (!select) return;
 	try {
-		const gatewayUrl = window.GATEWAY_URL || `${location.protocol}//${location.hostname}:8000`;
+		const gatewayUrl = window.GATEWAY_URL || "";
 		const resp = await fetch(`${gatewayUrl}/api/v1/sample-contracts`);
 		if (!resp.ok) return;
 		const contracts = await resp.json();
@@ -913,7 +913,7 @@ async function onLiveContractChange(filename) {
 		dropArea.style.color = "var(--color-accent)";
 	}
 	try {
-		const gatewayUrl = window.GATEWAY_URL || `${location.protocol}//${location.hostname}:8000`;
+		const gatewayUrl = window.GATEWAY_URL || "";
 		const resp = await fetch(`${gatewayUrl}/api/v1/sample-contracts/${encodeURIComponent(filename)}`);
 		if (!resp.ok) throw new Error("Failed to load");
 		const data = await resp.json();

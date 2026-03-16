@@ -3,10 +3,16 @@
    Handles Simulated/Real mode switching and gateway API calls
    ============================================================ */
 
-const GATEWAY_URL = "http://localhost:8000";
+const GATEWAY_URL = "";
 window.GATEWAY_URL = GATEWAY_URL;
-const DEPLOY_ADMIN_KEY = "local-dev-key";
+let DEPLOY_ADMIN_KEY = "local-dev-key";
 let dashboardMode = "simulated"; // 'simulated' | 'real'
+
+// Fetch deploy admin key from gateway (overrides local default)
+fetch(`${GATEWAY_URL}/api/v1/client-config`, { signal: AbortSignal.timeout(5000) })
+	.then((res) => res.json())
+	.then((cfg) => { if (cfg.deployAdminKey) DEPLOY_ADMIN_KEY = cfg.deployAdminKey; })
+	.catch(() => { /* keep local default */ });
 let ws = null; // WebSocket connection for live workflow
 let currentContractId = null; // Track the active contract ID for HITL
 
@@ -273,7 +279,7 @@ function connectWorkflowWs(contractId) {
 		}
 	}
 
-	const wsUrl = `${GATEWAY_URL.replace("http", "ws")}/ws/workflow`;
+	const wsUrl = `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/ws/workflow`;
 	ws = new WebSocket(wsUrl);
 
 	ws.onopen = () => {
