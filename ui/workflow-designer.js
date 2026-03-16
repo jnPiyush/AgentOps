@@ -543,12 +543,16 @@ const WorkflowDesigner = (() => {
   }
 
   function renderStageLayout(stages) {
+    const isVertical = ["sequential", "sequential-hitl", "conditional"].includes(currentWorkflow.type);
+    const arrowHtml = isVertical
+      ? '<div class="pipeline-arrow designer-arrow designer-stage-arrow" style="margin-top:0;font-size:24px">&darr;</div>'
+      : '<div class="pipeline-arrow designer-arrow designer-stage-arrow">&rarr;</div>';
     return `<div class="designer-stage-flow designer-stage-flow-${escapeHtml(currentWorkflow.type)}">
       ${stages.map((stageInfo, index) => `
         <div class="designer-stage-shell">
           ${renderStage(stageInfo)}
         </div>
-        ${index < stages.length - 1 ? '<div class="pipeline-arrow designer-arrow designer-stage-arrow">&rarr;</div>' : ""}
+        ${index < stages.length - 1 ? arrowHtml : ""}
       `).join("")}
     </div>`;
   }
@@ -1088,6 +1092,7 @@ const WorkflowDesigner = (() => {
         return fetch(`${window.GATEWAY_URL || "http://localhost:8000"}/api/v1/workflows/${encodeURIComponent(wfId)}/activate`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
         }).then(r => r.json());
       })
       .then(() => {

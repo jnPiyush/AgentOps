@@ -678,5 +678,132 @@
     "status": "awaiting_review",
     "submitted_at": "2026-03-12T15:57:49.781Z",
     "type": "NDA"
+  },
+  {
+    "id": "contract-f36b34a8",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "failed",
+    "submitted_at": "2026-03-13T17:20:35.347Z",
+    "error_message": "Pipeline failed at intake (intake): Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}",
+    "completed_at": "2026-03-13T17:20:45.291Z"
+  },
+  {
+    "id": "contract-170e48c7",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "failed",
+    "submitted_at": "2026-03-13T17:24:14.313Z",
+    "error_message": "Pipeline failed at intake (intake): Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}",
+    "completed_at": "2026-03-13T17:24:23.835Z"
+  },
+  {
+    "id": "contract-559ba947",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "failed",
+    "submitted_at": "2026-03-16T04:37:52.565Z",
+    "error_message": "Pipeline failed at intake (intake): Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}",
+    "completed_at": "2026-03-16T04:38:02.334Z"
+  },
+  {
+    "id": "contract-501e85a0",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "failed",
+    "submitted_at": "2026-03-16T07:46:40.381Z",
+    "error_message": "Pipeline failed at unknown (pipeline): Invalid intake result: type=UNKNOWN, confidence=0",
+    "completed_at": "2026-03-16T07:46:41.945Z"
+  },
+  {
+    "id": "contract-50a41f16",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T07:52:12.930Z",
+    "type": "NDA",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-149e7600",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T07:54:56.980Z",
+    "type": "NDA",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-0c3178b6",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T07:55:28.276Z",
+    "type": "NDA",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-b562bc9c",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T08:05:09.681Z",
+    "type": "NDA",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-f553822d",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T08:14:49.700Z",
+    "type": "NDA",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-2ff1cf45",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T08:15:27.044Z",
+    "type": "NDA",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-5d16042c",
+    "filename": "NDA.pdf",
+    "text": "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T08:15:55.665Z",
+    "type": "NDA",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-41ed2a04",
+    "filename": "SOW-CloudMigration-2026.txt",
+    "text": "STATEMENT OF WORK #001 - CLOUD MIGRATION\r\n\r\nThis Statement of Work (\"SOW\") is entered into as of March 1, 2026, under the Master Service Agreement dated February 1, 2026, between GlobalTech Solutions LLC (\"Provider\") and Meridian Enterprises Inc. (\"Client\").\r\n\r\n1. PROJECT OVERVIEW\r\nProvider shall migrate Client's on-premises infrastructure to Microsoft Azure cloud platform, including application modernization, data migration, and security hardening.\r\n\r\n2. SCOPE OF WORK\r\n2.1 Phase 1 - Assessment (Weeks 1-2): Infrastructure audit, application dependency mapping, migration readiness assessment, and risk analysis.\r\n2.2 Phase 2 - Design (Weeks 3-4): Cloud architecture design, network topology, security framework, and disaster recovery planning.\r\n2.3 Phase 3 - Migration (Weeks 5-10): Staged migration of applications, databases, and storage to Azure with minimal downtime.\r\n2.4 Phase 4 - Validation (Weeks 11-12): Performance testing, security validation, compliance verification, and go-live support.\r\n\r\n3. DELIVERABLES\r\n3.1 Cloud Readiness Assessment Report\r\n3.2 Azure Architecture Design Document\r\n3.3 Migration Runbook with rollback procedures\r\n3.4 Migrated infrastructure on Azure (12 VMs, 3 databases, 2 storage accounts)\r\n3.5 Security Compliance Report\r\n3.6 Knowledge Transfer documentation and training sessions (3 sessions, 2 hours each)\r\n\r\n4. TIMELINE\r\nProject duration: 12 weeks from project kickoff.\r\nKickoff date: March 15, 2026.\r\nTarget completion: June 7, 2026.\r\n\r\n5. FEES\r\n5.1 Total project fee: $285,000 (Two Hundred Eighty-Five Thousand Dollars).\r\n5.2 Payment schedule:\r\n    - 25% upon SOW execution ($71,250)\r\n    - 25% upon completion of Phase 2 ($71,250)\r\n    - 40% upon completion of Phase 3 ($114,000)\r\n    - 10% upon final acceptance ($28,500)\r\n5.3 Travel expenses billed at cost with prior approval, not to exceed $15,000.\r\n\r\n6. ACCEPTANCE CRITERIA\r\n6.1 All applications functional on Azure with response times within 10% of baseline.\r\n6.2 Zero data loss during migration.\r\n6.3 Security controls meet or exceed current on-premises standards.\r\n6.4 Client acceptance testing period: 10 business days from delivery.\r\n\r\n7. ASSUMPTIONS AND DEPENDENCIES\r\n7.1 Client provides VPN access to on-premises environment within 5 business days of kickoff.\r\n7.2 Client assigns a dedicated project manager and technical lead.\r\n7.3 Azure subscription provisioned by Client prior to Phase 3.\r\n\r\n8. CHANGE MANAGEMENT\r\nAny changes to scope, timeline, or deliverables must be documented in a Change Order signed by both parties. Change orders may adjust fees and timeline.\r\n\r\n9. WARRANTY\r\nProvider warrants that all deliverables will conform to the specifications in this SOW for a period of ninety (90) days following final acceptance.\r\n\r\nIN WITNESS WHEREOF, the parties have executed this SOW as of the date first written above.\r\n\r\nGlobalTech Solutions LLC            Meridian Enterprises Inc.\r\nBy: _________________________       By: _________________________\r\nName: David Park                    Name: Lisa Rodriguez\r\nTitle: Director of Cloud Services   Title: VP of Procurement\r\nDate: March 1, 2026                 Date: March 1, 2026\r\n",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T08:27:24.359Z",
+    "type": "SOW",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-90bbeffb",
+    "filename": "SOW-CloudMigration-2026.txt",
+    "text": "STATEMENT OF WORK #001 - CLOUD MIGRATION\r\n\r\nThis Statement of Work (\"SOW\") is entered into as of March 1, 2026, under the Master Service Agreement dated February 1, 2026, between GlobalTech Solutions LLC (\"Provider\") and Meridian Enterprises Inc. (\"Client\").\r\n\r\n1. PROJECT OVERVIEW\r\nProvider shall migrate Client's on-premises infrastructure to Microsoft Azure cloud platform, including application modernization, data migration, and security hardening.\r\n\r\n2. SCOPE OF WORK\r\n2.1 Phase 1 - Assessment (Weeks 1-2): Infrastructure audit, application dependency mapping, migration readiness assessment, and risk analysis.\r\n2.2 Phase 2 - Design (Weeks 3-4): Cloud architecture design, network topology, security framework, and disaster recovery planning.\r\n2.3 Phase 3 - Migration (Weeks 5-10): Staged migration of applications, databases, and storage to Azure with minimal downtime.\r\n2.4 Phase 4 - Validation (Weeks 11-12): Performance testing, security validation, compliance verification, and go-live support.\r\n\r\n3. DELIVERABLES\r\n3.1 Cloud Readiness Assessment Report\r\n3.2 Azure Architecture Design Document\r\n3.3 Migration Runbook with rollback procedures\r\n3.4 Migrated infrastructure on Azure (12 VMs, 3 databases, 2 storage accounts)\r\n3.5 Security Compliance Report\r\n3.6 Knowledge Transfer documentation and training sessions (3 sessions, 2 hours each)\r\n\r\n4. TIMELINE\r\nProject duration: 12 weeks from project kickoff.\r\nKickoff date: March 15, 2026.\r\nTarget completion: June 7, 2026.\r\n\r\n5. FEES\r\n5.1 Total project fee: $285,000 (Two Hundred Eighty-Five Thousand Dollars).\r\n5.2 Payment schedule:\r\n    - 25% upon SOW execution ($71,250)\r\n    - 25% upon completion of Phase 2 ($71,250)\r\n    - 40% upon completion of Phase 3 ($114,000)\r\n    - 10% upon final acceptance ($28,500)\r\n5.3 Travel expenses billed at cost with prior approval, not to exceed $15,000.\r\n\r\n6. ACCEPTANCE CRITERIA\r\n6.1 All applications functional on Azure with response times within 10% of baseline.\r\n6.2 Zero data loss during migration.\r\n6.3 Security controls meet or exceed current on-premises standards.\r\n6.4 Client acceptance testing period: 10 business days from delivery.\r\n\r\n7. ASSUMPTIONS AND DEPENDENCIES\r\n7.1 Client provides VPN access to on-premises environment within 5 business days of kickoff.\r\n7.2 Client assigns a dedicated project manager and technical lead.\r\n7.3 Azure subscription provisioned by Client prior to Phase 3.\r\n\r\n8. CHANGE MANAGEMENT\r\nAny changes to scope, timeline, or deliverables must be documented in a Change Order signed by both parties. Change orders may adjust fees and timeline.\r\n\r\n9. WARRANTY\r\nProvider warrants that all deliverables will conform to the specifications in this SOW for a period of ninety (90) days following final acceptance.\r\n\r\nIN WITNESS WHEREOF, the parties have executed this SOW as of the date first written above.\r\n\r\nGlobalTech Solutions LLC            Meridian Enterprises Inc.\r\nBy: _________________________       By: _________________________\r\nName: David Park                    Name: Lisa Rodriguez\r\nTitle: Director of Cloud Services   Title: VP of Procurement\r\nDate: March 1, 2026                 Date: March 1, 2026\r\n",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-16T08:31:48.058Z",
+    "type": "SOW",
+    "classification_confidence": 0.95
+  },
+  {
+    "id": "contract-5f17c649",
+    "filename": "SLA-InfraUptime-2026.txt",
+    "text": "SERVICE LEVEL AGREEMENT\r\n\r\nThis Service Level Agreement (\"SLA\") is entered into as of January 1, 2026, by and between InfraCloud Services Ltd., a UK limited company (\"Provider\"), and NorthStar Financial Corp., a Delaware corporation (\"Client\"), as a supplement to the Cloud Services Agreement dated November 15, 2025.\r\n\r\n1. SERVICE OVERVIEW\r\nThis SLA covers the cloud infrastructure services provided by Provider to Client, including:\r\n- Compute instances (Azure Virtual Machines)\r\n- Managed databases (Azure SQL Database, Cosmos DB)\r\n- Storage services (Blob Storage, File Shares)\r\n- Network services (Virtual Network, Load Balancers, CDN)\r\n- Security services (Azure Firewall, DDoS Protection)\r\n\r\n2. UPTIME COMMITMENT\r\n2.1 Provider guarantees 99.95% monthly uptime for all Tier 1 (production) services.\r\n2.2 Provider guarantees 99.9% monthly uptime for Tier 2 (staging/development) services.\r\n2.3 Uptime is measured as: ((Total Minutes - Downtime Minutes) / Total Minutes) * 100.\r\n2.4 Planned maintenance windows (Sundays 02:00-06:00 UTC) are excluded from uptime calculations.\r\n\r\n3. SUPPORT RESPONSE TIMES\r\n3.1 Severity 1 (Critical - Production Down): Response within 15 minutes, resolution target 4 hours.\r\n3.2 Severity 2 (Major - Significant Impact): Response within 30 minutes, resolution target 8 hours.\r\n3.3 Severity 3 (Minor - Limited Impact): Response within 2 hours, resolution target 24 hours.\r\n3.4 Severity 4 (Low - General Questions): Response within 8 hours, resolution target 72 hours.\r\n\r\n4. SERVICE CREDITS\r\n4.1 Monthly uptime 99.00% to 99.95%: 10% credit of monthly service fees.\r\n4.2 Monthly uptime 95.00% to 98.99%: 25% credit of monthly service fees.\r\n4.3 Monthly uptime below 95.00%: 50% credit of monthly service fees.\r\n4.4 Maximum service credits per month shall not exceed 50% of monthly service fees.\r\n4.5 Credits must be requested within 30 days of the incident.\r\n\r\n5. PERFORMANCE METRICS\r\n5.1 API response time P95: less than 200ms for read operations, less than 500ms for write operations.\r\n5.2 Database query response time P95: less than 100ms.\r\n5.3 CDN cache hit ratio: greater than 90%.\r\n5.4 Data durability: 99.999999999% (11 nines) for Blob Storage.\r\n\r\n6. MONITORING AND REPORTING\r\n6.1 Provider shall provide real-time monitoring dashboard accessible to Client 24/7.\r\n6.2 Monthly SLA compliance reports delivered by the 5th business day of each month.\r\n6.3 Quarterly business reviews including trending analysis and capacity planning.\r\n\r\n7. DISASTER RECOVERY\r\n7.1 Recovery Point Objective (RPO): 1 hour for Tier 1 services.\r\n7.2 Recovery Time Objective (RTO): 4 hours for Tier 1 services.\r\n7.3 Provider shall conduct disaster recovery tests semi-annually and share results with Client.\r\n\r\n8. ESCALATION MATRIX\r\n8.1 Level 1: Service Desk (initial contact)\r\n8.2 Level 2: Technical Lead (30 minutes after Level 1)\r\n8.3 Level 3: Service Delivery Manager (1 hour for Sev 1, 4 hours for Sev 2)\r\n8.4 Level 4: VP of Operations (2 hours for Sev 1)\r\n\r\n9. FEES\r\n9.1 Monthly service fee: $45,000 (Forty-Five Thousand Dollars).\r\n9.2 Payment terms: Net-30 from date of invoice.\r\n\r\n10. TERM AND TERMINATION\r\n10.1 This SLA is coterminous with the Cloud Services Agreement.\r\n10.2 Client may terminate without penalty if Provider fails to meet the 99.95% uptime target for three (3) consecutive months.\r\n\r\n11. GOVERNING LAW\r\nThis SLA shall be governed by the laws of the State of Delaware.\r\n\r\nIN WITNESS WHEREOF, the parties have executed this SLA as of the date first written above.\r\n\r\nInfraCloud Services Ltd.            NorthStar Financial Corp.\r\nBy: _________________________       By: _________________________\r\nName: Emma Williams                 Name: Robert Chen\r\nTitle: Director of Cloud Operations Title: Chief Information Officer\r\nDate: January 1, 2026               Date: January 1, 2026\r\n",
+    "status": "approved",
+    "submitted_at": "2026-03-16T08:48:18.049Z",
+    "type": "SLA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-16T08:48:43.445Z"
   }
 ]

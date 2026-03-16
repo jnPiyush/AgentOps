@@ -212,10 +212,8 @@
     <section id="view-live" class="view" role="tabpanel" aria-label="Live Workflow">
       <div class="view-header">
         <h1 class="view-title">Live Workflow</h1>
-        <select class="select" style="width:160px">
-          <option>NDA.pdf</option>
-          <option>MSA-Enterprise.pdf</option>
-          <option>SOW-Q2.pdf</option>
+        <select class="select" id="live-contract-select" style="width:280px" onchange="onLiveContractChange(this.value)">
+          <option value="">-- Select a contract --</option>
         </select>
       </div>
 
@@ -256,24 +254,16 @@
       <div class="hitl-panel" id="hitl-panel" role="dialog" aria-label="Human review required">
         <div class="hitl-header">
           <div class="hitl-title">HUMAN REVIEW REQUIRED</div>
-          <span class="badge badge-fail">HIGH</span>
+          <span class="badge badge-fail" id="hitl-risk-badge">--</span>
         </div>
-        <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px">
-          Reason: Liability cap exceeds $1M policy threshold
+        <div id="hitl-reason" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:12px">
+          Reason: Awaiting human review
         </div>
-        <div class="hitl-flagged">
-          <div class="hitl-flag">
-            <span class="hitl-flag-icon">[!]</span>
-            <span>Section 5.2: Liability cap = $2.5M (Policy max: $1M)</span>
-          </div>
-          <div class="hitl-flag">
-            <span class="hitl-flag-icon">[!]</span>
-            <span>Section 8.1: No termination for convenience clause</span>
-          </div>
+        <div class="hitl-flagged" id="hitl-flagged">
         </div>
-        <div class="hitl-summary">
-          <strong>Extracted Summary:</strong><br>
-          Parties: Acme Corp / Beta Inc | Value: $2.5M | Term: 24 months | Auto-renew: Yes
+        <div class="hitl-summary" id="hitl-summary">
+          <strong>Approval Details:</strong><br>
+          <span id="hitl-summary-text">--</span>
         </div>
         <div class="hitl-actions">
           <button class="btn btn-success" onclick="resolveHitl('approved')">Approve</button>

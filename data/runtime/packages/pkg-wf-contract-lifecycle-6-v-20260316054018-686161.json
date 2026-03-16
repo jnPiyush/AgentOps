@@ -1,12 +1,12 @@
 {
-  "id": "pkg-wf-mmsvzwd3-v-20260316075337-a5ade7",
-  "workflow_id": "wf-mmsvzwd3",
+  "id": "pkg-wf-contract-lifecycle-6-v-20260316054018-686161",
+  "workflow_id": "wf-contract-lifecycle-6",
   "workflow_name": "Contract Lifecycle Pipeline",
-  "workflow_version": "v-20260316075337-a5ade7",
-  "activated_at": "2026-03-16T07:53:37.442Z",
+  "workflow_version": "v-20260316054018-686161",
+  "activated_at": "2026-03-16T05:40:18.483Z",
   "authoring_source": {
-    "workflow_definition_id": "wf-mmsvzwd3",
-    "updated_at": "2026-03-16T07:53:37.434Z"
+    "workflow_definition_id": "wf-contract-lifecycle-6",
+    "updated_at": "2026-03-16T05:39:50.596Z"
   },
   "execution_topology": "sequential-hitl",
   "mode_policy": {

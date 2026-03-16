@@ -1071,8 +1071,1665 @@
         "order": 1
       }
     ],
-    "active": true,
+    "active": false,
     "createdAt": "2026-03-12T15:57:49.761Z",
     "updatedAt": "2026-03-12T15:57:49.761Z"
+  },
+  {
+    "id": "wf-mmsqmwjx",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:23:33.109Z",
+    "updatedAt": "2026-03-16T05:25:17.181Z"
+  },
+  {
+    "id": "wf-mmsqvawq",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:30:04.928Z",
+    "updatedAt": "2026-03-16T05:30:04.928Z"
+  },
+  {
+    "id": "wf-mmsr3ok0",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:36:35.863Z",
+    "updatedAt": "2026-03-16T05:36:35.863Z"
+  },
+  {
+    "id": "wf-mmsr3y3z",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:36:48.246Z",
+    "updatedAt": "2026-03-16T05:36:48.246Z"
+  },
+  {
+    "id": "wf-mmsr4bb0",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:37:05.347Z",
+    "updatedAt": "2026-03-16T05:37:05.347Z"
+  },
+  {
+    "id": "wf-contract-lifecycle-6",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:39:03.045Z",
+    "updatedAt": "2026-03-16T05:39:50.596Z"
+  },
+  {
+    "id": "wf-mmsr9ipp",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:41:08.233Z",
+    "updatedAt": "2026-03-16T05:41:11.156Z"
+  },
+  {
+    "id": "wf-mmsrk2ud",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T05:49:20.881Z",
+    "updatedAt": "2026-03-16T05:49:20.881Z"
+  },
+  {
+    "id": "wf-mmsu4zx4",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T07:01:36.103Z",
+    "updatedAt": "2026-03-16T07:01:39.833Z"
+  },
+  {
+    "id": "wf-mmsudhko",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T07:08:12.232Z",
+    "updatedAt": "2026-03-16T07:08:14.930Z"
+  },
+  {
+    "id": "wf-mmsueof0",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T07:09:07.753Z",
+    "updatedAt": "2026-03-16T07:09:07.753Z"
+  },
+  {
+    "id": "wf-contract-6agent",
+    "name": "Contract Processing Pipeline",
+    "type": "sequential",
+    "agents": [
+      {
+        "id": "agent-intake",
+        "role": "intake",
+        "order": 1,
+        "tools": [
+          "classify_document",
+          "extract_metadata",
+          "validate_format",
+          "check_duplicates"
+        ],
+        "name": "Intake Agent"
+      },
+      {
+        "id": "agent-drafting",
+        "role": "drafting",
+        "order": 2,
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "name": "Drafting Agent"
+      },
+      {
+        "id": "agent-review",
+        "role": "review",
+        "order": 3,
+        "tools": [
+          "analyze_risk",
+          "review_obligations",
+          "check_authority_limits"
+        ],
+        "name": "Internal Review Agent"
+      },
+      {
+        "id": "agent-compliance",
+        "role": "compliance",
+        "order": 4,
+        "tools": [
+          "check_compliance",
+          "assess_risk",
+          "validate_regulatory"
+        ],
+        "name": "Compliance Agent"
+      },
+      {
+        "id": "agent-negotiation",
+        "role": "negotiation",
+        "order": 5,
+        "tools": [
+          "compare_positions",
+          "suggest_alternatives",
+          "evaluate_terms"
+        ],
+        "name": "Negotiation Agent"
+      },
+      {
+        "id": "agent-approval",
+        "role": "approval",
+        "order": 6,
+        "tools": [
+          "check_approval_authority",
+          "route_approval",
+          "verify_signatures"
+        ],
+        "name": "Approval Agent"
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T07:20:20.009Z",
+    "updatedAt": "2026-03-16T07:29:11.357Z"
+  },
+  {
+    "id": "wf-mmsvjzet",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-16T07:41:14.908Z",
+    "updatedAt": "2026-03-16T07:41:14.908Z"
+  },
+  {
+    "id": "wf-mmsvzwd3",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      }
+    ],
+    "active": true,
+    "createdAt": "2026-03-16T07:53:37.434Z",
+    "updatedAt": "2026-03-16T07:53:37.434Z"
   }
 ]

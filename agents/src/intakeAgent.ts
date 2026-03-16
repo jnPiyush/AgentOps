@@ -32,19 +32,25 @@ export async function runIntakeAgent(
 		parsed = JSON.parse(response.content);
 	} catch {
 		parsed = {
-			type: "UNKNOWN",
-			confidence: 0,
+			contract_type: "UNKNOWN",
+			confidence_score: 0,
 			parties: [],
-			metadata: {},
 		};
 	}
 
 	return {
 		contractId,
-		type: (parsed.type as string) ?? "UNKNOWN",
-		confidence: (parsed.confidence as number) ?? 0,
+		type: (parsed.contract_type as string) ?? (parsed.type as string) ?? "UNKNOWN",
+		confidence: (parsed.confidence_score as number) ?? (parsed.confidence as number) ?? 0,
 		parties: (parsed.parties as string[]) ?? [],
-		metadata: (parsed.metadata as Record<string, string>) ?? {},
+		metadata: (parsed.metadata as Record<string, string>) ?? {
+			title: parsed.title as string,
+			effective_date: parsed.effective_date as string,
+			expiry_date: parsed.expiry_date as string,
+			value: parsed.value != null ? String(parsed.value) : undefined,
+			currency: parsed.currency as string,
+			jurisdiction: parsed.jurisdiction as string,
+		},
 		traceId,
 	};
 }

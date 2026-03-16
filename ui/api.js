@@ -5,6 +5,7 @@
 
 const GATEWAY_URL = "http://localhost:8000";
 window.GATEWAY_URL = GATEWAY_URL;
+const DEPLOY_ADMIN_KEY = "local-dev-key";
 let dashboardMode = "simulated"; // 'simulated' | 'real'
 let ws = null; // WebSocket connection for live workflow
 let currentContractId = null; // Track the active contract ID for HITL
@@ -64,13 +65,14 @@ function checkGatewayHealth() {
 }
 
 // --- API Helper ---
-function apiCall(method, path, body) {
+function apiCall(method, path, body, extraHeaders, timeoutMs) {
 	const opts = {
 		method: method,
-		headers: { "Content-Type": "application/json" },
-		signal: AbortSignal.timeout(15000),
+		headers: Object.assign({}, extraHeaders || {}),
+		signal: AbortSignal.timeout(timeoutMs || 15000),
 	};
 	if (body) {
+		opts.headers["Content-Type"] = "application/json";
 		opts.body = JSON.stringify(body);
 	}
 	return fetch(GATEWAY_URL + path, opts).then((res) => {
@@ -129,22 +131,43 @@ function runDeployPipelineReal() {
 
 	const stages = ["stage-build", "stage-test", "stage-deploy", "stage-register"];
 
-	apiCall("POST", "/api/v1/deploy/pipeline")
+	apiCall("POST", "/api/v1/deploy/pipeline", null, { "x-admin-key": DEPLOY_ADMIN_KEY }, 180000)
 		.then((data) => {
-			// Animate stages with real data
+			// Map backend stage names to UI stage element IDs
 			const pipelineStages = data.stages || [];
+			const stageByName = {};
+			pipelineStages.forEach((s) => { stageByName[s.name] = s; });
+
+			// Map: BUILD=Preflight, TEST=Model Deployment, DEPLOY=Agent Registration, REGISTER=Health Check
+			const stageMapping = {
+				"stage-build": stageByName["Preflight"],
+				"stage-test": stageByName["Model Deployment"],
+				"stage-deploy": stageByName["Agent Registration"],
+				"stage-register": stageByName["Health Check"] || stageByName["Content Safety"] || stageByName["Evaluation"],
+			};
+
 			stages.forEach((stageId, i) => {
 				const el = document.getElementById(stageId);
-				const stageData = pipelineStages[i] || {};
+				const stageData = stageMapping[stageId];
 				setTimeout(
 					() => {
 						el.classList.add("completed");
-						const passed =
-							stageData.status === "passed" || stageData.status === "completed" || stageData.status === "registered";
-						el.querySelector(".deploy-stage-status").innerHTML =
-							`<span class="badge badge-${passed ? "pass" : "fail"}">[${passed ? "PASS" : "FAIL"}]</span>`;
-						el.querySelector(".deploy-stage-time").textContent =
-							typeof stageData.duration_ms === "number" ? `${stageData.duration_ms}ms` : "--";
+						if (!stageData) {
+							// Stage didn't run (early pipeline exit)
+							el.querySelector(".deploy-stage-status").innerHTML =
+								'<span class="badge badge-info">Skipped</span>';
+							el.querySelector(".deploy-stage-time").textContent = "--";
+						} else {
+							const passed =
+								stageData.status === "passed" || stageData.status === "completed" || stageData.status === "registered";
+							el.querySelector(".deploy-stage-status").innerHTML =
+								`<span class="badge badge-${passed ? "pass" : "fail"}">[${passed ? "PASS" : "FAIL"}]</span>`;
+							el.querySelector(".deploy-stage-time").textContent =
+								typeof stageData.duration_ms === "number" ? `${stageData.duration_ms}ms` : "--";
+							if (!passed && stageData.error) {
+								el.setAttribute("title", stageData.error);
+							}
+						}
 					},
 					(i + 1) * 400,
 				);
@@ -167,8 +190,15 @@ function runDeployPipelineReal() {
 				});
 				const summary = document.getElementById("deploy-summary");
 				if (summary && data.summary) {
-					summary.textContent = `${data.summary.agents_deployed} agents deployed, ${data.summary.tools_registered} tools registered`;
-					summary.style.color = "var(--color-text-secondary)";
+					const failedStages = (data.stages || []).filter((s) => s.status === "failed");
+					if (failedStages.length > 0) {
+						const failNames = failedStages.map((s) => s.name).join(", ");
+						summary.textContent = `${data.summary.agents_deployed} agents deployed, ${data.summary.tools_registered} tools registered | Failed: ${failNames}`;
+						summary.style.color = "var(--color-fail)";
+					} else {
+						summary.textContent = `${data.summary.agents_deployed} agents deployed, ${data.summary.tools_registered} tools registered`;
+						summary.style.color = "var(--color-text-secondary)";
+					}
 				}
 				btn.textContent = "Deployed";
 			}, agentDelay);
@@ -185,7 +215,20 @@ function runDeployPipelineReal() {
 // --- Real Mode: Live Workflow (WebSocket) ---
 function startWorkflowReal() {
 	const dropArea = document.getElementById("drop-area");
-	dropArea.textContent = "Processing via gateway...";
+
+	// Get contract text and filename from the selected sample contract
+	const contractText = dropArea?.dataset.contractText || null;
+	const contractFilename = dropArea?.dataset.contractFilename || null;
+
+	if (!contractText) {
+		dropArea.textContent = "Please select a contract from the dropdown first";
+		dropArea.style.borderColor = "var(--color-fail)";
+		dropArea.style.color = "var(--color-fail)";
+		workflowRunning = false;
+		return;
+	}
+
+	dropArea.textContent = `Processing ${contractFilename || "contract"}...`;
 	dropArea.style.borderColor = "var(--color-accent)";
 	dropArea.style.color = "var(--color-accent)";
 
@@ -193,18 +236,18 @@ function startWorkflowReal() {
 	log.innerHTML = "";
 	document.getElementById("contract-details").style.display = "flex";
 
-	// Get contract text from the drop area or use default sample
-	const dropAreaEl = document.getElementById("drop-area");
-	const contractText = dropAreaEl?.dataset.contractText
-		? dropAreaEl.dataset.contractText
-		: "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc effective March 1, 2026. Recipient shall not disclose any Confidential Information for a period of 2 years. Liability cap: $2,500,000.";
+	// Reset contract detail fields
+	document.getElementById("cd-type").textContent = "--";
+	document.getElementById("cd-parties").textContent = "--";
+	document.getElementById("cd-pages").textContent = "--";
+	document.getElementById("cd-risk").innerHTML = '<span class="badge badge-info">--</span>';
 
 	// Submit contract to gateway
-	addLog(new Date().toLocaleTimeString(), "System", "Submitting contract to gateway...");
+	addLog(new Date().toLocaleTimeString(), "System", `Submitting ${contractFilename || "contract"} to gateway...`);
 
 	apiCall("POST", "/api/v1/contracts", {
 		text: contractText,
-		filename: "NDA.pdf",
+		filename: contractFilename || "contract.txt",
 	})
 		.then((data) => {
 			currentContractId = data.contract_id;
@@ -263,30 +306,76 @@ function handleWorkflowEvent(msg) {
 	const status = msg.status || "";
 	const time = new Date().toLocaleTimeString();
 
-	// Map agent names to workflow node IDs
-	const agentNodeMap = {
-		intake: "wf-intake",
-		extraction: "wf-extraction",
-		compliance: "wf-compliance",
-		approval: "wf-approval",
+	// Map pipeline agent names to Design workflow role keys.
+	// The backend pipeline runs: intake -> extraction -> review -> compliance -> negotiation -> approval
+	// The Design workflow has:   intake -> drafting -> review -> compliance -> negotiation -> approval
+	// "extraction" agent does the drafting stage work, so map it to "drafting".
+	const pipelineToDesignRole = {
+		intake: "intake",
+		extraction: "drafting",
+		review: "review",
+		compliance: "compliance",
+		negotiation: "negotiation",
+		approval: "approval",
 	};
+	const designRole = pipelineToDesignRole[agentName.toLowerCase()] || agentName.toLowerCase();
 
 	const nodeId = (typeof window.getWorkflowNodeIdForAgentName === "function")
-		? window.getWorkflowNodeIdForAgentName(agentName)
-		: (agentNodeMap[agentName.toLowerCase()] || "");
+		? window.getWorkflowNodeIdForAgentName(designRole)
+		: `wf-${designRole}`;
 	const liveStageContext = (typeof window.getLiveStageContextForRole === "function")
-		? window.getLiveStageContextForRole(agentName)
+		? window.getLiveStageContextForRole(designRole)
 		: null;
 	const logActor = liveStageContext?.stageName || agentName || "System";
 
 	if (event === "pipeline_status" && status === "processing_started") {
 		addLog(time, "System", "Contract-stage execution started");
 	} else if (event === "agent_step_complete") {
+		// Check if this is an escalation to human review
+		const isEscalation = status === "awaiting_human_review";
+
 		if (nodeId) {
-			setNodeState(nodeId, "complete", "Complete");
+			if (isEscalation) {
+				setNodeState(nodeId, "hitl", "Awaiting review");
+			} else {
+				setNodeState(nodeId, "complete", "Complete");
+			}
 			setNodeProgress(nodeId, 100);
 		}
-		addLog(time, logActor, `[PASS] ${status.replace(/_/g, " ")}`);
+
+		if (isEscalation) {
+			addLog(time, logActor, `[HITL] Escalated to human review`);
+		} else {
+			addLog(time, logActor, `[PASS] ${status.replace(/_/g, " ")}`);
+		}
+
+		// Render stage output in the node's tools area and in the log
+		if (msg.result) {
+			const toolsId = nodeId + "-tools";
+			renderStageOutput(toolsId, designRole, msg.result);
+			logStageOutput(time, logActor, designRole, msg.result);
+
+			// Store compliance result for HITL panel flagged items
+			if (designRole === "compliance") {
+				window._lastComplianceResult = msg.result;
+			}
+		}
+
+		// Show latency if available
+		if (msg.latency_ms) {
+			addLog(time, logActor, `Latency: ${msg.latency_ms}ms`);
+		}
+
+		// If escalated, populate and show the HITL panel with dynamic data
+		if (isEscalation && msg.result) {
+			populateHitlPanel(msg.result);
+			document.getElementById("hitl-panel").classList.add("visible");
+			addLog(time, "System", `--- PAUSED: ${(liveStageContext?.stageName || "Approval")} awaiting human review ---`);
+			const dropArea = document.getElementById("drop-area");
+			dropArea.textContent = `Pipeline paused - ${(liveStageContext?.stageName || "Approval")} requires review`;
+			dropArea.style.borderColor = "var(--color-approval)";
+			dropArea.style.color = "var(--color-approval)";
+		}
 
 		// Update contract details from result
 		if (msg.result) {
@@ -307,13 +396,14 @@ function handleWorkflowEvent(msg) {
 			}
 		}
 	} else if (event === "pipeline_status" && status === "awaiting_human_review") {
-		if (nodeId) setNodeState(nodeId, "hitl", "Awaiting review");
-		document.getElementById("hitl-panel").classList.add("visible");
-		addLog(time, "System", `--- PAUSED: ${(liveStageContext?.stageName || "Approval and Routing")} awaiting human review ---`);
-		const dropArea = document.getElementById("drop-area");
-		dropArea.textContent = `Pipeline paused - ${(liveStageContext?.stageName || "Approval and Routing")} requires review`;
-		dropArea.style.borderColor = "var(--color-approval)";
-		dropArea.style.color = "var(--color-approval)";
+		// Reinforce HITL state (the agent_step_complete already showed the panel)
+		const approvalNodeId = (typeof window.getWorkflowNodeIdForAgentName === "function")
+			? window.getWorkflowNodeIdForAgentName("approval")
+			: "wf-approval";
+		setNodeState(approvalNodeId, "hitl", "Awaiting review");
+		if (!document.getElementById("hitl-panel").classList.contains("visible")) {
+			document.getElementById("hitl-panel").classList.add("visible");
+		}
 	} else if (
 		event === "pipeline_status" &&
 		(status === "pipeline_complete" || status === "approved" || status === "rejected")
@@ -330,6 +420,173 @@ function handleWorkflowEvent(msg) {
 	} else if (event === "error") {
 		addLog(time, "System", `Error: ${msg.result ? msg.result.error : "Unknown"}`);
 		workflowRunning = false;
+	}
+}
+
+// --- Stage Output Rendering ---
+function renderStageOutput(containerId, role, result) {
+	const container = document.getElementById(containerId);
+	if (!container) return;
+	container.innerHTML = "";
+
+	if (role === "intake") {
+		addToolOutput(container, "Type", result.type || result.contract_type || "--");
+		addToolOutput(container, "Confidence", result.confidence != null ? result.confidence : result.confidence_score || "--");
+		if (result.parties && result.parties.length > 0) {
+			addToolOutput(container, "Parties", result.parties.join(", "));
+		}
+	} else if (role === "drafting" || role === "extraction") {
+		if (result.clauses && Array.isArray(result.clauses)) {
+			addToolOutput(container, "Clauses", `${result.clauses.length} extracted`);
+			result.clauses.slice(0, 3).forEach(function(c) {
+				const label = c.type || c.name || c.title || "clause";
+				addToolOutput(container, "", label);
+			});
+			if (result.clauses.length > 3) {
+				addToolOutput(container, "", `+${result.clauses.length - 3} more`);
+			}
+		}
+		if (result.parties && result.parties.length > 0) {
+			addToolOutput(container, "Parties", result.parties.join(", "));
+		}
+	} else if (role === "compliance") {
+		addToolOutput(container, "Risk", result.overallRisk || result.overall_risk || "--");
+		addToolOutput(container, "Flags", result.flagsCount != null ? result.flagsCount : (result.flags_count || 0));
+		if (result.findings && Array.isArray(result.findings)) {
+			result.findings.slice(0, 3).forEach(function(f) {
+				addToolOutput(container, "", f.description || f.finding || f.message || JSON.stringify(f).slice(0, 60));
+			});
+		}
+	} else if (role === "approval") {
+		addToolOutput(container, "Action", result.action || "--");
+		if (result.reasoning) {
+			// Show full reasoning, wrap across multiple lines if needed
+			var lines = result.reasoning.match(/.{1,80}/g) || [result.reasoning];
+			addToolOutput(container, "Reason", lines[0]);
+			for (var i = 1; i < lines.length; i++) {
+				addToolOutput(container, "", lines[i]);
+			}
+		}
+		if (result.assignedTo || result.assigned_to) {
+			addToolOutput(container, "Assigned", result.assignedTo || result.assigned_to);
+		}
+		if (result.contractId) {
+			addToolOutput(container, "Contract", result.contractId);
+		}
+	} else {
+		// Generic: display up to 4 keys
+		var keys = Object.keys(result).slice(0, 4);
+		keys.forEach(function(k) {
+			var v = result[k];
+			if (typeof v === "object") v = JSON.stringify(v).slice(0, 60);
+			addToolOutput(container, k, String(v).slice(0, 80));
+		});
+	}
+}
+
+function addToolOutput(container, label, value) {
+	var div = document.createElement("div");
+	div.className = "workflow-tool-call";
+	div.style.animation = "viewFadeIn 0.2s ease";
+	div.textContent = label ? `${label}: ${value}` : `  ${value}`;
+	container.appendChild(div);
+}
+
+function logStageOutput(time, actor, role, result) {
+	if (role === "intake") {
+		addLog(time, actor, `Type: ${result.type || result.contract_type || "?"}, Confidence: ${result.confidence != null ? result.confidence : (result.confidence_score || "?")}` +
+			(result.parties ? `, Parties: ${result.parties.join(", ")}` : ""));
+	} else if (role === "drafting" || role === "extraction") {
+		var count = result.clauses ? result.clauses.length : 0;
+		addLog(time, actor, `Extracted ${count} clauses` + (result.parties ? `, Parties: ${result.parties.join(", ")}` : ""));
+	} else if (role === "review") {
+		var changes = result.materialChanges || result.material_changes || [];
+		var unresolved = result.unresolvedItems || result.unresolved_items || [];
+		addLog(time, actor, `Review: ${changes.length} material changes, ${unresolved.length} unresolved items`);
+	} else if (role === "compliance") {
+		addLog(time, actor, `Risk: ${result.overallRisk || result.overall_risk || "?"}, Flags: ${result.flagsCount != null ? result.flagsCount : (result.flags_count || 0)}`);
+	} else if (role === "negotiation") {
+		var positions = result.counterpartyPositions || result.counterparty_positions || [];
+		var esc = result.escalationRequired != null ? result.escalationRequired : result.escalation_required;
+		addLog(time, actor, `Negotiation: ${positions.length} positions, escalation=${esc ? "yes" : "no"}`);
+	} else if (role === "approval") {
+		addLog(time, actor, `Action: ${result.action || "?"}${result.reasoning ? " - " + result.reasoning : ""}`);
+	}
+}
+
+// --- Populate HITL Panel dynamically from pipeline data ---
+function populateHitlPanel(approvalResult) {
+	// Risk badge
+	var riskBadge = document.getElementById("hitl-risk-badge");
+	var action = approvalResult.action || "escalate_to_human";
+	if (riskBadge) {
+		riskBadge.textContent = action === "escalate_to_human" ? "ESCALATED" : action.toUpperCase();
+		riskBadge.className = "badge badge-fail";
+	}
+
+	// Reason
+	var reasonEl = document.getElementById("hitl-reason");
+	if (reasonEl) {
+		reasonEl.textContent = approvalResult.reasoning
+			? "Reason: " + approvalResult.reasoning
+			: "Reason: Escalated to human for review";
+	}
+
+	// Flagged items - build from compliance data stored on window
+	var flaggedEl = document.getElementById("hitl-flagged");
+	if (flaggedEl) {
+		flaggedEl.innerHTML = "";
+		// Use stored compliance results if available
+		var compResult = window._lastComplianceResult;
+		if (compResult && compResult.clauseResults) {
+			var flagged = compResult.clauseResults.filter(function(r) {
+				return r.status === "fail" || r.status === "warn";
+			});
+			flagged.forEach(function(f) {
+				var div = document.createElement("div");
+				div.className = "hitl-flag";
+				var icon = document.createElement("span");
+				icon.className = "hitl-flag-icon";
+				icon.textContent = f.status === "fail" ? "[X]" : "[!]";
+				var text = document.createElement("span");
+				text.textContent = (f.clause_type || "Clause") + ": " + (f.reason || f.policy_ref || "Flagged");
+				div.appendChild(icon);
+				div.appendChild(text);
+				flaggedEl.appendChild(div);
+			});
+		}
+		if (!flaggedEl.children.length) {
+			var div = document.createElement("div");
+			div.className = "hitl-flag";
+			var icon = document.createElement("span");
+			icon.className = "hitl-flag-icon";
+			icon.textContent = "[!]";
+			var text = document.createElement("span");
+			text.textContent = "Contract escalated for human review";
+			div.appendChild(icon);
+			div.appendChild(text);
+			flaggedEl.appendChild(div);
+		}
+	}
+
+	// Summary
+	var summaryText = document.getElementById("hitl-summary-text");
+	if (summaryText) {
+		var parts = [];
+		parts.push("Action: " + (approvalResult.action || "--").replace(/_/g, " "));
+		if (approvalResult.reasoning) parts.push("Reasoning: " + approvalResult.reasoning);
+		if (approvalResult.assignedTo || approvalResult.assigned_to) {
+			parts.push("Assigned to: " + (approvalResult.assignedTo || approvalResult.assigned_to));
+		}
+		if (approvalResult.contractId) parts.push("Contract: " + approvalResult.contractId);
+
+		// Add contract details if available
+		var cdType = document.getElementById("cd-type");
+		var cdParties = document.getElementById("cd-parties");
+		if (cdType && cdType.textContent !== "--") parts.push("Type: " + cdType.textContent);
+		if (cdParties && cdParties.textContent !== "--") parts.push("Parties: " + cdParties.textContent);
+
+		summaryText.textContent = parts.join(" | ");
 	}
 }
 

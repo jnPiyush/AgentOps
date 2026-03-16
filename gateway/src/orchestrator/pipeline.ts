@@ -3,6 +3,8 @@ import { runApprovalAgent } from "../../../agents/src/approvalAgent.js";
 import { runComplianceAgent } from "../../../agents/src/complianceAgent.js";
 import { runExtractionAgent } from "../../../agents/src/extractionAgent.js";
 import { runIntakeAgent } from "../../../agents/src/intakeAgent.js";
+import { runNegotiationAgent } from "../../../agents/src/negotiationAgent.js";
+import { runReviewAgent } from "../../../agents/src/reviewAgent.js";
 import { TrackingAdapter } from "../adapters/trackingAdapter.js";
 import { auditStore, contractStore } from "../stores/contractStore.js";
 import type { AuditEntry, Contract, ILlmAdapter, TraceEntry, WebSocketEvent } from "../types.js";
@@ -195,7 +197,49 @@ export async function runPipeline(
 			timestamp: new Date().toISOString(),
 		});
 
-		// Stage 3: Compliance with retry logic
+		// Stage 3: Internal Review with retry logic
+		tracker.reset();
+		const reviewStart = Date.now();
+		const reviewResult = await withRetry(
+			() => runReviewAgent(tracker, extractResult.clauses, contractId, traceId),
+			"review",
+			"review",
+			contractId,
+		);
+		const reviewLatency = Date.now() - reviewStart;
+		const reviewTokens = tracker.lastResponse;
+
+		traces.push({
+			id: randomUUID(),
+			contract_id: contractId,
+			agent: "review",
+			tool: "internal_review",
+			input: { clauses_count: extractResult.clauses.length },
+			output: reviewResult,
+			latency_ms: reviewLatency,
+			tokens_in: reviewTokens?.tokens_in ?? 0,
+			tokens_out: reviewTokens?.tokens_out ?? 0,
+			timestamp: new Date().toISOString(),
+		});
+
+		await logAudit(
+			contractId,
+			"review",
+			"reviewed",
+			`Review: ${reviewResult.materialChanges.length} material changes, ${reviewResult.unresolvedItems.length} unresolved items`,
+		);
+
+		broadcast({
+			event: "agent_step_complete",
+			contract_id: contractId,
+			agent: "review",
+			status: "review_complete",
+			result: reviewResult,
+			latency_ms: reviewLatency,
+			timestamp: new Date().toISOString(),
+		});
+
+		// Stage 4: Compliance with retry logic
 		tracker.reset();
 		const complianceStart = Date.now();
 		const complianceResult = await withRetry(
@@ -242,7 +286,61 @@ export async function runPipeline(
 			timestamp: new Date().toISOString(),
 		});
 
-		// Stage 4: Approval with retry logic
+		// Stage 5: Negotiation with retry logic
+		tracker.reset();
+		const negotiationStart = Date.now();
+		const negotiationResult = await withRetry(
+			() =>
+				runNegotiationAgent(
+					tracker,
+					extractResult.clauses,
+					complianceResult.overallRisk,
+					complianceResult.flagsCount,
+					contractId,
+					traceId,
+				),
+			"negotiation",
+			"negotiation",
+			contractId,
+		);
+		const negotiationLatency = Date.now() - negotiationStart;
+		const negotiationTokens = tracker.lastResponse;
+
+		traces.push({
+			id: randomUUID(),
+			contract_id: contractId,
+			agent: "negotiation",
+			tool: "assess_negotiation",
+			input: {
+				risk: complianceResult.overallRisk,
+				flags: complianceResult.flagsCount,
+				clauses_count: extractResult.clauses.length,
+			},
+			output: negotiationResult,
+			latency_ms: negotiationLatency,
+			tokens_in: negotiationTokens?.tokens_in ?? 0,
+			tokens_out: negotiationTokens?.tokens_out ?? 0,
+			timestamp: new Date().toISOString(),
+		});
+
+		await logAudit(
+			contractId,
+			"negotiation",
+			"negotiated",
+			`Negotiation: ${negotiationResult.counterpartyPositions.length} positions, escalation=${negotiationResult.escalationRequired}`,
+		);
+
+		broadcast({
+			event: "agent_step_complete",
+			contract_id: contractId,
+			agent: "negotiation",
+			status: "negotiation_complete",
+			result: negotiationResult,
+			latency_ms: negotiationLatency,
+			timestamp: new Date().toISOString(),
+		});
+
+		// Stage 6: Approval with retry logic
 		tracker.reset();
 		const approvalStart = Date.now();
 		const approvalResult = await withRetry(
@@ -297,12 +395,21 @@ export async function runPipeline(
 			timestamp: new Date().toISOString(),
 		});
 
-		broadcast({
-			event: "pipeline_status",
-			contract_id: contractId,
-			status: "pipeline_complete",
-			timestamp: new Date().toISOString(),
-		});
+		if (finalStatus === "approved") {
+			broadcast({
+				event: "pipeline_status",
+				contract_id: contractId,
+				status: "pipeline_complete",
+				timestamp: new Date().toISOString(),
+			});
+		} else {
+			broadcast({
+				event: "pipeline_status",
+				contract_id: contractId,
+				status: "awaiting_human_review",
+				timestamp: new Date().toISOString(),
+			});
+		}
 
 		const updatedContract = await contractStore.getById(contractId);
 		return { contract: updatedContract ?? contract, traces };

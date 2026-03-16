@@ -151,7 +151,7 @@ function buildAssistantTools(def: AgentDef): AssistantFunctionTool[] {
 
 // --- API Constants ---
 
-const AGENT_API_VERSION = "2025-05-01-preview";
+const AGENT_API_VERSION = "2024-05-01-preview";
 const DEPLOY_API_VERSION = "2024-10-21";
 const REQUEST_TIMEOUT_MS = 30_000;
 
@@ -183,7 +183,9 @@ async function foundryFetch(cfg: FoundryDeployConfig, endpoint: string, path: st
 async function preflight(cfg: FoundryDeployConfig): Promise<StageResult> {
 	const t0 = Date.now();
 	try {
-		const res = await foundryFetch(cfg, cfg.endpoint, `/openai/deployments?api-version=${DEPLOY_API_VERSION}`);
+		// Use /openai/models (data-plane) instead of /openai/deployments (management-plane)
+		// because API keys only have data-plane access
+		const res = await foundryFetch(cfg, cfg.endpoint, `/openai/models?api-version=${DEPLOY_API_VERSION}`);
 		if (!res.ok) {
 			const text = await res.text();
 			return {
@@ -200,7 +202,7 @@ async function preflight(cfg: FoundryDeployConfig): Promise<StageResult> {
 			duration_ms: Date.now() - t0,
 			details: {
 				endpoint_reachable: true,
-				deployments_found: Array.isArray(data.data) ? data.data.length : 0,
+				models_found: Array.isArray(data.data) ? data.data.length : 0,
 			},
 		};
 	} catch (err) {
@@ -218,28 +220,33 @@ async function preflight(cfg: FoundryDeployConfig): Promise<StageResult> {
 async function verifyModel(cfg: FoundryDeployConfig): Promise<StageResult> {
 	const t0 = Date.now();
 	try {
+		// Use a minimal chat completion to verify the model deployment is accessible
+		// (data-plane key cannot access /openai/deployments/{model} management endpoint)
 		const res = await foundryFetch(
 			cfg,
 			cfg.endpoint,
-			`/openai/deployments/${encodeURIComponent(cfg.model)}?api-version=${DEPLOY_API_VERSION}`,
+			`/openai/deployments/${encodeURIComponent(cfg.model)}/chat/completions?api-version=${DEPLOY_API_VERSION}`,
+			{
+				method: "POST",
+				body: JSON.stringify({
+					messages: [{ role: "user", content: "ping" }],
+					max_tokens: 1,
+				}),
+			},
 		);
 		if (res.ok) {
 			const data = (await res.json()) as {
-				id?: string;
 				model?: string;
-				status?: string;
-				sku?: { name?: string; capacity?: number };
 			};
 			return {
 				name: "Model Deployment",
 				status: "passed",
 				duration_ms: Date.now() - t0,
 				details: {
-					deployment_name: data.id ?? cfg.model,
+					deployment_name: cfg.model,
 					model: data.model ?? cfg.model,
-					status: data.status ?? "succeeded",
-					sku: data.sku?.name ?? "unknown",
-					provisioned: false,
+					status: "succeeded",
+					verified_via: "chat_completion",
 				},
 			};
 		}

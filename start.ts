@@ -49,25 +49,6 @@ function startProcess(label: string, cwd: string): ChildProcess {
 	return proc;
 }
 
-async function waitForHealth(port: number, label: string, path = "/health", retries = 10): Promise<boolean> {
-	for (let i = 0; i < retries; i++) {
-		try {
-			const res = await fetch(`http://localhost:${port}${path}`, {
-				signal: AbortSignal.timeout(2000),
-			});
-			if (res.ok) {
-				console.log(`[${label}] healthy on port ${port}`);
-				return true;
-			}
-		} catch {
-			// not ready yet
-		}
-		await new Promise((r) => setTimeout(r, 1000));
-	}
-	console.warn(`[${label}] not healthy after ${retries} retries`);
-	return false;
-}
-
 function shutdown(): void {
 	console.log("\nShutting down...");
 	for (const proc of processes) {
@@ -103,18 +84,23 @@ async function main(): Promise<void> {
 	console.log(`\n${healthy}/${MCP_SERVERS.length} MCP servers ready`);
 
 	// Start Gateway
+	const gatewayPort = Number.parseInt(process.env.GATEWAY_PORT ?? "8000", 10);
 	console.log("\nStarting API Gateway...");
 	const gatewayProcess = startProcess("gateway", resolve(__dirname, "gateway"));
-	await waitForHealth(8000, "gateway", {
+	await waitForHealth(gatewayPort, "gateway", {
 		path: "/api/v1/health",
 		process: gatewayProcess,
 	});
 
 	console.log("\n=== Ready ===");
-	console.log("UI:        http://localhost:8000");
-	console.log("Gateway:   http://localhost:8000");
-	console.log("Health:    http://localhost:8000/api/v1/health");
+	console.log(`UI:        http://localhost:${gatewayPort}`);
+	console.log(`Gateway:   http://localhost:${gatewayPort}`);
+	console.log(`Health:    http://localhost:${gatewayPort}/api/v1/health`);
 	console.log("\nPress Ctrl+C to stop all services\n");
+
+	// Keep the main process alive — setInterval creates an active handle
+	// that prevents Node.js from draining the event loop and exiting.
+	setInterval(() => {}, 60_000);
 }
 
 main().catch((err) => {

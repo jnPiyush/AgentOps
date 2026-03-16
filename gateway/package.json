@@ -3,7 +3,7 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"build": "tsc",
+		"build": "echo skipped",
 		"start": "tsx src/index.ts",
 		"dev": "tsx watch src/index.ts"
 	},

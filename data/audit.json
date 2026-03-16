@@ -2326,5 +2326,533 @@
     "action": "escalated",
     "reasoning": "Requires human review",
     "timestamp": "2026-03-12T15:57:49.781Z"
+  },
+  {
+    "id": "6fe008ff-f373-4b16-9d44-85f63251f1d5",
+    "contract_id": "contract-f36b34a8",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 1/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 1000ms",
+    "timestamp": "2026-03-13T17:20:36.875Z"
+  },
+  {
+    "id": "8fd05e0c-b257-4b64-8ae2-fa41e833f783",
+    "contract_id": "contract-f36b34a8",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 2/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 2000ms",
+    "timestamp": "2026-03-13T17:20:38.104Z"
+  },
+  {
+    "id": "ed440e59-c357-4850-962f-82f4c9e3a400",
+    "contract_id": "contract-f36b34a8",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 3/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 4000ms",
+    "timestamp": "2026-03-13T17:20:40.339Z"
+  },
+  {
+    "id": "0ca6da52-5289-4324-900e-f4c38f4f5257",
+    "contract_id": "contract-f36b34a8",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Pipeline failed at intake (intake): Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}",
+    "timestamp": "2026-03-13T17:20:45.297Z"
+  },
+  {
+    "id": "074cb841-1548-463e-b00f-4fce76154ef5",
+    "contract_id": "contract-170e48c7",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 1/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 1000ms",
+    "timestamp": "2026-03-13T17:24:15.321Z"
+  },
+  {
+    "id": "4c0de2d7-75db-472f-a519-34ee46952151",
+    "contract_id": "contract-170e48c7",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 2/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 2000ms",
+    "timestamp": "2026-03-13T17:24:16.644Z"
+  },
+  {
+    "id": "5291a6d0-db57-4fe6-9671-d2f46ddf6cdf",
+    "contract_id": "contract-170e48c7",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 3/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 4000ms",
+    "timestamp": "2026-03-13T17:24:18.898Z"
+  },
+  {
+    "id": "b26ba6c8-6def-4dad-ab43-7416ed156a70",
+    "contract_id": "contract-170e48c7",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Pipeline failed at intake (intake): Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}",
+    "timestamp": "2026-03-13T17:24:23.839Z"
+  },
+  {
+    "id": "02e7909f-5018-4bf3-ab97-ffe7d12dd49e",
+    "contract_id": "contract-559ba947",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 1/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 1000ms",
+    "timestamp": "2026-03-16T04:37:53.975Z"
+  },
+  {
+    "id": "fffb4733-ad38-4b43-980a-c046845d003f",
+    "contract_id": "contract-559ba947",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 2/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 2000ms",
+    "timestamp": "2026-03-16T04:37:55.202Z"
+  },
+  {
+    "id": "e11efd91-b2e4-42ee-8014-81717b111c5c",
+    "contract_id": "contract-559ba947",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Attempt 3/4 failed: Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}. Retrying in 4000ms",
+    "timestamp": "2026-03-16T04:37:57.456Z"
+  },
+  {
+    "id": "703f57b0-3efc-4501-8fcb-6fb71d380e52",
+    "contract_id": "contract-559ba947",
+    "agent": "intake",
+    "action": "error",
+    "reasoning": "Pipeline failed at intake (intake): Foundry API error 401: {\"error\":{\"code\":\"401\",\"message\":\"Access denied due to invalid subscription key or wrong API endpoint. Make sure to provide a valid key for an active subscription and use a correct regional API endpoint for your resource.\"}}",
+    "timestamp": "2026-03-16T04:38:02.340Z"
+  },
+  {
+    "id": "0ed897af-c1dd-49db-98c4-78a088f3179e",
+    "contract_id": "contract-501e85a0",
+    "agent": "pipeline",
+    "action": "error",
+    "reasoning": "Pipeline failed at unknown (pipeline): Invalid intake result: type=UNKNOWN, confidence=0",
+    "timestamp": "2026-03-16T07:46:41.950Z"
+  },
+  {
+    "id": "951ae97a-2dae-48a9-a7f3-5b475eef873f",
+    "contract_id": "contract-50a41f16",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-16T07:52:15.235Z"
+  },
+  {
+    "id": "b2b61b4c-62bc-4da1-8b6a-6ecddf160089",
+    "contract_id": "contract-50a41f16",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-16T07:52:17.970Z"
+  },
+  {
+    "id": "f1203909-34aa-495b-99af-f98dbbeabf3b",
+    "contract_id": "contract-50a41f16",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T07:52:19.148Z"
+  },
+  {
+    "id": "29ed33d5-8b89-4cf1-a9e4-c8a20df58e05",
+    "contract_id": "contract-50a41f16",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers identified, indicating it is compliant and can proceed without remediation.",
+    "timestamp": "2026-03-16T07:52:21.279Z"
+  },
+  {
+    "id": "1fe01ef1-460b-4345-9ec2-579e5f37babe",
+    "contract_id": "contract-149e7600",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-16T07:54:58.668Z"
+  },
+  {
+    "id": "7476d210-d9c6-4961-8297-57e21b925e71",
+    "contract_id": "contract-149e7600",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-16T07:54:59.781Z"
+  },
+  {
+    "id": "839938ef-8a7b-4b98-a4df-e354accfe5ab",
+    "contract_id": "contract-149e7600",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T07:55:00.976Z"
+  },
+  {
+    "id": "7da9cb08-53af-42f1-b32f-45a713403ec9",
+    "contract_id": "contract-149e7600",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers were identified, indicating it is acceptable to proceed without remediation.",
+    "timestamp": "2026-03-16T07:55:03.740Z"
+  },
+  {
+    "id": "c13c954e-6608-4943-a957-2fcdeb40a558",
+    "contract_id": "contract-0c3178b6",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-16T07:55:30.058Z"
+  },
+  {
+    "id": "8f86571a-1c62-491e-8581-15a5f3af439a",
+    "contract_id": "contract-0c3178b6",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-16T07:55:31.312Z"
+  },
+  {
+    "id": "09038e6e-f739-4977-b0cd-ebaeabbc0ec8",
+    "contract_id": "contract-0c3178b6",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T07:55:32.553Z"
+  },
+  {
+    "id": "d3957283-f91e-4541-8b40-6f594580432a",
+    "contract_id": "contract-0c3178b6",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers were identified, indicating it is compliant and can proceed without remediation.",
+    "timestamp": "2026-03-16T07:55:33.748Z"
+  },
+  {
+    "id": "0953087e-02a3-4ccf-a9b7-6b14d6311040",
+    "contract_id": "contract-b562bc9c",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-16T08:05:12.501Z"
+  },
+  {
+    "id": "0dc176b1-260f-4c4e-951d-47b1fed8a644",
+    "contract_id": "contract-b562bc9c",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-16T08:05:14.229Z"
+  },
+  {
+    "id": "dd3148c7-9f7a-4507-9810-36497b9a2e22",
+    "contract_id": "contract-b562bc9c",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T08:05:15.727Z"
+  },
+  {
+    "id": "9ad91dca-9354-4f12-864b-c6f3c817018b",
+    "contract_id": "contract-b562bc9c",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers were identified, indicating it is compliant and suitable for approval without remediation.",
+    "timestamp": "2026-03-16T08:05:17.037Z"
+  },
+  {
+    "id": "a2ab922c-839f-4cf2-9a41-140f33c70504",
+    "contract_id": "contract-f553822d",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-16T08:14:52.716Z"
+  },
+  {
+    "id": "547f91f7-4f74-4f57-b33e-a18161824b16",
+    "contract_id": "contract-f553822d",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-16T08:14:56.032Z"
+  },
+  {
+    "id": "688e0a9e-e081-407c-984b-c962d0e29424",
+    "contract_id": "contract-f553822d",
+    "agent": "review",
+    "action": "reviewed",
+    "reasoning": "Review: 1 material changes, 1 unresolved items",
+    "timestamp": "2026-03-16T08:14:58.100Z"
+  },
+  {
+    "id": "37d24722-e97a-4570-a39c-831b53d857a2",
+    "contract_id": "contract-f553822d",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T08:15:03.611Z"
+  },
+  {
+    "id": "a03b27f6-6a83-4346-9a4a-66efa68594d6",
+    "contract_id": "contract-f553822d",
+    "agent": "negotiation",
+    "action": "negotiated",
+    "reasoning": "Negotiation: 2 positions, escalation=false",
+    "timestamp": "2026-03-16T08:15:06.139Z"
+  },
+  {
+    "id": "b1292736-43e4-480f-a0e7-ad6efe92410f",
+    "contract_id": "contract-f553822d",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers were identified, indicating it is acceptable to proceed without remediation.",
+    "timestamp": "2026-03-16T08:15:07.457Z"
+  },
+  {
+    "id": "c2593270-22df-4dd3-a432-5c02d39a23e3",
+    "contract_id": "contract-2ff1cf45",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-16T08:15:29.431Z"
+  },
+  {
+    "id": "35a23a6e-ae42-49f3-9d46-77355bdaaa0b",
+    "contract_id": "contract-2ff1cf45",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-16T08:15:33.076Z"
+  },
+  {
+    "id": "3fd4cb93-ea71-49d7-86d5-826de8007d0a",
+    "contract_id": "contract-2ff1cf45",
+    "agent": "review",
+    "action": "reviewed",
+    "reasoning": "Review: 2 material changes, 2 unresolved items",
+    "timestamp": "2026-03-16T08:15:36.706Z"
+  },
+  {
+    "id": "400a285a-5cca-4f61-adf4-51f79fa8e3e3",
+    "contract_id": "contract-2ff1cf45",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T08:15:38.250Z"
+  },
+  {
+    "id": "654c9580-4896-41e2-944e-554db5604b53",
+    "contract_id": "contract-2ff1cf45",
+    "agent": "negotiation",
+    "action": "negotiated",
+    "reasoning": "Negotiation: 2 positions, escalation=false",
+    "timestamp": "2026-03-16T08:15:40.480Z"
+  },
+  {
+    "id": "fc0b6eb8-7fb5-4db4-b470-ef1ca49eb823",
+    "contract_id": "contract-2ff1cf45",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers were identified, indicating that it is acceptable to proceed without remediation.",
+    "timestamp": "2026-03-16T08:15:42.377Z"
+  },
+  {
+    "id": "2c0cc50b-91c0-48ab-b469-762a4c6ea1dd",
+    "contract_id": "contract-5d16042c",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as NDA with 0.95 confidence",
+    "timestamp": "2026-03-16T08:15:57.518Z"
+  },
+  {
+    "id": "498ac30f-7b80-4157-a511-e1e8d1a78864",
+    "contract_id": "contract-5d16042c",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 2 clauses",
+    "timestamp": "2026-03-16T08:15:59.221Z"
+  },
+  {
+    "id": "2c422e91-0978-4061-9d24-0b0e0aed547f",
+    "contract_id": "contract-5d16042c",
+    "agent": "review",
+    "action": "reviewed",
+    "reasoning": "Review: 2 material changes, 2 unresolved items",
+    "timestamp": "2026-03-16T08:16:02.372Z"
+  },
+  {
+    "id": "8b039823-004d-4adb-8255-c7635d7a5fff",
+    "contract_id": "contract-5d16042c",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T08:16:03.800Z"
+  },
+  {
+    "id": "8b7875d2-06f8-4e92-8363-4a0eba9db0f5",
+    "contract_id": "contract-5d16042c",
+    "agent": "negotiation",
+    "action": "negotiated",
+    "reasoning": "Negotiation: 2 positions, escalation=false",
+    "timestamp": "2026-03-16T08:16:05.623Z"
+  },
+  {
+    "id": "e361c9b6-2920-48ef-b120-bde13b9f7a4d",
+    "contract_id": "contract-5d16042c",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers identified, indicating it is compliant and suitable for approval without remediation.",
+    "timestamp": "2026-03-16T08:16:07.047Z"
+  },
+  {
+    "id": "62fce112-f2c7-4ee2-b1b6-32389eac1a23",
+    "contract_id": "contract-41ed2a04",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as SOW with 0.95 confidence",
+    "timestamp": "2026-03-16T08:27:27.243Z"
+  },
+  {
+    "id": "ec72a914-94bf-4c64-81b9-d4ec4f2110b3",
+    "contract_id": "contract-41ed2a04",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 10 clauses",
+    "timestamp": "2026-03-16T08:27:32.276Z"
+  },
+  {
+    "id": "9a956c9d-2a87-4927-8023-e38a700aea75",
+    "contract_id": "contract-41ed2a04",
+    "agent": "review",
+    "action": "reviewed",
+    "reasoning": "Review: 3 material changes, 2 unresolved items",
+    "timestamp": "2026-03-16T08:27:35.783Z"
+  },
+  {
+    "id": "202afdce-eaa2-451f-95be-025c59048fc5",
+    "contract_id": "contract-41ed2a04",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T08:27:38.620Z"
+  },
+  {
+    "id": "b57ec791-3049-41fb-ae9e-077401b90933",
+    "contract_id": "contract-41ed2a04",
+    "agent": "negotiation",
+    "action": "negotiated",
+    "reasoning": "Negotiation: 5 positions, escalation=false",
+    "timestamp": "2026-03-16T08:27:42.546Z"
+  },
+  {
+    "id": "c3158c5c-502b-4ec2-99d4-bf22f1771631",
+    "contract_id": "contract-41ed2a04",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers were identified, indicating it is acceptable to proceed without remediation.",
+    "timestamp": "2026-03-16T08:27:43.988Z"
+  },
+  {
+    "id": "81efcc83-2df7-44c7-9a52-c3ef96339954",
+    "contract_id": "contract-90bbeffb",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as SOW with 0.95 confidence",
+    "timestamp": "2026-03-16T08:31:49.903Z"
+  },
+  {
+    "id": "31beb825-b564-4a62-898f-6e1e967ae75f",
+    "contract_id": "contract-90bbeffb",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 11 clauses",
+    "timestamp": "2026-03-16T08:31:56.359Z"
+  },
+  {
+    "id": "721341b0-2de8-4c6c-a394-546d73349fa3",
+    "contract_id": "contract-90bbeffb",
+    "agent": "review",
+    "action": "reviewed",
+    "reasoning": "Review: 4 material changes, 3 unresolved items",
+    "timestamp": "2026-03-16T08:32:02.301Z"
+  },
+  {
+    "id": "a7be2b91-7baa-454a-a444-a66040b1ef67",
+    "contract_id": "contract-90bbeffb",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T08:32:03.594Z"
+  },
+  {
+    "id": "64767367-d5a4-46c9-b946-fd08121f6cc4",
+    "contract_id": "contract-90bbeffb",
+    "agent": "negotiation",
+    "action": "negotiated",
+    "reasoning": "Negotiation: 5 positions, escalation=false",
+    "timestamp": "2026-03-16T08:32:06.739Z"
+  },
+  {
+    "id": "77a1f024-c9f3-4571-ae93-94dfd4e11a4f",
+    "contract_id": "contract-90bbeffb",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers were identified. Recommendations for improvement are minor and do not prevent execution.",
+    "timestamp": "2026-03-16T08:32:08.158Z"
+  },
+  {
+    "id": "9d75052d-3e78-4280-a157-8f838643ffaf",
+    "contract_id": "contract-5f17c649",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as SLA with 0.95 confidence",
+    "timestamp": "2026-03-16T08:48:20.866Z"
+  },
+  {
+    "id": "17757114-de50-493e-8a59-79953e5c1ae2",
+    "contract_id": "contract-5f17c649",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 9 clauses",
+    "timestamp": "2026-03-16T08:48:24.557Z"
+  },
+  {
+    "id": "0e84b2b9-a5ec-4d2e-b885-95b5cacf047f",
+    "contract_id": "contract-5f17c649",
+    "agent": "review",
+    "action": "reviewed",
+    "reasoning": "Review: 4 material changes, 4 unresolved items",
+    "timestamp": "2026-03-16T08:48:28.809Z"
+  },
+  {
+    "id": "0e2f9955-996e-4156-a8af-2da0f2db4029",
+    "contract_id": "contract-5f17c649",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T08:48:29.575Z"
+  },
+  {
+    "id": "eafe51d6-479e-4f9f-b106-b98a4cd192d0",
+    "contract_id": "contract-5f17c649",
+    "agent": "negotiation",
+    "action": "negotiated",
+    "reasoning": "Negotiation: 5 positions, escalation=false",
+    "timestamp": "2026-03-16T08:48:36.131Z"
+  },
+  {
+    "id": "dffdd486-03e8-41b9-9a5f-f968bd81742f",
+    "contract_id": "contract-5f17c649",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers identified, indicating it is acceptable to proceed without remediation.",
+    "timestamp": "2026-03-16T08:48:37.786Z"
+  },
+  {
+    "id": "2be3240c-d866-4aa0-a5e8-fec52b4c7bfa",
+    "contract_id": "contract-5f17c649",
+    "agent": "human",
+    "action": "approve",
+    "reasoning": "",
+    "timestamp": "2026-03-16T08:48:43.472Z"
   }
 ]

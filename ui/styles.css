@@ -848,10 +848,32 @@ body {
 	padding-bottom: var(--space-sm);
 }
 
+.designer-stage-flow-sequential,
+.designer-stage-flow-sequential-hitl,
+.designer-stage-flow-conditional {
+	flex-direction: column;
+	align-items: center;
+	overflow-x: visible;
+	overflow-y: auto;
+}
+
 .designer-stage-shell {
 	display: flex;
 	align-items: center;
 	gap: var(--space-md);
+}
+
+.designer-stage-flow-sequential .designer-stage-shell,
+.designer-stage-flow-sequential-hitl .designer-stage-shell,
+.designer-stage-flow-conditional .designer-stage-shell {
+	flex-direction: column;
+}
+
+.designer-stage-flow-sequential .designer-stage,
+.designer-stage-flow-sequential-hitl .designer-stage,
+.designer-stage-flow-conditional .designer-stage {
+	width: 100%;
+	max-width: 600px;
 }
 
 .designer-stage {
@@ -881,6 +903,12 @@ body {
 
 .designer-arrow {
 	margin-top: 60px;
+}
+
+.designer-stage-flow-sequential .designer-stage-arrow,
+.designer-stage-flow-sequential-hitl .designer-stage-arrow,
+.designer-stage-flow-conditional .designer-stage-arrow {
+	margin-top: 0;
 }
 
 /* Parallel layout */

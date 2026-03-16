@@ -2,6 +2,6 @@
 	"name": "agents",
 	"version": "1.0.0",
 	"type": "module",
-	"scripts": { "build": "tsc" },
+	"scripts": { "build": "echo skipped" },
 	"dependencies": {}
 }

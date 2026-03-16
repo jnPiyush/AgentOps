@@ -1,14 +1,14 @@
 {
-  "id": "pkg-wf-mmsvzwd3-v-20260316075337-a5ade7",
-  "workflow_id": "wf-mmsvzwd3",
-  "workflow_name": "Contract Lifecycle Pipeline",
-  "workflow_version": "v-20260316075337-a5ade7",
-  "activated_at": "2026-03-16T07:53:37.442Z",
+  "id": "pkg-wf-contract-6agent-v-20260316072049-61667e",
+  "workflow_id": "wf-contract-6agent",
+  "workflow_name": "Contract Processing Pipeline",
+  "workflow_version": "v-20260316072049-61667e",
+  "activated_at": "2026-03-16T07:20:49.750Z",
   "authoring_source": {
-    "workflow_definition_id": "wf-mmsvzwd3",
-    "updated_at": "2026-03-16T07:53:37.434Z"
+    "workflow_definition_id": "wf-contract-6agent",
+    "updated_at": "2026-03-16T07:20:26.545Z"
   },
-  "execution_topology": "sequential-hitl",
+  "execution_topology": "sequential",
   "mode_policy": {
     "mode": "live",
     "supported_modes": [
@@ -60,7 +60,7 @@
             "id": "group-request-initiation",
             "name": "Request Initiation Group",
             "runtime_agent_ids": [
-              "agent-1"
+              "agent-intake"
             ],
             "runtime_role_keys": [
               "intake"
@@ -89,7 +89,7 @@
             "id": "group-authoring-drafting",
             "name": "Drafting Group",
             "runtime_agent_ids": [
-              "agent-2"
+              "agent-drafting"
             ],
             "runtime_role_keys": [
               "drafting"
@@ -118,7 +118,7 @@
             "id": "group-internal-review",
             "name": "Internal Review Group",
             "runtime_agent_ids": [
-              "agent-3"
+              "agent-review"
             ],
             "runtime_role_keys": [
               "review"
@@ -146,7 +146,7 @@
             "id": "group-compliance-check",
             "name": "Compliance Group",
             "runtime_agent_ids": [
-              "agent-4"
+              "agent-compliance"
             ],
             "runtime_role_keys": [
               "compliance"
@@ -174,7 +174,7 @@
             "id": "group-negotiation-external-review",
             "name": "Negotiation Group",
             "runtime_agent_ids": [
-              "agent-5"
+              "agent-negotiation"
             ],
             "runtime_role_keys": [
               "negotiation"
@@ -203,7 +203,7 @@
             "id": "group-approval-routing",
             "name": "Approval Routing Group",
             "runtime_agent_ids": [
-              "agent-6"
+              "agent-approval"
             ],
             "runtime_role_keys": [
               "approval"
@@ -220,21 +220,19 @@
   },
   "agents": [
     {
-      "id": "agent-1",
+      "id": "agent-intake",
       "name": "Intake Agent",
-      "role": "Classify contracts by type and extract initial metadata",
+      "role": "intake",
       "kind": "agent",
       "stage": 0,
       "lane": 0,
-      "order": 0,
-      "model": "GPT-5.4",
+      "order": 1,
       "tools": [
-        "upload_contract",
         "classify_document",
-        "extract_metadata"
+        "extract_metadata",
+        "validate_format",
+        "check_duplicates"
       ],
-      "boundary": "Classify only",
-      "output": "Contract classification and metadata",
       "runtime_role_key": "intake",
       "declarative": {
         "agent_config": "config/agents/intake-agent.yaml",
@@ -243,21 +241,18 @@
       }
     },
     {
-      "id": "agent-2",
+      "id": "agent-drafting",
       "name": "Drafting Agent",
-      "role": "Assemble the initial draft package and recommend approved clause language",
+      "role": "drafting",
       "kind": "agent",
-      "stage": 1,
+      "stage": 0,
       "lane": 0,
-      "order": 1,
-      "model": "GPT-5.4",
+      "order": 2,
       "tools": [
         "extract_clauses",
         "identify_parties",
         "extract_dates_values"
       ],
-      "boundary": "Draft package only",
-      "output": "Draft-ready clause package and fallback language recommendations",
       "runtime_role_key": "drafting",
       "declarative": {
         "agent_config": "config/agents/drafting-agent.yaml",
@@ -266,20 +261,18 @@
       }
     },
     {
-      "id": "agent-3",
+      "id": "agent-review",
       "name": "Internal Review Agent",
-      "role": "Summarize redlines, review comments, and internal decision points",
+      "role": "review",
       "kind": "agent",
-      "stage": 2,
+      "stage": 0,
       "lane": 0,
-      "order": 2,
-      "model": "GPT-5.4",
+      "order": 3,
       "tools": [
-        "get_audit_log",
-        "create_audit_entry"
+        "analyze_risk",
+        "review_obligations",
+        "check_authority_limits"
       ],
-      "boundary": "Internal review only",
-      "output": "Redline summary and internal review disposition",
       "runtime_role_key": "review",
       "declarative": {
         "agent_config": "config/agents/review-agent.yaml",
@@ -288,21 +281,18 @@
       }
     },
     {
-      "id": "agent-4",
+      "id": "agent-compliance",
       "name": "Compliance Agent",
-      "role": "Check extracted terms against company policies and flag risks",
+      "role": "compliance",
       "kind": "agent",
-      "stage": 3,
+      "stage": 0,
       "lane": 0,
-      "order": 3,
-      "model": "GPT-5.4",
+      "order": 4,
       "tools": [
-        "check_policy",
-        "flag_risk",
-        "get_policy_rules"
+        "check_compliance",
+        "assess_risk",
+        "validate_regulatory"
       ],
-      "boundary": "Flag only",
-      "output": "Policy compliance flags and risk assessment",
       "runtime_role_key": "compliance",
       "declarative": {
         "agent_config": "config/agents/compliance-agent.yaml",
@@ -311,20 +301,18 @@
       }
     },
     {
-      "id": "agent-5",
+      "id": "agent-negotiation",
       "name": "Negotiation Agent",
-      "role": "Assess counterparty markup and recommend fallback negotiation positions",
+      "role": "negotiation",
       "kind": "agent",
-      "stage": 4,
+      "stage": 0,
       "lane": 0,
-      "order": 4,
-      "model": "GPT-5.4",
+      "order": 5,
       "tools": [
-        "route_approval",
-        "notify_stakeholder"
+        "compare_positions",
+        "suggest_alternatives",
+        "evaluate_terms"
       ],
-      "boundary": "Negotiation support only",
-      "output": "Negotiation summary with fallback recommendations",
       "runtime_role_key": "negotiation",
       "declarative": {
         "agent_config": "config/agents/negotiation-agent.yaml",
@@ -333,21 +321,18 @@
       }
     },
     {
-      "id": "agent-6",
+      "id": "agent-approval",
       "name": "Approval Agent",
-      "role": "Route contracts for approval or escalate to human review",
-      "kind": "human",
-      "stage": 5,
+      "role": "approval",
+      "kind": "agent",
+      "stage": 0,
       "lane": 0,
-      "order": 5,
-      "model": "GPT-5.4",
+      "order": 6,
       "tools": [
+        "check_approval_authority",
         "route_approval",
-        "escalate_to_human",
-        "notify_stakeholder"
+        "verify_signatures"
       ],
-      "boundary": "Route only",
-      "output": "Routing decision and stakeholder notification",
       "runtime_role_key": "approval",
       "declarative": {
         "agent_config": "config/agents/approval-agent.yaml",
