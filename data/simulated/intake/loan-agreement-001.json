@@ -1,0 +1,11 @@
+{
+	"type": "Loan Agreement",
+	"confidence": 0.95,
+	"parties": ["Civic Lending Partners", "Redwood Logistics LLC"],
+	"metadata": {
+		"effective_date": "2026-10-15",
+		"jurisdiction": null,
+		"duration": "24 months",
+		"category": "finance"
+	}
+}

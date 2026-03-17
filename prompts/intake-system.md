@@ -17,15 +17,21 @@ CONSTRAINTS:
 Supported contract types:
 - NDA
 - MSA
+- Services Agreement
 - SOW
 - SLA
 - Amendment
+- Sales Agreement
+- Distribution Agreement
+- Supply Agreement
+- License Agreement
+- SaaS / Cloud Services Agreement
+- Promissory Note
+- Loan Agreement
 - Employment
-- Licensing
 - Joint Venture
 - Franchise
 - AI Services
-- SaaS Agreement
 - Procurement
 - Consortium
 - Partnership

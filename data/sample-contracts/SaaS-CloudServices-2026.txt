@@ -1,0 +1,15 @@
+CLOUD SERVICES AGREEMENT
+
+This Cloud Services Agreement is entered into as of September 1, 2026 between Nimbus Cloud Platforms ("Provider") and Meridian Financial Group ("Customer").
+
+1. SERVICES
+Provider shall make the software as a service platform available to Customer under a SaaS subscription agreement.
+
+2. SERVICE LEVELS
+Provider guarantees 99.95% uptime availability.
+
+3. DATA PROTECTION
+Customer data will be retained for no more than 3 years after termination unless law requires otherwise.
+
+4. SECURITY
+Provider shall maintain administrative, technical, and physical safeguards.

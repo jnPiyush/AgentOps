@@ -1,0 +1,12 @@
+SOFTWARE LICENSE AGREEMENT
+
+This Software License Agreement is entered into as of August 1, 2026 between BluePeak Software, Inc. ("Licensor") and Orion Health Systems ("Licensee").
+
+1. LICENSE GRANT
+Licensor grants Licensee a non-exclusive license to use the software for internal business purposes.
+
+2. FEES
+Licensee shall pay annual license fees as set forth in the Order Form.
+
+3. INTELLECTUAL PROPERTY
+Licensor retains all intellectual property rights and grants only the limited license expressly set forth herein.

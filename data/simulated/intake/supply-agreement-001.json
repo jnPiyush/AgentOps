@@ -1,0 +1,11 @@
+{
+	"type": "Supply Agreement",
+	"confidence": 0.94,
+	"parties": ["Alloy Materials Corp.", "Prime Components Ltd."],
+	"metadata": {
+		"effective_date": "2026-07-10",
+		"jurisdiction": null,
+		"duration": null,
+		"category": "supply"
+	}
+}

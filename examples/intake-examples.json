@@ -16,5 +16,23 @@
       "jurisdiction": "New York",
       "confidence_score": 0.95
     }
+  },
+  {
+    "input": {
+      "document_text": "SOFTWARE LICENSE AGREEMENT between SoftwareCorp and Licensee Inc effective March 1, 2026 under Delaware law.",
+      "document_name": "license-example.txt"
+    },
+    "expected": {
+      "contract_id": "",
+      "title": "SOFTWARE LICENSE AGREEMENT",
+      "parties": ["SoftwareCorp", "Licensee Inc"],
+      "contract_type": "License Agreement",
+      "effective_date": "2026-03-01",
+      "expiry_date": null,
+      "value": null,
+      "currency": null,
+      "jurisdiction": "Delaware",
+      "confidence_score": 0.92
+    }
   }
 ]

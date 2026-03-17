@@ -1,0 +1,11 @@
+{
+	"type": "Promissory Note",
+	"confidence": 0.94,
+	"parties": ["Borrower", "Lender"],
+	"metadata": {
+		"effective_date": null,
+		"jurisdiction": null,
+		"duration": null,
+		"category": "finance"
+	}
+}

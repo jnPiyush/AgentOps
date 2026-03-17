@@ -1,0 +1,11 @@
+{
+	"type": "Distribution Agreement",
+	"confidence": 0.94,
+	"parties": ["Vertex Foods Inc.", "Summit Distribution LLC"],
+	"metadata": {
+		"effective_date": "2026-06-01",
+		"jurisdiction": null,
+		"duration": null,
+		"category": "distribution"
+	}
+}

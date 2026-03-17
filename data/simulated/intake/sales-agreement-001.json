@@ -1,0 +1,11 @@
+{
+	"type": "Sales Agreement",
+	"confidence": 0.94,
+	"parties": ["Apex Industrial Supply", "Harbor Manufacturing Co."],
+	"metadata": {
+		"effective_date": "2026-05-05",
+		"jurisdiction": null,
+		"duration": null,
+		"category": "sales"
+	}
+}

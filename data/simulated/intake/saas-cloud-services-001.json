@@ -1,0 +1,11 @@
+{
+	"type": "SaaS / Cloud Services Agreement",
+	"confidence": 0.95,
+	"parties": ["Nimbus Cloud Platforms", "Meridian Financial Group"],
+	"metadata": {
+		"effective_date": "2026-09-01",
+		"jurisdiction": null,
+		"duration": null,
+		"category": "cloud_services"
+	}
+}

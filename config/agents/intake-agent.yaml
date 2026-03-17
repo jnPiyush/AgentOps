@@ -52,7 +52,7 @@ behavior:
   
   # Quality Gates
   validation:
-    required_fields: [type, confidence, parties]
+    required_fields: [contract_type, confidence_score, parties]
     confidence_threshold: 0.7
     max_parties: 10
     
@@ -76,11 +76,11 @@ workflow:
   
   # Conditional Routing
   routing:
-    - condition: "output.confidence < 0.7" 
+    - condition: "output.confidence_score < 0.7" 
       action: escalate_to_human
-    - condition: "output.type == 'UNKNOWN'"
+    - condition: "output.contract_type == 'UNKNOWN'"
       action: route_to_legal_review
-    - condition: "output.confidence >= 0.7"
+    - condition: "output.confidence_score >= 0.7"
       action: continue_to_extraction
 
 # Observability & Monitoring

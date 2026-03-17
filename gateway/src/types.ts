@@ -2,7 +2,31 @@
 
 // --- Contracts ---
 
-export type ContractType = "NDA" | "MSA" | "SOW" | "Amendment" | "SLA";
+export type ContractType =
+	| "NDA"
+	| "MSA"
+	| "Services Agreement"
+	| "SOW"
+	| "Amendment"
+	| "SLA"
+	| "Sales Agreement"
+	| "Distribution Agreement"
+	| "Supply Agreement"
+	| "License Agreement"
+	| "SaaS / Cloud Services Agreement"
+	| "Promissory Note"
+	| "Loan Agreement"
+	| "Employment"
+	| "Joint Venture"
+	| "Franchise"
+	| "AI Services"
+	| "Procurement"
+	| "Consortium"
+	| "Partnership"
+	| "Lease"
+	| "Insurance"
+	| "Government Contract"
+	| "UNKNOWN";
 
 export type ContractStatus = "processing" | "awaiting_review" | "approved" | "rejected" | "archived" | "failed";
 

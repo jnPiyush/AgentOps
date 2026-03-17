@@ -28,7 +28,7 @@ server.tool(
 
 server.tool(
 	"classify_document",
-	"Classify a contract by type (NDA, MSA, SOW, Amendment, SLA)",
+	"Classify a contract by type (NDA, MSA, Services Agreement, SOW, Amendment, SLA, Sales, Distribution, Supply, License, SaaS/Cloud, Promissory Note, Loan Agreement)",
 	{
 		text: z.string().describe("The contract text to classify"),
 	},

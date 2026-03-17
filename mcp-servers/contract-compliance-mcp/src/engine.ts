@@ -45,7 +45,12 @@ export async function checkPolicy(clauses: ClauseInput[], _contractType?: string
 
 	for (const clause of clauses) {
 		// Get all policy violations for this clause
-		const violations = await policyEngine.evaluateClause(clause.type, clause.text, { section: clause.section });
+		const violations = await policyEngine.evaluateClause(
+			clause.type,
+			clause.text,
+			{ section: clause.section },
+			_contractType,
+		);
 
 		if (violations.length === 0) {
 			// No violations found

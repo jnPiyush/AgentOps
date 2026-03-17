@@ -8,3 +8,4 @@
 - 2026-03-11: Do not leave ACA on push triggers after adding it as an optional hosting lane. That silently turns the secondary runtime into a default deployment path.
 - 2026-03-11: Do not add OpenAI RBAC role assignments in Bicep without ensuring the deploying identity can write Azure role assignments. Managed-identity runtime auth will fail at provision time otherwise.
 - 2026-03-12: On Windows, moving workspace directories can fail with "file is being used by another process" if the local Node demo stack is still running. Stop workspace node processes before large repo moves.
+- 2026-03-16: Do not widen the intake prompt taxonomy without updating both the deterministic classifier and `agents/src/intakeAgent.ts`. The prompt/schema can drift ahead of runtime classification unless the adapter accepts both schema and legacy payload shapes.

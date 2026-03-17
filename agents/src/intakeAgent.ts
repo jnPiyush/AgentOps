@@ -38,10 +38,13 @@ export async function runIntakeAgent(
 		};
 	}
 
+	const parsedType = parsed.contract_type ?? parsed.type;
+	const parsedConfidence = parsed.confidence_score ?? parsed.confidence;
+
 	return {
 		contractId,
-		type: (parsed.contract_type as string) ?? (parsed.type as string) ?? "UNKNOWN",
-		confidence: (parsed.confidence_score as number) ?? (parsed.confidence as number) ?? 0,
+		type: (parsedType as string) ?? "UNKNOWN",
+		confidence: (parsedConfidence as number) ?? 0,
 		parties: (parsed.parties as string[]) ?? [],
 		metadata: (parsed.metadata as Record<string, string>) ?? {
 			title: parsed.title as string,

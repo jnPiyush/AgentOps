@@ -87,6 +87,86 @@ describe("Dynamic Policy Engine", () => {
 			expect(violations[0].severity).toBe("medium");
 			expect(violations[0].status).toBe("fail");
 		});
+
+		it("applies stricter payment terms to sales and supply family contracts", async () => {
+			const violations = await checkPolicy(
+				[
+					{
+						type: "payment",
+						text: "Payment is due within 40 days of invoice receipt.",
+						section: "4.2",
+					},
+				],
+				"Sales Agreement",
+			);
+
+			expect(violations.flags_count).toBe(1);
+			expect(violations.policy_references).toContain("SALES-001");
+		});
+
+		it("does not apply sales-specific payment rule to non-sales contracts", async () => {
+			const violations = await checkPolicy(
+				[
+					{
+						type: "payment",
+						text: "Payment is due within 40 days of invoice receipt.",
+						section: "4.2",
+					},
+				],
+				"Services Agreement",
+			);
+
+			expect(violations.flags_count).toBe(0);
+			expect(violations.policy_references).not.toContain("SALES-001");
+		});
+
+		it("applies stricter uptime policy to SaaS agreements", async () => {
+			const violations = await checkPolicy(
+				[
+					{
+						type: "sla",
+						text: "The service level agreement guarantees 99.92% uptime availability.",
+						section: "5.1",
+					},
+				],
+				"SaaS / Cloud Services Agreement",
+			);
+
+			expect(violations.flags_count).toBe(1);
+			expect(violations.policy_references).toContain("SAAS-001");
+		});
+
+		it("applies license-specific IP clause policy", async () => {
+			const violations = await checkPolicy(
+				[
+					{
+						type: "ip_ownership",
+						text: "Provider retains all intellectual property rights in the software.",
+						section: "7.1",
+					},
+				],
+				"License Agreement",
+			);
+
+			expect(violations.flags_count).toBe(1);
+			expect(violations.policy_references).toContain("LIC-001");
+		});
+
+		it("applies interest cap to loan and promissory-note contracts", async () => {
+			const violations = await checkPolicy(
+				[
+					{
+						type: "interest",
+						text: "Interest shall accrue at 24% per annum until the loan is repaid in full.",
+						section: "3.1",
+					},
+				],
+				"Loan Agreement",
+			);
+
+			expect(violations.flags_count).toBe(1);
+			expect(violations.policy_references).toContain("LOAN-001");
+		});
 	});
 
 	describe("checkPolicy (full compliance workflow)", () => {

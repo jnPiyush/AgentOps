@@ -1,0 +1,11 @@
+{
+	"type": "Services Agreement",
+	"confidence": 0.93,
+	"parties": ["Northwind Advisory LLC", "Contoso Retail Group"],
+	"metadata": {
+		"effective_date": "2026-04-01",
+		"jurisdiction": "New York",
+		"duration": "12 months",
+		"category": "services"
+	}
+}

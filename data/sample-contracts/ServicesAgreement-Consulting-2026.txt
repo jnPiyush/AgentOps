@@ -1,0 +1,18 @@
+PROFESSIONAL SERVICES AGREEMENT
+
+This Professional Services Agreement ("Agreement") is entered into as of April 1, 2026, by and between Northwind Advisory LLC ("Provider") and Contoso Retail Group ("Client").
+
+1. SERVICES
+Provider shall deliver consulting services, reporting modernization services, and operational support services.
+
+2. TERM
+This Agreement begins on April 1, 2026 and continues for twelve (12) months unless terminated earlier.
+
+3. FEES AND PAYMENT
+Client shall pay fixed monthly fees. Payment is due within 30 days of invoice receipt.
+
+4. LIABILITY
+The aggregate liability of either party shall not exceed $1,500,000.
+
+5. GOVERNING LAW
+This Agreement is governed by the laws of the State of New York.

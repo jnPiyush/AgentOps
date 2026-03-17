@@ -1,0 +1,9 @@
+PROMISSORY NOTE
+
+For value received, Borrower promises to pay Lender the principal sum of $250,000 on or before December 31, 2026.
+
+1. INTEREST
+Interest shall accrue at 12% per annum.
+
+2. DEFAULT
+Upon default, all outstanding principal and accrued interest become immediately due.

@@ -61,6 +61,7 @@ class DynamicPolicyEngine {
 		clauseType: string,
 		clauseText: string,
 		extractedData?: Record<string, any>,
+		contractType?: string,
 	): Promise<PolicyViolation[]> {
 		if (!this.lastLoaded || Date.now() - this.lastLoaded.getTime() > 300000) {
 			// Refresh every 5 minutes
@@ -69,7 +70,11 @@ class DynamicPolicyEngine {
 
 		const violations: PolicyViolation[] = [];
 		const applicablePolicies = this.policies.filter(
-			(p) => p.enabled && p.clause_types.includes(clauseType) && this.isEffective(p),
+			(p) =>
+				p.enabled &&
+				p.clause_types.includes(clauseType) &&
+				this.isEffective(p) &&
+				this.appliesToContractType(p, contractType),
 		);
 
 		for (const policy of applicablePolicies) {
@@ -94,6 +99,9 @@ class DynamicPolicyEngine {
 
 		// Extract value from clause text or provided data
 		switch (condition.field) {
+			case "clause_text":
+				actualValue = clauseText;
+				break;
 			case "liability_amount":
 				actualValue = this.extractMonetaryValue(clauseText);
 				break;
@@ -114,6 +122,9 @@ class DynamicPolicyEngine {
 				break;
 			case "uptime_percentage":
 				actualValue = this.extractUptimeRequirement(clauseText);
+				break;
+			case "interest_rate":
+				actualValue = this.extractInterestRate(clauseText);
 				break;
 			default:
 				actualValue = extractedData?.[condition.field];
@@ -173,6 +184,15 @@ class DynamicPolicyEngine {
 		return now >= effectiveDate && (!expiryDate || now <= expiryDate);
 	}
 
+	private appliesToContractType(policy: PolicyRule, contractType?: string): boolean {
+		const scopedTypes = policy.metadata?.contract_types;
+		if (!Array.isArray(scopedTypes) || scopedTypes.length === 0) {
+			return true;
+		}
+
+		return typeof contractType === "string" && scopedTypes.includes(contractType);
+	}
+
 	private extractMonetaryValue(text: string): number {
 		const patterns = [
 			/\$([0-9,]+(?:\.[0-9]{2})?)/,
@@ -198,6 +218,7 @@ class DynamicPolicyEngine {
 	private extractPaymentTerms(text: string): number {
 		const patterns = [
 			/net[\s-]?(\d+)/i,
+			/payment\s+is\s+due\s+within\s+(\d+)\s*days/i,
 			/(\d+)\s*days?\s*from\s*invoice/i,
 			/payment\s*(?:due\s*)?(?:in\s*)?(\d+)\s*days/i,
 		];
@@ -279,6 +300,23 @@ class DynamicPolicyEngine {
 			/(\d{1,3}(?:\.\d+)?)%\s*uptime/i,
 			/uptime\s*(?:of\s*)?(\d{1,3}(?:\.\d+)?)%/i,
 			/availability\s*(?:of\s*)?(\d{1,3}(?:\.\d+)?)%/i,
+		];
+
+		for (const pattern of patterns) {
+			const match = text.match(pattern);
+			if (match) {
+				return Number.parseFloat(match[1]);
+			}
+		}
+
+		return 0;
+	}
+
+	private extractInterestRate(text: string): number {
+		const patterns = [
+			/(\d+(?:\.\d+)?)%\s*(?:per\s+annum|annual|interest)/i,
+			/interest\s*(?:rate)?\s*(?:of\s*)?(\d+(?:\.\d+)?)%/i,
+			/(\d+(?:\.\d+)?)\s*percent\s*(?:per\s+annum|interest)/i,
 		];
 
 		for (const pattern of patterns) {

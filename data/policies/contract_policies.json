@@ -88,5 +88,95 @@
 		"message_template": "SLA uptime requirement of {actual_value}% below policy minimum of {policy_value}%",
 		"effective_date": "2024-01-01",
 		"enabled": true
+	},
+	{
+		"id": "SALES-001",
+		"category": "financial",
+		"clause_types": ["payment"],
+		"rule_type": "threshold",
+		"condition": {
+			"operator": "gt",
+			"field": "payment_days",
+			"value": 30
+		},
+		"severity": "medium",
+		"message_template": "Payment terms of {actual_value} days exceed sales and supply policy maximum of {policy_value} days",
+		"effective_date": "2024-01-01",
+		"enabled": true,
+		"metadata": {
+			"contract_types": ["Sales Agreement", "Distribution Agreement", "Supply Agreement"]
+		}
+	},
+	{
+		"id": "LIC-001",
+		"category": "legal",
+		"clause_types": ["ip_ownership"],
+		"rule_type": "pattern",
+		"condition": {
+			"operator": "not_contains",
+			"field": "clause_text",
+			"value": "license"
+		},
+		"severity": "medium",
+		"message_template": "License Agreement IP clause must explicitly describe the licensed rights",
+		"effective_date": "2024-01-01",
+		"enabled": true,
+		"metadata": {
+			"contract_types": ["License Agreement"]
+		}
+	},
+	{
+		"id": "SAAS-001",
+		"category": "operational",
+		"clause_types": ["sla"],
+		"rule_type": "threshold",
+		"condition": {
+			"operator": "lt",
+			"field": "uptime_percentage",
+			"value": 99.95
+		},
+		"severity": "high",
+		"message_template": "SaaS uptime requirement of {actual_value}% below cloud-services minimum of {policy_value}%",
+		"effective_date": "2024-01-01",
+		"enabled": true,
+		"metadata": {
+			"contract_types": ["SaaS / Cloud Services Agreement"]
+		}
+	},
+	{
+		"id": "SAAS-002",
+		"category": "data",
+		"clause_types": ["data_protection"],
+		"rule_type": "threshold",
+		"condition": {
+			"operator": "gt",
+			"field": "retention_years",
+			"value": 3
+		},
+		"severity": "high",
+		"message_template": "SaaS data retention period of {actual_value} years exceeds cloud-services maximum of {policy_value} years",
+		"effective_date": "2024-01-01",
+		"enabled": true,
+		"metadata": {
+			"contract_types": ["SaaS / Cloud Services Agreement"]
+		}
+	},
+	{
+		"id": "LOAN-001",
+		"category": "financial",
+		"clause_types": ["interest"],
+		"rule_type": "threshold",
+		"condition": {
+			"operator": "gt",
+			"field": "interest_rate",
+			"value": 18
+		},
+		"severity": "high",
+		"message_template": "Interest rate of {actual_value}% exceeds finance policy maximum of {policy_value}%",
+		"effective_date": "2024-01-01",
+		"enabled": true,
+		"metadata": {
+			"contract_types": ["Loan Agreement", "Promissory Note"]
+		}
 	}
 ]
