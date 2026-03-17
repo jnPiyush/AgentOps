@@ -2854,5 +2854,53 @@
     "action": "approve",
     "reasoning": "",
     "timestamp": "2026-03-16T08:48:43.472Z"
+  },
+  {
+    "id": "abb724db-a705-4166-9648-2015fb9ef029",
+    "contract_id": "contract-62257974",
+    "agent": "intake",
+    "action": "classified",
+    "reasoning": "Classified as SLA with 0.95 confidence",
+    "timestamp": "2026-03-16T14:58:51.735Z"
+  },
+  {
+    "id": "aa8024f2-d958-490f-a0ff-b02fe5da9a7e",
+    "contract_id": "contract-62257974",
+    "agent": "extraction",
+    "action": "extracted",
+    "reasoning": "Extracted 9 clauses",
+    "timestamp": "2026-03-16T14:58:57.675Z"
+  },
+  {
+    "id": "527726fd-ec1e-4c8f-ac27-f6a800aaf596",
+    "contract_id": "contract-62257974",
+    "agent": "review",
+    "action": "reviewed",
+    "reasoning": "Review: 7 material changes, 4 unresolved items",
+    "timestamp": "2026-03-16T14:59:05.615Z"
+  },
+  {
+    "id": "ba1e579e-6979-4a84-824c-0cd98cfd6f18",
+    "contract_id": "contract-62257974",
+    "agent": "compliance",
+    "action": "flagged",
+    "reasoning": "Risk: medium, Flags: 0",
+    "timestamp": "2026-03-16T14:59:06.637Z"
+  },
+  {
+    "id": "d6ba02db-bdd4-49e9-b6b7-dec4490b8005",
+    "contract_id": "contract-62257974",
+    "agent": "negotiation",
+    "action": "negotiated",
+    "reasoning": "Negotiation: 5 positions, escalation=false",
+    "timestamp": "2026-03-16T14:59:15.593Z"
+  },
+  {
+    "id": "3c49b064-d777-4f5c-a22d-b56416f8981e",
+    "contract_id": "contract-62257974",
+    "agent": "approval",
+    "action": "escalated",
+    "reasoning": "The contract has a medium risk level but no flags or blockers identified. Recommendations for improvement are minor and do not prevent execution.",
+    "timestamp": "2026-03-16T14:59:17.625Z"
   }
 ]
