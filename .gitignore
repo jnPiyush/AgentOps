@@ -96,3 +96,8 @@ gateway/src/*.js
 
 # Binary documents
 *.docx
+
+# --- AgentX (auto-generated, do not edit this block) ---
+# AgentX runtime state
+.agentx/
+# --- /AgentX ---
