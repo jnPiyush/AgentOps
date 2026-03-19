@@ -41,34 +41,41 @@ const WorkflowDesigner = (() => {
 	// Tool Catalogue — each tool is a primary object; MCP is its transport mechanism.
 	// Tools are grouped by CATEGORY in the picker, not by server.
 	const TOOL_CATALOGUE = [
-		// Intake
-		{ id: "upload_contract",        name: "Upload Contract",       description: "Upload a contract document for processing",                          category: "Intake",      mcpServer: "contract-intake-mcp" },
-		{ id: "classify_document",      name: "Classify Document",     description: "Classify contract type (NDA, MSA, SOW, SLA, etc.)",                  category: "Intake",      mcpServer: "contract-intake-mcp" },
-		{ id: "extract_metadata",       name: "Extract Metadata",      description: "Extract parties, dates, and jurisdiction metadata",                  category: "Intake",      mcpServer: "contract-intake-mcp" },
-		// Extraction
-		{ id: "extract_clauses",        name: "Extract Clauses",       description: "Extract all key clauses from the contract body",                     category: "Extraction",  mcpServer: "contract-extraction-mcp" },
-		{ id: "identify_parties",       name: "Identify Parties",      description: "Identify all contract parties and signatories",                      category: "Extraction",  mcpServer: "contract-extraction-mcp" },
-		{ id: "extract_dates_values",   name: "Extract Dates & Values","description": "Extract dates, milestones, and monetary values",                   category: "Extraction",  mcpServer: "contract-extraction-mcp" },
-		// Compliance
-		{ id: "check_policy",           name: "Check Policy",          description: "Validate contract terms against company policies",                   category: "Compliance",  mcpServer: "contract-compliance-mcp" },
-		{ id: "flag_risk",              name: "Flag Risk",             description: "Identify and flag high-risk clauses or terms",                       category: "Compliance",  mcpServer: "contract-compliance-mcp" },
-		{ id: "get_policy_rules",       name: "Get Policy Rules",      description: "Retrieve the current policy ruleset for evaluation",                 category: "Compliance",  mcpServer: "contract-compliance-mcp" },
-		// Workflow
-		{ id: "route_approval",         name: "Route Approval",        description: "Route contract to the appropriate approval tier",                    category: "Workflow",    mcpServer: "contract-workflow-mcp" },
-		{ id: "escalate_to_human",      name: "Escalate to Human",     description: "Trigger a human-in-the-loop review checkpoint",                     category: "Workflow",    mcpServer: "contract-workflow-mcp" },
-		{ id: "notify_stakeholder",     name: "Notify Stakeholder",    description: "Send notifications to relevant stakeholders",                        category: "Workflow",    mcpServer: "contract-workflow-mcp" },
-		// Audit
-		{ id: "get_audit_log",          name: "Get Audit Log",         description: "Retrieve the full contract audit history",                           category: "Audit",       mcpServer: "contract-audit-mcp" },
-		{ id: "create_audit_entry",     name: "Create Audit Entry",    description: "Write a new timestamped audit event to the log",                    category: "Audit",       mcpServer: "contract-audit-mcp" },
-		// Analytics & Evaluation
-		{ id: "run_evaluation",         name: "Run Evaluation",        description: "Execute an evaluation suite on agent outputs",                       category: "Analytics",   mcpServer: "contract-eval-mcp" },
-		{ id: "get_baseline",           name: "Get Baseline",          description: "Retrieve evaluation baseline metrics for comparison",                category: "Analytics",   mcpServer: "contract-eval-mcp" },
-		// Monitoring
-		{ id: "detect_drift",           name: "Detect Drift",          description: "Analyse model output drift vs. baseline",                            category: "Monitoring",  mcpServer: "contract-drift-mcp" },
-		{ id: "model_swap_analysis",    name: "Model Swap Analysis",   description: "Compare agent outputs before and after a model version change",      category: "Monitoring",  mcpServer: "contract-drift-mcp" },
-		// Feedback
-		{ id: "submit_feedback",        name: "Submit Feedback",       description: "Submit human feedback for continuous improvement",                   category: "Feedback",    mcpServer: "contract-feedback-mcp" },
-		{ id: "optimize_feedback",      name: "Optimize Feedback",     description: "Apply feedback signals to refine agent prompts automatically",       category: "Feedback",    mcpServer: "contract-feedback-mcp" },
+		// Intake (contract-intake-mcp, port 9001)
+		{ id: "upload_contract",      name: "Upload Contract",        description: "Upload a contract document for processing",                        category: "Intake",      mcpServer: "contract-intake-mcp" },
+		{ id: "classify_document",    name: "Classify Document",      description: "Classify contract type (NDA, MSA, SOW, SLA, etc.)",               category: "Intake",      mcpServer: "contract-intake-mcp" },
+		{ id: "extract_metadata",     name: "Extract Metadata",       description: "Extract parties, dates, and jurisdiction metadata",               category: "Intake",      mcpServer: "contract-intake-mcp" },
+		// Extraction (contract-extraction-mcp, port 9002)
+		{ id: "extract_clauses",      name: "Extract Clauses",        description: "Extract all key clauses from the contract body",                  category: "Extraction",  mcpServer: "contract-extraction-mcp" },
+		{ id: "identify_parties",     name: "Identify Parties",       description: "Identify all contract parties and signatories",                   category: "Extraction",  mcpServer: "contract-extraction-mcp" },
+		{ id: "extract_dates_values", name: "Extract Dates & Values", description: "Extract dates, milestones, and monetary values",                  category: "Extraction",  mcpServer: "contract-extraction-mcp" },
+		// Compliance (contract-compliance-mcp, port 9003)
+		{ id: "check_policy",         name: "Check Policy",           description: "Validate contract terms against company policies",                category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		{ id: "flag_risk",            name: "Flag Risk",              description: "Identify and flag high-risk clauses or terms",                    category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		{ id: "get_policy_rules",     name: "Get Policy Rules",       description: "Retrieve the current policy ruleset for evaluation",              category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		{ id: "add_policy_rule",      name: "Add Policy Rule",        description: "Add a new dynamic policy rule to the ruleset",                   category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		{ id: "update_policy_rule",   name: "Update Policy Rule",     description: "Update an existing policy rule",                                 category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		{ id: "delete_policy_rule",   name: "Delete Policy Rule",     description: "Remove a policy rule from the ruleset",                          category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		// Workflow (contract-workflow-mcp, port 9004)
+		{ id: "route_approval",       name: "Route Approval",         description: "Route contract to the appropriate approval tier",                 category: "Workflow",    mcpServer: "contract-workflow-mcp" },
+		{ id: "escalate_to_human",    name: "Escalate to Human",      description: "Trigger a human-in-the-loop review checkpoint",                  category: "Workflow",    mcpServer: "contract-workflow-mcp" },
+		{ id: "notify_stakeholder",   name: "Notify Stakeholder",     description: "Send notifications to relevant stakeholders",                    category: "Workflow",    mcpServer: "contract-workflow-mcp" },
+		// Audit (contract-audit-mcp, port 9005)
+		{ id: "log_decision",         name: "Log Decision",           description: "Log an agent or human decision to the audit trail",               category: "Audit",       mcpServer: "contract-audit-mcp" },
+		{ id: "get_audit_trail",      name: "Get Audit Trail",        description: "Retrieve the full decision audit trail for a contract",           category: "Audit",       mcpServer: "contract-audit-mcp" },
+		{ id: "generate_report",      name: "Generate Report",        description: "Generate a summary audit report for a contract",                 category: "Audit",       mcpServer: "contract-audit-mcp" },
+		// Analytics & Evaluation (contract-eval-mcp, port 9006)
+		{ id: "run_evaluation",       name: "Run Evaluation",         description: "Execute an evaluation suite on agent outputs",                   category: "Analytics",   mcpServer: "contract-eval-mcp" },
+		{ id: "get_results",          name: "Get Eval Results",       description: "Retrieve all evaluation results from previous runs",             category: "Analytics",   mcpServer: "contract-eval-mcp" },
+		{ id: "compare_baseline",     name: "Compare Baseline",       description: "Compare current evaluation against the baseline version",        category: "Analytics",   mcpServer: "contract-eval-mcp" },
+		// Monitoring (contract-drift-mcp, port 9007)
+		{ id: "detect_llm_drift",     name: "Detect LLM Drift",      description: "Detect LLM accuracy drift over time vs. threshold",              category: "Monitoring",  mcpServer: "contract-drift-mcp" },
+		{ id: "detect_data_drift",    name: "Detect Data Drift",     description: "Detect shifts in contract type distribution",                    category: "Monitoring",  mcpServer: "contract-drift-mcp" },
+		{ id: "simulate_model_swap",  name: "Simulate Model Swap",   description: "Compare model versions on accuracy, latency, and cost",          category: "Monitoring",  mcpServer: "contract-drift-mcp" },
+		// Feedback (contract-feedback-mcp, port 9008)
+		{ id: "submit_feedback",      name: "Submit Feedback",        description: "Submit human feedback for continuous improvement",               category: "Feedback",    mcpServer: "contract-feedback-mcp" },
+		{ id: "convert_to_tests",     name: "Convert to Tests",       description: "Convert negative feedback into evaluation test cases",           category: "Feedback",    mcpServer: "contract-feedback-mcp" },
+		{ id: "get_summary",          name: "Get Feedback Summary",   description: "Get feedback trends and per-agent satisfaction summary",         category: "Feedback",    mcpServer: "contract-feedback-mcp" },
 	];
 
 	// Backwards-compatible server→tools map (used by validation and window.mcpTools)
