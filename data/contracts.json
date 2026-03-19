@@ -27,7 +27,7 @@
     "submitted_at": "2026-03-07T06:34:26.433Z",
     "type": "NDA",
     "classification_confidence": 0.95,
-    "completed_at": "2026-03-19T12:33:13.271Z"
+    "completed_at": "2026-03-19T12:56:14.246Z"
   },
   {
     "id": "contract-a3727b2f",
@@ -1228,6 +1228,31 @@
     "text": "Audit route contract",
     "status": "awaiting_review",
     "submitted_at": "2026-03-19T12:33:13.558Z",
+    "type": "NDA"
+  },
+  {
+    "id": "contract-1b27707e",
+    "filename": "nda-test.txt",
+    "text": "This Non-Disclosure Agreement is between Party A and Party B...",
+    "status": "approved",
+    "submitted_at": "2026-03-19T12:56:14.134Z",
+    "type": "NDA",
+    "classification_confidence": 0.95,
+    "completed_at": "2026-03-19T12:56:14.182Z"
+  },
+  {
+    "id": "contract-custom42",
+    "filename": "nda-id.txt",
+    "text": "This NDA is between X and Y...",
+    "status": "processing",
+    "submitted_at": "2026-03-19T12:56:14.193Z"
+  },
+  {
+    "id": "contract-audit-mmxh4mfh",
+    "filename": "audit-stage-test.txt",
+    "text": "Audit route contract",
+    "status": "awaiting_review",
+    "submitted_at": "2026-03-19T12:56:14.477Z",
     "type": "NDA"
   }
 ]

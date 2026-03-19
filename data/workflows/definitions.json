@@ -3934,8 +3934,56 @@
         "order": 1
       }
     ],
-    "active": true,
+    "active": false,
     "createdAt": "2026-03-19T12:33:13.532Z",
     "updatedAt": "2026-03-19T12:33:13.532Z"
+  },
+  {
+    "id": "wf-audit-mmxh4meu",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": true,
+    "createdAt": "2026-03-19T12:56:14.454Z",
+    "updatedAt": "2026-03-19T12:56:14.454Z"
   }
 ]
