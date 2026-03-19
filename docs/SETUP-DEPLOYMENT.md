@@ -25,7 +25,7 @@ The Azure deployment provisions:
 - One resource group
 - One Azure OpenAI account
 - One Linux Azure App Service Plan
-- One Linux Azure App Service running `npx tsx start.ts`
+- One Linux Azure App Service running the compiled production entrypoint `npm run start:prod`
 
 Optional ACA deployment provisions:
 
@@ -45,7 +45,11 @@ The App Service is configured with:
 - `FOUNDRY_PROJECT_ENDPOINT`
 - `FOUNDRY_MODEL`
 - `GATEWAY_PORT=8080`
+- `ALLOWED_ORIGINS=<deployed app url>`
 - `NODE_ENV=production`
+- `WORKSPACE_START_SCRIPT=start:prod`
+- Oryx remote build enabled during deployment
+- App Service health-check and warm-up settings for `/api/v1/health`
 
 After deployment, `azd` runs a post-deploy hook that calls `POST /api/v1/deploy/pipeline` on the deployed app.
 
@@ -258,6 +262,16 @@ Open the UI:
 
 The Azure infrastructure now provisions the Azure OpenAI account through Bicep, enables a system-assigned managed identity on App Service, and grants that identity `Cognitive Services OpenAI User` on the Azure OpenAI resource. `FOUNDRY_PROJECT_ENDPOINT` remains optional and defaults to the same endpoint.
 
+## App Service Runtime Notes
+
+Azure App Service is the primary hosting target for this repo.
+
+- The App Service startup command is `npm run start:prod`
+- The root production launcher starts `dist/start.js`
+- `WORKSPACE_START_SCRIPT=start:prod` ensures the gateway and all MCP servers also start from compiled JavaScript instead of `tsx`
+- `SCM_DO_BUILD_DURING_DEPLOYMENT=true` and `ENABLE_ORYX_BUILD=true` ensure App Service performs the build during deployment
+- The GitHub App Service deployment workflow also sets `ALLOWED_ORIGINS` to the deployed App Service URL after provisioning so the hosted UI and API stay same-origin-safe by default
+
 For live mode, set these `azd` environment values before deployment:
 
 ```powershell
@@ -327,14 +341,15 @@ The default GitHub Actions deployment path remains App Service. ACA is a manual 
 
 Current behavior in this repo:
 
-- The App Service startup command is `npx tsx start.ts`
+- The App Service startup command is `npm run start:prod`
 - `start.ts` launches the MCP servers and gateway in one app process tree
+- `WORKSPACE_START_SCRIPT=start:prod` makes the child gateway and MCP processes use compiled runtime entrypoints
 - The gateway serves the UI from `ui/`
 - Health is exposed at `/api/v1/health`
 
 Current security posture:
 
-- App Service live mode uses API-key based Foundry access
+- App Service live mode uses managed identity for Foundry access
 - ACA live mode uses managed identity for Foundry access
 - Both deployment lanes still use `DEPLOY_ADMIN_KEY` to protect registration routes
 

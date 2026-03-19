@@ -6,7 +6,7 @@ import { runIntakeAgent } from "../../../agents/src/intakeAgent.js";
 import { runNegotiationAgent } from "../../../agents/src/negotiationAgent.js";
 import { runReviewAgent } from "../../../agents/src/reviewAgent.js";
 import { TrackingAdapter } from "../adapters/trackingAdapter.js";
-import { auditStore, contractStore } from "../stores/contractStore.js";
+import { auditStore, contractStore, hydrateContractText, saveContractText } from "../stores/contractStore.js";
 import type { AuditEntry, Contract, ILlmAdapter, TraceEntry, WebSocketEvent } from "../types.js";
 
 export type WsBroadcast = (event: WebSocketEvent) => void;
@@ -84,10 +84,11 @@ export async function runPipeline(
 	const traceId = `trace-${randomUUID().slice(0, 8)}`;
 	const traces: TraceEntry[] = [];
 
+	await saveContractText(contractId, contractText);
+
 	const contract: Contract = {
 		id: contractId,
 		filename,
-		text: contractText,
 		status: "processing",
 		submitted_at: new Date().toISOString(),
 	};
@@ -411,8 +412,8 @@ export async function runPipeline(
 			});
 		}
 
-		const updatedContract = await contractStore.getById(contractId);
-		return { contract: updatedContract ?? contract, traces };
+		const updatedContract = await hydrateContractText(contractStore.getById(contractId));
+		return { contract: updatedContract ?? { ...contract, text: contractText }, traces };
 	} catch (error) {
 		// Handle pipeline failure
 		const pipelineError =

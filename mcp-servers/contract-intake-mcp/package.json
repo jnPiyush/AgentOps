@@ -3,8 +3,9 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"build": "echo skipped",
-		"start": "tsx src/server.ts"
+		"build": "tsc -p tsconfig.json",
+		"start": "tsx src/server.ts",
+		"start:prod": "node dist/server.js"
 	},
 	"dependencies": {
 		"@modelcontextprotocol/sdk": "^1.12.0"

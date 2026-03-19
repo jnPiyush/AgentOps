@@ -1,8 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import type { FastifyInstance } from "fastify";
-import { appConfig } from "../config.js";
+import { evaluationStore } from "../stores/contractStore.js";
 import type { EvaluationResult, JudgeScores } from "../types.js";
 
 function simulateEvalRun(version: string): EvaluationResult {
@@ -38,16 +36,8 @@ function simulateEvalRun(version: string): EvaluationResult {
 }
 
 export async function evaluationRoutes(app: FastifyInstance): Promise<void> {
-	const evalPath = resolve(appConfig.dataDir, "evaluations.json");
-
 	app.get("/api/v1/evaluations/results", async (_request, reply) => {
-		try {
-			const raw = await readFile(evalPath, "utf-8");
-			const results: EvaluationResult[] = JSON.parse(raw);
-			return reply.send(results);
-		} catch {
-			return reply.send([]);
-		}
+		return reply.send(evaluationStore.getAll());
 	});
 
 	app.post("/api/v1/evaluations/run", async (request, reply) => {
@@ -55,49 +45,35 @@ export async function evaluationRoutes(app: FastifyInstance): Promise<void> {
 		const version = body?.version ?? "v1.3";
 
 		const result = simulateEvalRun(version);
-
-		let existing: EvaluationResult[] = [];
-		try {
-			const raw = await readFile(evalPath, "utf-8");
-			existing = JSON.parse(raw);
-		} catch {
-			// fresh start
-		}
-		existing.push(result);
-		await writeFile(evalPath, JSON.stringify(existing, null, 2));
+		await evaluationStore.add(result);
 
 		return reply.status(201).send(result);
 	});
 
 	app.get("/api/v1/evaluations/baseline", async (_request, reply) => {
 		const baseline = simulateEvalRun("v1.2");
-		try {
-			const raw = await readFile(evalPath, "utf-8");
-			const results: EvaluationResult[] = JSON.parse(raw);
-			const latest = results[results.length - 1];
-			if (latest) {
-				return reply.send({
-					baseline,
-					current: latest,
-					delta: {
-						accuracy: Math.round((latest.accuracy - baseline.accuracy) * 10) / 10,
-						relevance:
-							latest.judge_scores && baseline.judge_scores
-								? Math.round((latest.judge_scores.relevance - baseline.judge_scores.relevance) * 10) / 10
-								: 0,
-						groundedness:
-							latest.judge_scores && baseline.judge_scores
-								? Math.round((latest.judge_scores.groundedness - baseline.judge_scores.groundedness) * 10) / 10
-								: 0,
-						coherence:
-							latest.judge_scores && baseline.judge_scores
-								? Math.round((latest.judge_scores.coherence - baseline.judge_scores.coherence) * 10) / 10
-								: 0,
-					},
-				});
-			}
-		} catch {
-			// no results yet
+		const results = evaluationStore.getAll();
+		const latest = results[results.length - 1];
+		if (latest) {
+			return reply.send({
+				baseline,
+				current: latest,
+				delta: {
+					accuracy: Math.round((latest.accuracy - baseline.accuracy) * 10) / 10,
+					relevance:
+						latest.judge_scores && baseline.judge_scores
+							? Math.round((latest.judge_scores.relevance - baseline.judge_scores.relevance) * 10) / 10
+							: 0,
+					groundedness:
+						latest.judge_scores && baseline.judge_scores
+							? Math.round((latest.judge_scores.groundedness - baseline.judge_scores.groundedness) * 10) / 10
+							: 0,
+					coherence:
+						latest.judge_scores && baseline.judge_scores
+							? Math.round((latest.judge_scores.coherence - baseline.judge_scores.coherence) * 10) / 10
+							: 0,
+				},
+			});
 		}
 		return reply.send({ baseline, current: null, delta: null });
 	});

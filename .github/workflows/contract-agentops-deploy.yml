@@ -174,6 +174,7 @@ jobs:
           azd env set FOUNDRY_MODEL_VERSION "${{ steps.resolve.outputs.foundry_model_version }}"
           azd env set DEPLOY_ADMIN_KEY "${{ steps.resolve.outputs.deploy_admin_key }}"
           azd env set DEMO_MODE "${{ steps.resolve.outputs.demo_mode }}"
+          azd env set ALLOWED_ORIGINS ""
 
       - name: Provision infrastructure
         shell: bash
@@ -181,6 +182,21 @@ jobs:
           set -euo pipefail
           export PATH="$HOME/.azd/bin:$PATH"
           azd provision --no-prompt
+
+      - name: Configure App Service runtime settings
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PATH="$HOME/.azd/bin:$PATH"
+
+          resource_group="$(azd env get-value AZURE_RESOURCE_GROUP)"
+          app_name="$(azd env get-value AZURE_APP_SERVICE_NAME)"
+          app_url="$(azd env get-value AZURE_APP_SERVICE_URL)"
+
+          az webapp config appsettings set \
+            --resource-group "$resource_group" \
+            --name "$app_name" \
+            --settings ALLOWED_ORIGINS="$app_url" >/dev/null
 
       - name: Ensure Foundry model deployment exists
         shell: bash

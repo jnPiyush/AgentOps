@@ -4,17 +4,17 @@ import type { FastifyInstance } from "fastify";
 import { appConfig } from "../config.js";
 import type { DriftData } from "../types.js";
 
-let driftData: {
+async function loadDriftData(): Promise<{
 	llm_drift: Record<string, unknown>;
 	data_drift: Record<string, unknown>;
 	model_swap: Record<string, unknown>;
-} | null = null;
-
-async function loadDriftData(): Promise<typeof driftData> {
-	if (driftData) return driftData;
-	const raw = await readFile(resolve(appConfig.dataDir, "drift.json"), "utf-8");
-	driftData = JSON.parse(raw);
-	return driftData;
+} | null> {
+	try {
+		const raw = await readFile(resolve(appConfig.dataDir, "drift.json"), "utf-8");
+		return JSON.parse(raw);
+	} catch {
+		return null;
+	}
 }
 
 export async function driftRoutes(app: FastifyInstance): Promise<void> {

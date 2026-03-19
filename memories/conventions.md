@@ -1,3 +1,7 @@
+- 2026-03-19: Root production build is now `npm run build`, which compiles the launcher plus all workspaces; gateway prod entrypoint is `node dist/gateway/src/index.js`, MCP prod entrypoints are `node dist/server.js`.
+- 2026-03-19: Admin-sensitive mode switching is protected by the `x-admin-key` header and CORS is driven by `ALLOWED_ORIGINS` when set.
+- 2026-03-19: Azure App Service should boot with `npm run start:prod` and set `WORKSPACE_START_SCRIPT=start:prod`; do not point App Service back at `npx tsx start.ts`.
+- 2026-03-19: The App Service GitHub workflow should set `ALLOWED_ORIGINS` to the deployed App Service URL after provisioning, and deployment verification should fail if `/api/v1/health` or `/api/v1/tools` shows any MCP service offline.
 - 2026-03-07: The active application root is the repository root. agents/, gateway/, mcp-servers/, ui/, docs/, and the other runtime folders now live directly under the repo.
 - 2026-03-07: Main quality gates for the app are npm test, npm run typecheck, npm run build, and npm run lint from the repository root.
 - 2026-03-07: npm run lint now passes (exit 0) with biome.json config in place. 25 warnings (noForEach, noExplicitAny) are acceptable; 0 errors.

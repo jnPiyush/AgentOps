@@ -33,7 +33,7 @@ export type ContractStatus = "processing" | "awaiting_review" | "approved" | "re
 export interface Contract {
 	readonly id: string;
 	readonly filename: string;
-	readonly text: string;
+	text?: string;
 	type?: ContractType;
 	status: ContractStatus;
 	classification_confidence?: number;

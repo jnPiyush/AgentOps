@@ -12,7 +12,10 @@ export class JsonStore<T extends { id: string }> {
 		try {
 			const raw = await readFile(this.filePath, "utf-8");
 			this.items = JSON.parse(raw) as T[];
-		} catch {
+		} catch (err) {
+			if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+				console.warn(`[JsonStore] Failed to load ${this.filePath}: ${err}. Starting with empty store.`);
+			}
 			this.items = [];
 		}
 		this.loaded = true;

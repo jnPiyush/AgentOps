@@ -10,6 +10,7 @@ export type FoundryAuthMode = "api-key" | "managed-identity";
 
 export interface AppConfig {
 	demoMode: DemoMode;
+	readonly allowedOrigins: string[];
 	readonly deployAdminKey: string;
 	readonly foundryAuthMode: FoundryAuthMode;
 	readonly foundryApiKey: string;
@@ -38,8 +39,31 @@ function readFoundryAuthMode(): FoundryAuthMode {
 	throw new Error("FOUNDRY_AUTH_MODE must be either 'api-key' or 'managed-identity'");
 }
 
+function parsePort(key: string, fallback: number): number {
+	const raw = process.env[key];
+	if (!raw) return fallback;
+	const parsed = Number.parseInt(raw, 10);
+	if (Number.isNaN(parsed) || parsed < 1 || parsed > 65535) {
+		throw new Error(`${key} must be a valid port number (1-65535), got: "${raw}"`);
+	}
+	return parsed;
+}
+
+function parseCsvEnv(key: string): string[] {
+	const raw = process.env[key]?.trim();
+	if (!raw) {
+		return [];
+	}
+
+	return raw
+		.split(",")
+		.map((value) => value.trim())
+		.filter((value) => value.length > 0);
+}
+
 export const appConfig: AppConfig = {
 	demoMode: envOrDefault("DEMO_MODE", "simulated") as DemoMode,
+	allowedOrigins: parseCsvEnv("ALLOWED_ORIGINS"),
 	deployAdminKey: envOrDefault("DEPLOY_ADMIN_KEY", ""),
 	foundryAuthMode: readFoundryAuthMode(),
 	foundryApiKey: envOrDefault("FOUNDRY_API_KEY", ""),
@@ -49,8 +73,8 @@ export const appConfig: AppConfig = {
 	foundryModel: envOrDefault("FOUNDRY_MODEL", "gpt-5.4"),
 	foundryModelSwap: envOrDefault("FOUNDRY_MODEL_SWAP", "gpt-4o-mini"),
 	legalReviewEmail: envOrDefault("LEGAL_REVIEW_EMAIL", "legal-review@company.com"),
-	gatewayPort: Number.parseInt(envOrDefault("GATEWAY_PORT", "8000"), 10),
-	mcpBasePort: Number.parseInt(envOrDefault("MCP_BASE_PORT", "9001"), 10),
+	gatewayPort: parsePort("GATEWAY_PORT", 8000),
+	mcpBasePort: parsePort("MCP_BASE_PORT", 9001),
 	logLevel: envOrDefault("LOG_LEVEL", "INFO"),
 	dataDir: resolve(__dirname, "../../data"),
 };

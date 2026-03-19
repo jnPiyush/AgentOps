@@ -1,3 +1,8 @@
+- 2026-03-19: Switched the production build path from tsx-at-runtime to compiled TypeScript outputs across the launcher, gateway, agents, and all MCP servers.
+- 2026-03-19: Multi-stage Docker runtime now starts compiled JS via `node dist/start.js` with `WORKSPACE_START_SCRIPT=start:prod` instead of executing TypeScript sources.
+- 2026-03-19: Contract bodies are stored under `data/contract-texts/` and hydrated on read so `data/contracts.json` carries metadata instead of growing with full source text.
+- 2026-03-19: Kept Azure App Service as the canonical hosting path. App Service startup now uses `npm run start:prod` plus `WORKSPACE_START_SCRIPT=start:prod` so the primary Azure lane matches the compiled production runtime.
+- 2026-03-19: Hardened the primary App Service lane further with explicit App Service health settings, workflow-driven `ALLOWED_ORIGINS` configuration, and stricter post-deploy verification that requires all MCP child services and tool endpoints to be online.
 - 2026-03-07: Review scope centered on the runnable workspace, which now lives at the repository root, then checked duplication only where it affected wiring or drift.
 - 2026-03-07: Archived the React dashboard from runtime by removing gateway/startup wiring while keeping the folder in the repo for reference.
 - 2026-03-07: Removed dashboard from npm workspaces array; dashboardPort removed from gateway config; CORS simplified to gateway origin only.

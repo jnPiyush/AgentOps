@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { createLlmAdapter } from "../adapters/llmAdapter.js";
 import { runPipeline, storeTraces } from "../orchestrator/pipeline.js";
-import { auditStore, contractStore } from "../stores/contractStore.js";
+import { auditStore, contractStore, hydrateContractText } from "../stores/contractStore.js";
 import type { AuditEntry, ReviewEntry } from "../types.js";
 import { broadcast } from "../websocket/workflowWs.js";
 
@@ -64,14 +64,14 @@ export async function contractRoutes(app: FastifyInstance): Promise<void> {
 
 	// GET /api/v1/contracts - list all contracts
 	app.get("/api/v1/contracts", async (_request, reply) => {
-		const contracts = contractStore.getAll();
+		const contracts = contractStore.getAll().map(({ text: _text, ...contract }) => contract);
 		return reply.send(contracts);
 	});
 
 	// GET /api/v1/contracts/:id - get contract details
 	app.get("/api/v1/contracts/:id", async (request, reply) => {
 		const { id } = request.params as { id: string };
-		const contract = contractStore.getById(id);
+		const contract = await hydrateContractText(contractStore.getById(id));
 		if (!contract) {
 			return reply.status(404).send({
 				error: "NotFound",
@@ -111,6 +111,8 @@ export async function contractRoutes(app: FastifyInstance): Promise<void> {
 
 		const newStatus =
 			body.decision === "approve" ? "approved" : body.decision === "reject" ? "rejected" : "awaiting_review";
+		const reviewer = typeof body.reviewer === "string" ? body.reviewer.trim().slice(0, 100) : "anonymous";
+		const comment = typeof body.comment === "string" ? body.comment.trim().slice(0, 2000) : "";
 
 		await contractStore.update(id, {
 			status: newStatus,
@@ -122,7 +124,7 @@ export async function contractRoutes(app: FastifyInstance): Promise<void> {
 			contract_id: id,
 			agent: "human",
 			action: body.decision as AuditEntry["action"],
-			reasoning: body.comment ?? "",
+			reasoning: comment,
 			timestamp: new Date().toISOString(),
 		};
 		await auditStore.add(auditEntry);
@@ -137,6 +139,7 @@ export async function contractRoutes(app: FastifyInstance): Promise<void> {
 		return reply.send({
 			contract_id: id,
 			decision: body.decision,
+			reviewer,
 			status: newStatus,
 			timestamp: new Date().toISOString(),
 		});

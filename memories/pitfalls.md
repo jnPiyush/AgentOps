@@ -1,3 +1,5 @@
+- 2026-03-19: Do not convert `gateway/src/services/workflowRegistry.ts` to async-only startup loading without preserving current sync consumers and tests; that change broke registry helpers and had to be reverted.
+- 2026-03-19: Large multi-file patches against compact JSON/package files were brittle in this repo; re-read exact file contents and patch smaller groups instead.
 - 2026-03-07: npm start currently fails because prompt routes are registered in both gateway/src/routes/prompts.ts and gateway/src/routes/feedback.ts.
 - 2026-03-07: Standalone scripts tests/test-comprehensive.ts and tests/test-deployment.ts are not covered by Vitest and fail due to bad relative imports.
 - 2026-03-07: The legacy static UI under ui/ is still served by the gateway and contains stale MCP/tool names.

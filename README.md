@@ -134,6 +134,16 @@ npm start
 # http://localhost:8000
 ```
 
+## Azure Hosting
+
+Azure App Service is the primary deployment target for this repo.
+
+- App Service runtime command: `npm run start:prod`
+- Root launcher: `node dist/start.js`
+- Child workspace runtime mode: `WORKSPACE_START_SCRIPT=start:prod`
+
+The optional Azure Container Apps lane remains available, but it is not the default deployment path.
+
 ### Development Mode
 
 ```bash

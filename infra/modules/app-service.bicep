@@ -20,6 +20,9 @@ param foundryModel string = 'gpt-5.4'
 @description('Demo mode: live or simulated')
 param demoMode string = 'live'
 
+@description('Optional comma-separated browser origins allowed for CORS')
+param allowedOrigins string = ''
+
 @description('Deployment pipeline admin key used by the postdeploy hook in live mode')
 @secure()
 param deployAdminKey string
@@ -36,7 +39,7 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
     httpsOnly: true
     siteConfig: {
       linuxFxVersion: 'NODE|20-lts'
-      appCommandLine: 'npx tsx start.ts'
+      appCommandLine: 'npm run start:prod'
       alwaysOn: true
       healthCheckPath: '/api/v1/health'
       appSettings: [
@@ -47,9 +50,14 @@ resource appService 'Microsoft.Web/sites@2023-12-01' = {
         { name: 'FOUNDRY_PROJECT_ENDPOINT', value: foundryEndpoint }
         { name: 'FOUNDRY_MODEL', value: foundryModel }
         { name: 'GATEWAY_PORT', value: '8080' }
+        { name: 'ALLOWED_ORIGINS', value: allowedOrigins }
         { name: 'NODE_ENV', value: 'production' }
+        { name: 'WORKSPACE_START_SCRIPT', value: 'start:prod' }
         { name: 'WEBSITE_NODE_DEFAULT_VERSION', value: '~20' }
+        { name: 'WEBSITE_HEALTHCHECK_MAXPINGFAILURES', value: '10' }
+        { name: 'WEBSITE_WARMUP_PATH', value: '/api/v1/health' }
         { name: 'SCM_DO_BUILD_DURING_DEPLOYMENT', value: 'true' }
+        { name: 'ENABLE_ORYX_BUILD', value: 'true' }
       ]
     }
   }

@@ -15,6 +15,9 @@ param foundryModel string = 'gpt-5.4'
 @description('Demo mode: live or simulated')
 param demoMode string = 'live'
 
+@description('Optional comma-separated browser origins allowed for CORS')
+param allowedOrigins string = ''
+
 @description('Deployment pipeline admin key used by the postdeploy hook in live mode')
 @secure()
 param deployAdminKey string
@@ -68,6 +71,7 @@ module appService './modules/app-service.bicep' = {
     foundryEndpoint: foundryAccount.outputs.endpoint
     foundryModel: foundryModel
     demoMode: demoMode
+    allowedOrigins: allowedOrigins
     deployAdminKey: deployAdminKey
   }
 }
@@ -83,6 +87,7 @@ resource appServiceFoundryUserAssignment 'Microsoft.Authorization/roleAssignment
 }
 
 output AZURE_APP_SERVICE_URL string = appService.outputs.url
+output AZURE_APP_SERVICE_NAME string = appService.outputs.name
 output AZURE_RESOURCE_GROUP string = rg.name
 output AZURE_FOUNDRY_ACCOUNT_NAME string = foundryAccount.outputs.name
 output AZURE_FOUNDRY_DEPLOYMENT_NAME string = foundryModel

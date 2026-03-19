@@ -35,6 +35,22 @@ function Invoke-JsonPost {
     return Invoke-RestMethod -Method Post -Uri $Url -TimeoutSec 180 -ContentType "application/json" -Headers $headers
 }
 
+function Test-AllServersOnline {
+    param($HealthPayload)
+
+    if (-not $HealthPayload.servers) {
+        return $false
+    }
+
+    foreach ($server in $HealthPayload.servers.PSObject.Properties) {
+        if ($server.Value -ne "online") {
+            return $false
+        }
+    }
+
+    return $true
+}
+
 for ($attempt = 1; $attempt -le $StartupRetries; $attempt++) {
     try {
         $health = Invoke-JsonGet "$AppUrl/api/v1/health"
@@ -55,6 +71,11 @@ if ($health.status -ne "ok") {
     throw "Health check failed."
 }
 
+if (-not (Test-AllServersOnline $health)) {
+    $serverSummary = ($health.servers.PSObject.Properties | ForEach-Object { "$($_.Name)=$($_.Value)" }) -join ", "
+    throw "Health check succeeded but one or more MCP servers are not online: $serverSummary"
+}
+
 $mode = Invoke-JsonGet "$AppUrl/api/v1/deploy/mode"
 
 if ($TriggerPipeline) {
@@ -62,9 +83,19 @@ if ($TriggerPipeline) {
 }
 
 $status = Invoke-JsonGet "$AppUrl/api/v1/deploy/status"
+$tools = Invoke-JsonGet "$AppUrl/api/v1/tools"
 
 if (-not $status.summary) {
     throw "Deployment status response did not include summary."
+}
+
+if (-not $tools -or $tools.Count -lt 8) {
+    throw "Tool registry did not report the expected MCP server count."
+}
+
+if (($tools | Where-Object { $_.status -ne 'online' }).Count -gt 0) {
+    $offline = ($tools | Where-Object { $_.status -ne 'online' } | ForEach-Object { "$($_.name)=$($_.status)" }) -join ", "
+    throw "One or more MCP tool servers are not online after deployment: $offline"
 }
 
 if ($status.summary.errors -gt 0) {

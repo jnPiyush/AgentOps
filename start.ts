@@ -5,6 +5,7 @@ import { waitForHealth } from "./startup/health.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SHELL_BINARY = process.platform === "win32" ? (process.env.ComSpec ?? "cmd.exe") : "/bin/sh";
+const WORKSPACE_START_SCRIPT = process.env.WORKSPACE_START_SCRIPT ?? "start";
 
 const MCP_SERVERS = [
 	{ name: "contract-intake-mcp", port: 9001 },
@@ -22,11 +23,11 @@ const processes: ChildProcess[] = [];
 function startProcess(label: string, cwd: string): ChildProcess {
 	const proc =
 		process.platform === "win32"
-			? spawn(SHELL_BINARY, ["/d", "/s", "/c", "npm run start"], {
+			? spawn(SHELL_BINARY, ["/d", "/s", "/c", `npm run ${WORKSPACE_START_SCRIPT}`], {
 					cwd,
 					stdio: ["ignore", "pipe", "pipe"],
 				})
-			: spawn(SHELL_BINARY, ["-lc", "npm run start"], {
+			: spawn(SHELL_BINARY, ["-lc", `npm run ${WORKSPACE_START_SCRIPT}`], {
 					cwd,
 					stdio: ["ignore", "pipe", "pipe"],
 				});

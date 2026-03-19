@@ -2,6 +2,6 @@
 	"name": "agents",
 	"version": "1.0.0",
 	"type": "module",
-	"scripts": { "build": "echo skipped" },
+	"scripts": { "build": "tsc -p tsconfig.json --noEmit false" },
 	"dependencies": {}
 }

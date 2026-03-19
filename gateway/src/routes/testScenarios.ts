@@ -1,39 +1,12 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import type { FastifyInstance } from "fastify";
-import { appConfig } from "../config.js";
+import { testScenarioStore, type TestScenarioRecord } from "../stores/contractStore.js";
 
-const SCENARIOS_PATH = resolve(appConfig.dataDir, "test-scenarios.json");
-
-export interface TestScenario {
-	id: string;
-	name: string;
-	description: string;
-	inputSummary: string;
-	expectations: string[];
-	requiredCapabilities: string[];
-	requiresHumanReview: boolean;
-	prefersParallel: boolean;
-}
-
-async function loadScenarios(): Promise<TestScenario[]> {
-	try {
-		const raw = await readFile(SCENARIOS_PATH, "utf-8");
-		return JSON.parse(raw);
-	} catch {
-		return [];
-	}
-}
-
-async function saveScenarios(scenarios: TestScenario[]): Promise<void> {
-	await writeFile(SCENARIOS_PATH, JSON.stringify(scenarios, null, 2));
-}
+export type TestScenario = TestScenarioRecord;
 
 export async function testScenarioRoutes(app: FastifyInstance): Promise<void> {
 	// GET /api/v1/test-scenarios - list all test scenarios
 	app.get("/api/v1/test-scenarios", async (_request, reply) => {
-		const scenarios = await loadScenarios();
-		return reply.send(scenarios);
+		return reply.send(testScenarioStore.getAll());
 	});
 
 	// POST /api/v1/test-scenarios - add a new test scenario
@@ -47,7 +20,7 @@ export async function testScenarioRoutes(app: FastifyInstance): Promise<void> {
 			});
 		}
 
-		const scenarios = await loadScenarios();
+		const scenarios = testScenarioStore.getAll();
 		if (scenarios.some((s) => s.id === body.id)) {
 			return reply.status(409).send({
 				error: "ConflictError",
@@ -66,25 +39,21 @@ export async function testScenarioRoutes(app: FastifyInstance): Promise<void> {
 			prefersParallel: body.prefersParallel ?? false,
 		};
 
-		scenarios.push(scenario);
-		await saveScenarios(scenarios);
+		await testScenarioStore.add(scenario);
 		return reply.status(201).send(scenario);
 	});
 
 	// DELETE /api/v1/test-scenarios/:id - remove a test scenario
 	app.delete("/api/v1/test-scenarios/:id", async (request, reply) => {
 		const { id } = request.params as { id: string };
-		const scenarios = await loadScenarios();
-		const filtered = scenarios.filter((s) => s.id !== id);
+		const removed = await testScenarioStore.remove(id);
 
-		if (filtered.length === scenarios.length) {
+		if (!removed) {
 			return reply.status(404).send({
 				error: "NotFound",
 				message: `Scenario '${id}' not found`,
 			});
 		}
-
-		await saveScenarios(filtered);
 		return reply.send({ message: `Scenario '${id}' deleted` });
 	});
 }
