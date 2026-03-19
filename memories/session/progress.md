@@ -1,4 +1,5 @@
 - 2026-03-10: Implemented review follow-up items 1 and 4 for the contract demo.
+- 2026-03-19: Rewrote the root README to match the current architecture. It now separates the current Node gateway runtime from the target Python MAF executor, documents the 10-stage contract lifecycle and 8-stage AgentOps surfaces, lists all 8 MCP servers, summarizes Foundry/GenAIOps implementation status, and points setup/deployment readers to the App Service-first path.
 - Hardened Python exception handling in agents/microsoft-framework/agents.py, workflows.py, demo.py, setup.py, and __init__.py by removing broad or redundant catch blocks and keeping only specific recoverable catches.
 - Expanded intake taxonomy to include Consortium and Partnership in prompts/intake-system.md.
 - Updated regression coverage in tests/ai-assets.test.ts and aligned related docs in README.md and docs/data-science/MODEL-CARD-ContractAgentOps-Demo.md.

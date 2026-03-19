@@ -1,366 +1,430 @@
 # Contract AgentOps Demo
 
-A comprehensive AI-powered contract analysis system demonstrating multi-agent orchestration with dynamic policy compliance, real-time evaluation, and intelligent approval workflows.
+## 1. Overview Of The Solution
 
-## 🎯 System Overview
+Contract AgentOps Demo is a contract lifecycle management demo used to show how AgentOps practices can govern an AI-powered business workflow.
 
-This system processes contracts through a sophisticated 4-agent pipeline:
+The solution keeps two lifecycles separate:
 
+- Contract Lifecycle is the business process for agreements: request, drafting, review, compliance, negotiation, approval, signature, obligations, renewal, and analytics.
+- AgentOps is the AI system lifecycle: design, test, deploy, run, monitor, evaluate, detect drift, and collect feedback.
+
+That separation is the core architectural rule in this repo. The business workflow explains where the contract is. AgentOps explains how the AI system that supports that workflow is designed, validated, deployed, observed, and improved.
+
+Today, the runnable application is a TypeScript and Node.js control plane:
+
+- Static dashboard in `ui/`
+- Fastify gateway in `gateway/`
+- Eight MCP servers in `mcp-servers/`
+- Contract-processing runtime pipeline for intake, extraction, review, compliance, negotiation, and approval
+- Workflow designer and workflow-package activation endpoints
+- Simulated mode and live Azure AI Foundry mode
+
+The repo also includes a Microsoft Agent Framework track in `agents/microsoft-framework/`. That track is important to the target architecture, but it is not yet the primary execution path for the root application runtime.
+
+```mermaid
+graph TB
+    UI[Static Dashboard] --> GW[TypeScript Gateway]
+    GW --> WR[Workflow Registry and Active Package]
+    GW --> PIPE[Current Node Runtime Pipeline]
+    GW --> MCP[Eight MCP Servers]
+    PIPE --> MCP
+    PIPE --> FDRY[Azure AI Foundry]
+    WR -. Target runtime package .-> MAF[Python Microsoft Agent Framework Executor]
+    MAF -. Planned tool mediation .-> MCP
+    MAF -. Planned model and trace plane .-> FDRY
 ```
-📄 Contract → 🤖 Intake → 🔍 Extraction → ⚖️ Compliance → ✅ Approval
+
+## 2. Tech Stack And Purpose
+
+| Layer | Technology | Purpose In This Solution |
+|---|---|---|
+| UI | Static HTML, CSS, JavaScript in `ui/` | Presents the AgentOps experience across Design, Test, Deploy, Live, Monitor, Evaluate, Drift, and Feedback |
+| API gateway | Fastify on Node.js in `gateway/` | Serves the UI, exposes APIs, manages workflow packages, runs the current contract pipeline, and coordinates deployment |
+| App language | TypeScript | Implements the gateway, orchestrator, route handlers, startup launcher, and agent workspace |
+| Workspace orchestration | npm workspaces | Builds and runs the root app, gateway, agents workspace, and MCP servers as one repo |
+| MCP integration | `@modelcontextprotocol/sdk` based servers | Encapsulates contract-domain tools behind bounded interfaces for intake, extraction, compliance, workflow, audit, evaluation, drift, and feedback |
+| AI runtime today | Gateway adapters plus agent functions in `agents/src/` | Executes the current six-stage processing path using simulated or Foundry-backed calls |
+| AI control plane | Azure AI Foundry and Azure OpenAI endpoints | Provides live model access, deployment targets, agent registration, evaluation signals, and enterprise AI hosting posture |
+| Identity | `@azure/identity` and managed identity | Supports secure live-mode access to Foundry without embedding secrets in Azure-hosted runtime paths |
+| Workflow authoring | Workflow registry in `gateway/src/services/workflowRegistry.ts` plus `config/stages/contract-lifecycle.json` | Stores operator-authored workflows, active packages, and stage-to-agent mappings |
+| Declarative assets | `prompts/`, `config/agents/`, `config/schemas/`, `config/stages/` | Keeps prompts, agent configs, schemas, and lifecycle metadata reviewable and versioned |
+| Data and demo assets | `data/` | Stores policies, contracts, evaluation results, drift data, feedback, workflow state, and simulated responses |
+| Testing | Vitest plus TypeScript smoke tests in `tests/` | Verifies pipeline logic, evaluation logic, drift logic, feedback flows, and deployment smoke behavior |
+| Infrastructure as code | Bicep in `infra/` | Provisions Azure resources for the App Service deployment path |
+| Deployment orchestration | Azure Developer CLI via `azure.yaml` | Provisions and deploys the application to Azure App Service |
+| CI/CD | GitHub Actions in `.github/workflows/` | Validates, builds, tests, provisions, deploys, and verifies the Azure-hosted application |
+
+## 3. Microsoft Agent Framework And How It Fits Here
+
+### Why MAF matters in this solution
+
+Microsoft Agent Framework is the intended execution runtime for the long-term architecture because it gives the demo a credible enterprise agent orchestration story: workflows, tool mediation, human checkpoints, retries, and observability.
+
+The important point is that MAF does not replace the business contract lifecycle. It executes the agents that implement business stages.
+
+### Business stages vs runtime agents
+
+The active contract stage catalog defines ten business stages:
+
+1. Request and Initiation
+2. Authoring and Drafting
+3. Internal Review
+4. Compliance Check
+5. Negotiation and External Review
+6. Approval Routing
+7. Execution and Signature
+8. Post-Execution Obligations
+9. Renewal and Expiry
+10. Lifecycle Analytics
+
+Each of those stages can map to one or more runtime agents. That allows the demo to stay business-readable while still evolving into richer multi-agent execution groups.
+
+### Agent types in the repo
+
+| Agent Type | Current Role In Repo | Primary Tool Affinity |
+|---|---|---|
+| Intake | Classifies document type and extracts initial metadata | Intake MCP |
+| Drafting | Declared in workflow assets and agent config for authoring-stage packaging | Extraction and workflow MCP |
+| Extraction | Extracts clauses, parties, dates, and values | Extraction MCP |
+| Review | Summarizes redlines and internal review outcomes | Audit MCP |
+| Compliance | Checks extracted terms against policy rules | Compliance MCP |
+| Negotiation | Recommends fallback positions for counterparty changes | Workflow MCP |
+| Approval | Routes for approval and human escalation | Workflow MCP |
+| Signature | Declared for execution-stage workflow packaging | Workflow and audit MCP |
+| Obligations | Declared for post-signature obligation management | Workflow and audit MCP |
+| Renewal | Declared for renewal and expiry analysis | Drift MCP |
+| Analytics | Declared for lifecycle reporting and insight summarization | Evaluation MCP |
+
+### How agents communicate
+
+There are two communication models in this repo.
+
+Current runtime path:
+
+1. The gateway accepts a contract submission.
+2. The current Node pipeline runs six processing steps in order: intake, extraction, review, compliance, negotiation, approval.
+3. Each step uses an LLM adapter and bounded MCP tool set.
+4. Audit events, traces, contract status, and WebSocket updates are emitted back to the UI.
+
+Target MAF path:
+
+1. The dashboard authors a workflow.
+2. The gateway normalizes that definition into an active workflow package.
+3. A Python MAF executor consumes the package.
+4. Runtime stage groups call MCP tools and Foundry models under explicit control boundaries.
+5. Business-stage progress remains visible separately from AgentOps telemetry.
+
+```mermaid
+graph LR
+    subgraph Business[Contract Lifecycle]
+        S1[Request]
+        S2[Drafting]
+        S3[Review]
+        S4[Compliance]
+        S5[Negotiation]
+        S6[Approval]
+        S7[Signature]
+        S8[Obligations]
+        S9[Renewal]
+        S10[Analytics]
+    end
+
+    subgraph Runtime[Runtime Agent Groups]
+        A1[Intake]
+        A2[Drafting]
+        A3[Extraction and Review]
+        A4[Compliance]
+        A5[Negotiation]
+        A6[Approval and HITL]
+        A7[Signature]
+        A8[Obligations]
+        A9[Renewal]
+        A10[Analytics]
+    end
+
+    S1 --> A1
+    S2 --> A2
+    S3 --> A3
+    S4 --> A4
+    S5 --> A5
+    S6 --> A6
+    S7 --> A7
+    S8 --> A8
+    S9 --> A9
+    S10 --> A10
 ```
 
-Each agent specializes in a specific aspect of contract analysis, with built-in error handling, retry logic, and comprehensive evaluation capabilities.
+### Current MAF utilization status
 
-## 🚀 Key Features
+| Area | Status | Notes |
+|---|---|---|
+| MAF architectural direction | Implemented as the target architecture | Captured in ADR and SPEC |
+| Python MAF sidecar track | Implemented as a separate workspace under `agents/microsoft-framework/` | Includes config, workflows, prompts, and demo scaffolding |
+| Root runtime integration with MAF | Not yet primary execution path | Root app still runs through the Node gateway pipeline |
+| Declarative assets for MAF-style runtime | Implemented | Agent YAML, schemas, prompts, stage catalog, workflow packages |
+| Full end-to-end MAF executor as system of record for in-flight state | Not yet complete | Gateway is still the main runnable control plane |
 
-### ✨ Enhanced Pipeline (v2.0)
-- **Robust Error Handling**: Exponential backoff retry logic with graceful failure management
-- **Comprehensive Validation**: Result validation at each pipeline stage
-- **Audit Logging**: Detailed tracking of pipeline failures and recovery attempts
-- **Status Management**: Real-time contract status updates throughout processing
+Important nuance: the `agents/microsoft-framework/` track currently contains mock compatibility classes and demo scaffolding, so it should be treated as an implementation track toward the target runtime, not as the already-integrated production execution engine for the root app.
 
-### 🧠 Dynamic Policy Engine (NEW)
-- **Runtime Configuration**: Update compliance rules without code deployment
-- **Intelligent Value Extraction**: Automatic parsing of monetary amounts, time periods, jurisdictions
-- **Severity-Based Risk Assessment**: Critical/High/Medium/Low violation classification
-- **Comprehensive Rule Support**: Thresholds, patterns, lookups, and regex conditions
+## 4. MCP Implementation
 
-### 🔍 Advanced Evaluation Framework
-- **57 Ground-Truth Cases**: Expanded from the original 20-case baseline to include adversarial scenarios, international contracts, AI services agreements, and multi-party cases
-- **AI-Specific Contract Support**: Specialized evaluation for AI services agreements, ML liability clauses
-- **Multi-Party Scenarios**: Complex contract structures with multiple stakeholders
-- **Ground Truth Dataset**: Comprehensive baseline for system accuracy measurement
+MCP is the business tool boundary in this solution. Instead of letting agents call arbitrary internal code, the repo exposes contract-domain capabilities through focused MCP servers.
 
-### 🤖 Enhanced Agent Prompts
-- **Few-Shot Learning**: Detailed examples for consistent agent behavior
-- **Expanded Taxonomies**: 17 contract types (vs. 7), 20+ clause types
-- **Confidence Calibration**: Guidelines for appropriate confidence levels
-- **Edge Case Handling**: Specific protocols for unusual contract structures
+### MCP server inventory
 
-## 🏗️ Architecture
+| MCP Server | Primary Responsibility | Example Tools |
+|---|---|---|
+| `contract-intake-mcp` | Contract intake and metadata registration | `upload_contract`, `classify_document`, `extract_metadata` |
+| `contract-extraction-mcp` | Clause, party, date, and value extraction | `extract_clauses`, `identify_parties`, `extract_dates_values` |
+| `contract-compliance-mcp` | Policy validation and risk flagging | `check_policy`, `flag_risk`, `get_policy_rules` |
+| `contract-workflow-mcp` | Routing, escalation, and notifications | `route_approval`, `escalate_to_human`, `notify_stakeholder` |
+| `contract-audit-mcp` | Audit trail and reporting | `log_decision`, `get_audit_trail`, `generate_report` |
+| `contract-eval-mcp` | Evaluation runs and result retrieval | `run_evaluation`, `get_results`, `compare_baseline` |
+| `contract-drift-mcp` | Drift and model-swap analysis | `detect_llm_drift`, `detect_data_drift`, `simulate_model_swap` |
+| `contract-feedback-mcp` | Feedback submission and optimization loop | `submit_feedback`, `convert_to_tests`, `get_summary` |
 
-### Gateway Service
-- **Fastify-based TypeScript gateway** handling contract uploads, orchestration, and operator APIs
-- **Pipeline orchestrator** with retry logic and error recovery
-- **Result caching and validation** system
-- **Testing endpoints** for comprehensive system validation
+### How MCP is used
 
-### Agent Pipeline
+- The root launcher starts all MCP servers first.
+- The gateway checks MCP health before announcing readiness.
+- The `/api/v1/tools` route exposes the current MCP registry.
+- The gateway can call a specific MCP tool through `/api/v1/tools/:server/:tool`.
+- Agents are configured with explicit MCP server affinity and tool lists.
+- Workflow packages store tool bindings so the operator-authored design can be turned into a runtime-safe package.
 
-#### 1. 📥 Intake Agent
-**Purpose**: Contract classification and metadata extraction  
-**Enhanced Capabilities**:
-- 17 contract type taxonomy (Service Agreement, NDA, Employment, AI Services, Consortium, Partnership, etc.)
-- Confidence scoring with calibration guidelines
-- Edge case detection (hybrid contracts, international agreements)
-- Quality validation checklist
+### Why MCP is important here
 
-#### 2. 🔍 Extraction Agent  
-**Purpose**: Precise clause identification and data extraction  
-**Enhanced Capabilities**:
-- 20+ clause type taxonomy (including AI liability, cybersecurity, ESG compliance)
-- Technology-specific extraction patterns
-- Structured data output with section references
-- Completeness validation rules
+MCP gives the demo clean boundaries for:
 
-#### 3. ⚖️ Compliance Agent
-**Purpose**: Policy validation using Dynamic Policy Engine  
-**Enhanced Capabilities**:
-- Runtime configurable policy rules
-- Intelligent value extraction (monetary amounts, time periods, jurisdictions)
-- Severity-based violation classification (Critical/High/Medium/Low)
-- Detailed violation reporting with extracted values and thresholds
+- auditability
+- testability
+- future MAF tool mediation
+- swapping simulated and live runtime behaviors without rewriting business tools
+- keeping domain operations separate from prompt logic
 
-#### 4. ✅ Approval Agent
-**Purpose**: Intelligent routing and decision making  
-**Enhanced Capabilities**:
-- Decision matrix with conditional approval options
-- Assignment logic based on violation types and severity
-- Special case handling for strategic relationships
-- Review time estimation based on complexity
+## 5. GenAIOps Implementation With Foundry
 
-### MCP Servers
+### What Foundry does in this repo
 
-#### Contract Evaluation MCP
-- **57 ground-truth test cases** for system validation
-- **Performance benchmarking** with accuracy metrics
-- **Adversarial testing** for robustness validation
-- **International contract support** for global scenarios
+Azure AI Foundry is the live AI control plane for this demo. In live mode, the gateway uses Foundry-backed model calls and deployment registration flows. In simulated mode, the same business flow can run without Azure dependencies.
 
-#### Contract Compliance MCP (Enhanced)
-- **Dynamic Policy Engine** with runtime rule management
-- **Policy rule CRUD operations** via MCP tools
-- **Intelligent value extraction** for monetary, temporal, and textual patterns
-- **Severity-based risk assessment** with detailed violation reporting
+Today, the root runtime integrates with Foundry at the API, authentication, deployment, and operational-surface level. The repo does not yet rely on a single end-to-end Foundry SDK-centered runtime path for all orchestration.
 
-#### Contract Drift MCP
-- **Model performance monitoring** across agent pipeline
-- **Data distribution shift detection** for contract types and patterns
-- **Accuracy degradation alerts** with automatic model refresh triggers
-- **Comparative analysis** against baseline performance metrics
+### Foundry flow in the current app
 
-### Static UI
-- **Real-Time Processing Monitoring** with live updates
-- **Policy Management Interface** for dynamic rule configuration
-- **Evaluation Results Visualization** with accuracy metrics and trends
-- **System Health Monitoring** with pipeline status and error tracking
+```mermaid
+graph TD
+    D[Dashboard] --> G[Gateway]
+    G --> LLM[Foundry live adapter]
+    G --> DEP[Deploy pipeline route]
+    DEP --> REG[Assistant and agent registration]
+    G --> EV[Evaluation APIs and datasets]
+    G --> DR[Drift APIs and model-swap views]
+    G --> FB[Feedback APIs and optimization loop]
+```
 
-## 🛠️ Installation & Setup
+### Implemented vs not yet implemented
+
+| GenAIOps Concept | Status | What Exists In Repo |
+|---|---|---|
+| Live vs simulated execution modes | Implemented | `SimulatedAdapter` and `FoundryAdapter`, plus `/api/v1/deploy/mode` |
+| Foundry model invocation | Implemented | Gateway calls Foundry chat completions in live mode |
+| Foundry auth with API key | Implemented | `FOUNDRY_AUTH_MODE=api-key` |
+| Foundry auth with managed identity | Implemented | `@azure/identity` and Entra token flow |
+| Model pinning | Implemented | Model name is configured through environment and deployment workflow |
+| Workflow deployment registration | Implemented | Deploy route and Foundry registration pipeline |
+| App Service post-deploy agent registration | Implemented | `azure.yaml` postdeploy hook calls `/api/v1/deploy/pipeline` |
+| Evaluation surfaces | Implemented | Evaluation routes, results, baseline comparison, quality gate fields |
+| LLM-as-judge style metrics | Implemented in demo form | Judge scores are exposed by evaluation routes |
+| Drift detection surfaces | Implemented in demo form | LLM drift, data drift, and model swap endpoints use repo data |
+| Feedback to optimization loop | Implemented in demo form | Negative feedback can be converted into test cases |
+| Prompt assets in source control | Implemented | Prompt files live under `prompts/` |
+| Declarative agent configs | Implemented | YAML agent configs under `config/agents/` |
+| Workflow package activation | Implemented | Active workflow package and stage-map endpoints |
+| Foundry tracing fully wired end-to-end in root runtime | Partial | Tracing is part of the architecture story; root runtime is not yet a full Foundry-native trace pipeline |
+| Foundry evaluation as enforced promotion gate in CI | Partial | Evaluation exists, but not all release decisions are blocked on Foundry evaluation results |
+| Full MAF executor as primary runtime | Not yet complete | Sidecar track exists, but the root app still runs the Node pipeline |
+| Ten-stage business workflow executed end-to-end in one integrated runtime path | Partial | Ten-stage catalog exists; current runnable request pipeline is still six stages |
+
+### Practical reading of the current state
+
+If you are presenting the solution today, the most accurate framing is:
+
+- The repo already demonstrates AgentOps surfaces, bounded tool access, workflow packaging, deployment automation, Foundry-backed live mode, and evaluation, drift, and feedback loops.
+- The repo is moving toward a stronger MAF-centered execution plane, but that plane is not yet the primary integrated runtime used by the root application.
+
+## 6. Pipelines And Automation
+
+The repo has both local and Azure-hosted automation paths.
+
+### Local automation
+
+| Command | Purpose |
+|---|---|
+| `npm install` | Install root and workspace dependencies |
+| `npm start` | Start the launcher, MCP servers, and gateway in development mode |
+| `npm run build` | Compile launcher and workspaces |
+| `npm run start:prod` | Start the compiled production entrypoint |
+| `npm test` | Run Vitest suites |
+| `npm run typecheck` | Run TypeScript type checking |
+| `npm run lint` | Run Biome checks |
+| `npx tsx tests/test-comprehensive.ts` | Run comprehensive smoke tests |
+| `npx tsx tests/test-deployment.ts` | Run deployment-oriented smoke tests |
+
+### CI/CD pipeline
+
+The main Azure deployment workflow is `.github/workflows/contract-agentops-deploy.yml`.
+
+It performs:
+
+1. checkout
+2. Node.js setup
+3. dependency installation
+4. lint
+5. typecheck
+6. test
+7. build
+8. Azure login
+9. `azd` environment preparation
+10. infrastructure provisioning
+11. App Service configuration
+12. Foundry model deployment verification or creation
+13. application deployment
+14. post-deploy verification
+
+### Azure deployment automation
+
+The Azure deployment contract is defined by:
+
+- `azure.yaml`
+- `infra/main.bicep`
+- `.github/workflows/contract-agentops-deploy.yml`
+- `docs/SETUP-DEPLOYMENT.md`
+
+Primary deployment target:
+
+- Azure App Service
+
+Optional deployment path:
+
+- Azure Container Apps
+
+Important automated behaviors:
+
+- The runtime is deployed using the compiled production entrypoint.
+- App Service is configured with `ALLOWED_ORIGINS`, `DEPLOY_ADMIN_KEY`, and Foundry settings.
+- `azd` postdeploy calls the deploy pipeline route to register agents after deployment.
+- The verification script checks health, mode, and deployment status after release.
+
+## 7. Setup And Run
 
 ### Prerequisites
-- Node.js 20+ with TypeScript support
-- Git for version control
-- Optional: Docker for containerized deployment
 
-### Quick Start
+- Node.js 20 or later
+- npm
+- Git
+- Azure CLI and `azd` if you want Azure deployment
 
-```bash
-# Clone repository
-git clone <repository-url>
-cd <repository-root>
+### Local setup
 
-# Install dependencies
+```powershell
+cd "c:\Piyush - Personal\GenAI\Contract Management"
 npm install
-
-# Set up environment
-cp .env.example .env
-# Edit .env with your configuration
-
-# Start the full local stack (UI + gateway + MCP servers)
-npm start
-
-# Open the UI
-# http://localhost:8000
+Copy-Item .env.example .env
 ```
 
-## Azure Hosting
+### Run locally in simulated mode
 
-Azure App Service is the primary deployment target for this repo.
-
-- App Service runtime command: `npm run start:prod`
-- Root launcher: `node dist/start.js`
-- Child workspace runtime mode: `WORKSPACE_START_SCRIPT=start:prod`
-
-The optional Azure Container Apps lane remains available, but it is not the default deployment path.
-
-### Development Mode
-
-```bash
-# Run tests
-npm test
-
-# Run the standalone deployment smoke scripts
-npx tsx tests/test-comprehensive.ts
-npx tsx tests/test-deployment.ts
-```
-
-## 🧪 Testing & Validation
-
-### Comprehensive Test Suite
-
-The system includes multiple testing levels:
-
-#### 1. Dynamic Policy Engine Tests
-```bash
-cd mcp-servers/contract-compliance-mcp
-node run-tests.mjs
-```
-Tests coverage:
-- ✅ Policy rule evaluation accuracy
-- ✅ Value extraction (monetary, temporal, textual)  
-- ✅ Severity-based risk assessment
-- ✅ Full compliance workflow end-to-end
-- ✅ Edge cases and error handling
-
-#### 2. Pipeline + Deployment Smoke Tests
-```bash
-npx tsx tests/test-comprehensive.ts
-npx tsx tests/test-deployment.ts
-```
-Tests coverage:
-- ✅ 4-agent pipeline orchestration
-- ✅ Error handling and retry logic
-- ✅ Result validation at each stage
-- ✅ Audit logging verification
-
-#### 3. Evaluation Framework Tests
-```bash
-npm test
-```
-Tests coverage:
-- ✅ 57 ground-truth test cases
-- ✅ Agent accuracy measurements
-- ✅ Performance benchmarking
-- ✅ Adversarial scenario validation
-
-### Useful API Endpoints
-
-The gateway serves the static UI at `http://localhost:8000` and exposes these endpoints:
-
-```bash
-# Gateway health
-curl http://localhost:8000/api/v1/health
-
-# MCP tool registry
-curl http://localhost:8000/api/v1/tools
-
-# Submit a contract for processing
-curl -X POST http://localhost:8000/api/v1/contracts \
-  -H "Content-Type: application/json" \
-  -d '{"text": "This NDA is entered into between Acme and Beta...", "filename": "sample-nda.txt"}'
-
-# Read evaluation history
-curl http://localhost:8000/api/v1/evaluations/results
-```
-
-## Data Science Docs
-
-Current DS documentation lives under `docs/data-science/`:
-
-- `docs/data-science/MODEL-CARD-ContractAgentOps-Demo.md`
-- `docs/data-science/EVAL-ContractAgentOps-Demo.md`
-- `docs/data-science/DRIFT-ContractAgentOps-Demo.md`
-- `docs/data-science/AGENTOPS-ContractAgentOps-Demo.md`
-
-## 📊 System Metrics & Monitoring
-
-### Current Evaluation Snapshot
-- **Latest representative run**: `v1.3`, `39 / 57` passed, quality gate `FAIL`
-- **Extraction accuracy**: `87.5%`
-- **Compliance accuracy**: `83.5%`
-- **Classification accuracy**: `91.5%`
-- **False-flag rate**: `9.9%`
-- **Latency P95**: `2.3s`
-- **Judge scores**: relevance `4.1/5`, groundedness `4.0/5`, coherence `4.4/5`
-
-### System Health Monitoring
-- Pipeline processing latency tracking
-- Agent error rates and recovery success
-- Policy rule evaluation performance
-- MCP server availability and response times
-
-## 🔧 Configuration
-
-### Dynamic Policy Rules
-
-Policies are configured in `data/policies/contract_policies.json`:
-
-```json
-{
-  "id": "FIN-001",
-  "category": "financial",
-  "clause_types": ["liability"],
-  "rule_type": "threshold",
-  "condition": {
-    "operator": "gt",
-    "field": "liability_amount",
-    "value": 5000000
-  },
-  "severity": "high",
-  "message_template": "Liability cap {actual_value} exceeds policy maximum of {policy_value}",
-  "effective_date": "2024-01-01",
-  "enabled": true
-}
-```
-
-### Agent Configurations
-
-Agent behavior is controlled via system prompts:
-- `prompts/intake-system.md` - Contract classification rules
-- `prompts/extraction-system.md` - Clause identification patterns  
-- `prompts/compliance-system.md` - Policy validation framework
-- `prompts/approval-system.md` - Approval decision matrix
-
-### Environment Variables
+Set these values in `.env`:
 
 ```env
-# System Configuration
-NODE_ENV=development
-PORT=3000
-LOG_LEVEL=info
-
-# MCP Server Ports  
-MCP_EVAL_PORT=9001
-MCP_DRIFT_PORT=9002
-MCP_COMPLIANCE_PORT=9003
-
-# Agent Configuration
-EVALUATION_ENABLED=true
-DRIFT_MONITORING_ENABLED=true
-AUDIT_LOGGING_ENABLED=true
-
-# Policy Engine
-POLICY_AUTO_REFRESH=true
-POLICY_REFRESH_INTERVAL=300000  # 5 minutes
+DEMO_MODE=simulated
+GATEWAY_PORT=8000
+MCP_BASE_PORT=9001
+LOG_LEVEL=INFO
 ```
 
-## 📈 Recent Enhancements (v2.0)
+Start the stack:
 
-### 1. Pipeline Robustness
-- **Added**: Retry logic with exponential backoff for all agent interactions
-- **Added**: Result validation at each pipeline stage
-- **Added**: PipelineError class for structured error handling
-- **Added**: Audit logging for failure tracking and analysis
+```powershell
+npm start
+```
 
-### 2. Dynamic Policy Engine
-- **Replaced**: Hard-coded compliance rules with configurable JSON policies
-- **Added**: Runtime policy updates without service restart
-- **Added**: Intelligent value extraction for complex contract patterns
-- **Added**: Severity-based violation classification system
+Open:
 
-### 3. Evaluation Framework
-- **Expanded**: Ground-truth corpus from the original 20-case baseline to the current 57-case suite
-- **Added**: AI-specific contract evaluation (ML liability, data processing)
-- **Added**: International contract support (multi-jurisdiction)
-- **Added**: Edge case validation (hybrid contracts, unusual structures)
+- UI: `http://localhost:8000`
+- Health: `http://localhost:8000/api/v1/health`
+- Tool registry: `http://localhost:8000/api/v1/tools`
 
-### 4. Agent Intelligence  
-- **Enhanced**: All agent prompts with few-shot examples and expanded taxonomies
-- **Added**: Confidence calibration guidelines for appropriate uncertainty expression
-- **Added**: Edge case handling protocols for unusual contract structures
-- **Improved**: Quality validation checklists for each agent
+### Run locally in live Foundry mode
 
-## 🚧 Future Roadmap
+Update `.env` with Foundry settings:
 
-### Planned Enhancements
-- **Advanced ML Integration**: LLM fine-tuning for domain-specific contract analysis
-- **Workflow Automation**: Integration with contract management systems
-- **Multi-Language Support**: Processing contracts in languages beyond English  
-- **Advanced Analytics**: Contract trend analysis and insights dashboard
-- **Enterprise Features**: SSO integration, role-based access control, audit trails
+```env
+DEMO_MODE=live
+FOUNDRY_AUTH_MODE=api-key
+FOUNDRY_API_KEY=<your-api-key>
+FOUNDRY_ENDPOINT=https://<your-resource>.openai.azure.com
+FOUNDRY_PROJECT_ENDPOINT=
+FOUNDRY_MODEL=gpt-5.4
+FOUNDRY_MODEL_SWAP=gpt-4o-mini
+GATEWAY_PORT=8000
+MCP_BASE_PORT=9001
+LOG_LEVEL=INFO
+```
 
-### Performance Optimization
-- **Parallel Processing**: Multi-threaded agent execution for large contract batches
-- **Caching Layer**: Intelligent result caching for frequently processed contract types
-- **Model Optimization**: Agent prompt optimization for reduced latency and costs
+Then run:
 
-## 📝 Documentation
+```powershell
+npm start
+```
 
-- **[Dynamic Policy Engine](docs/dynamic-policy-engine.md)** - Comprehensive policy configuration guide
-- **[Setup and Deployment Guide](docs/SETUP-DEPLOYMENT.md)** - Local setup, Azure configuration, azd deployment, and verification steps
+For Entra-based local or Azure-hosted auth, use:
 
+```env
+FOUNDRY_AUTH_MODE=managed-identity
+FOUNDRY_ENDPOINT=https://<your-resource>.openai.azure.com
+FOUNDRY_MANAGED_IDENTITY_CLIENT_ID=
+```
 
-## 🤝 Contributing
+### Validate before deployment
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Run the test suite (`npm test`)
-4. Commit your changes (`git commit -m 'Add amazing feature'`)
-5. Push to the branch (`git push origin feature/amazing-feature`)
-6. Open a Pull Request
+```powershell
+npm test
+npm run typecheck
+npm run build
+npm run lint
+npx tsx tests/test-comprehensive.ts
+npx tsx tests/test-deployment.ts
+```
 
-## 📄 License
+### Deploy to Azure App Service
 
-This project is licensed under the MIT License.
+```powershell
+az login
+azd auth login
+azd env new contract-agentops-dev
+azd env set AZURE_LOCATION eastus2
+azd env set FOUNDRY_MODEL gpt-5.4
+azd env set FOUNDRY_MODEL_VERSION 2024-11-20
+azd env set DEMO_MODE live
+azd up
+```
 
-## 📞 Support
+Useful follow-up commands:
 
-For questions, issues, or contributions:
-- Create an issue in the GitHub repository
-- Join our Discord community for real-time discussion
-- Check the documentation for detailed guides and examples
+```powershell
+azd env get-value AZURE_APP_SERVICE_URL
+curl "$(azd env get-value AZURE_APP_SERVICE_URL)/api/v1/health"
+curl "$(azd env get-value AZURE_APP_SERVICE_URL)/api/v1/deploy/mode"
+```
 
----
+## Additional Repo References
 
-**Built with ❤️ for intelligent contract processing and AI agent orchestration**
+- `docs/prd/PRD-ContractAgentOps-Demo.md`
+- `docs/adr/ADR-ContractAgentOps-Demo.md`
+- `docs/specs/SPEC-ContractAgentOps-Demo.md`
+- `docs/ux/UX-ContractAgentOps-Dashboard.md`
+- `docs/SETUP-DEPLOYMENT.md`
+- `agents/microsoft-framework/README.md`
