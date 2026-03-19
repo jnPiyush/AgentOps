@@ -101,3 +101,9 @@ gateway/src/*.js
 # AgentX runtime state
 .agentx/
 # --- /AgentX ---
+
+# Local generated runtime artifacts
+data/contract-texts/
+data/runtime/packages/
+gateway/dist-buildcheck/
+mcp-servers/*/dist-buildcheck/
