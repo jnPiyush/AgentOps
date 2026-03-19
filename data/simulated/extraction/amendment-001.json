@@ -23,6 +23,9 @@
 	],
 	"parties": ["DataFlow Systems Corp.", "Pinnacle Health Group"],
 	"dates": ["April 1, 2026", "September 1, 2025", "June 30, 2026"],
-	"values": ["$12,000/month (previous)", "$18,000/month (new)"],
+	"values": [
+		{"label": "Previous Monthly Fee", "value": "$12,000/month"},
+		{"label": "New Monthly Fee", "value": "$18,000/month"}
+	],
 	"confidence": 0.91
 }

@@ -37,9 +37,27 @@ export async function runApprovalAgent(
 		};
 	}
 
+	// Support both old schema (action: "auto_approve"|"escalate_to_human" from simulated data)
+	// and new prompt schema (decision: "APPROVE"|"REJECT"|"CONDITIONAL" from approval-system.md)
+	const rawAction = parsed.action as string | undefined;
+	const rawDecision = (parsed.decision as string | undefined)?.toUpperCase();
+
+	let action: "auto_approve" | "escalate_to_human";
+	if (rawAction === "auto_approve" || rawAction === "escalate_to_human") {
+		action = rawAction;
+	} else if (rawDecision === "APPROVE") {
+		action = "auto_approve";
+	} else if (rawDecision === "REJECT" || rawDecision === "CONDITIONAL") {
+		action = "escalate_to_human";
+	} else if ((parsed.escalation_required as boolean | undefined) === false) {
+		action = "auto_approve";
+	} else {
+		action = "escalate_to_human";
+	}
+
 	return {
 		contractId,
-		action: (parsed.action as "auto_approve" | "escalate_to_human") ?? "escalate_to_human",
+		action,
 		reasoning: (parsed.reasoning as string) ?? "",
 		assignedTo: (parsed.assigned_to as string) ?? null,
 		traceId,

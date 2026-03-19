@@ -7,7 +7,7 @@ created: 2026-03-12
 
 model:
   provider: microsoft_foundry
-  name: gpt-5.1-2026-01-15
+  name: gpt-5.4
   temperature: 0.0
   max_tokens: 2048
   top_p: 1.0
@@ -16,7 +16,7 @@ model:
 
 prompts:
   system_prompt: prompts/obligations-system.md
-  output_template: templates/extraction-result.json
+  output_template: templates/obligations-result.json
 
 tools:
   - name: notify_stakeholder
@@ -35,7 +35,7 @@ behavior:
   boundary: "Post-execution obligations only - does not change signed terms"
   output_schema: config/schemas/obligations-result.json
   validation:
-    required_fields: [obligations, owner_assignments, follow_up_window_days]
+    required_fields: [obligations, owner_assignments, follow_up_window_days, confidence_score]
     confidence_threshold: 0.7
   retry_policy:
     max_attempts: 3

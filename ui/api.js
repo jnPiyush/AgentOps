@@ -8,11 +8,20 @@ window.GATEWAY_URL = GATEWAY_URL;
 let DEPLOY_ADMIN_KEY = "local-dev-key";
 let dashboardMode = "simulated"; // 'simulated' | 'real'
 
-// Fetch deploy admin key from gateway (overrides local default)
+// Fetch gateway config (mode + requiresAdminKey flag only;
+// the admin key itself is never returned over the wire).
 fetch(`${GATEWAY_URL}/api/v1/client-config`, { signal: AbortSignal.timeout(5000) })
 	.then((res) => res.json())
 	.then((cfg) => {
-		if (cfg.deployAdminKey) DEPLOY_ADMIN_KEY = cfg.deployAdminKey;
+		// In live mode with admin auth required, the deploy button is managed
+		// by the azd postdeploy hook (server-side). The UI deploy button is
+		// still shown but the gateway will reject it with 401 — by design.
+		// The local-dev-key default works for simulated mode because the
+		// deploy endpoint performs no key check in simulated mode.
+		if (cfg.requiresAdminKey) {
+			// Signal to the UI that server-side deploy is enforced.
+			window._deployRequiresAdminKey = true;
+		}
 	})
 	.catch(() => {
 		/* keep local default */

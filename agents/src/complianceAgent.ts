@@ -40,13 +40,29 @@ export async function runComplianceAgent(
 		};
 	}
 
-	const clauseResults = (parsed.clause_results as ClauseResult[]) ?? [];
-	const flagsCount = clauseResults.filter((r) => r.status === "fail" || r.status === "warn").length;
+	// Support both old schema (clause_results + overall_risk from simulated data)
+	// and new prompt schema (policy_violations + risk_level from compliance-system.md)
+	const clauseResults: ClauseResult[] =
+		(parsed.clause_results as ClauseResult[] | undefined) ??
+		(parsed.policy_violations as string[] | undefined)?.map((v) => ({
+			clause_type: "policy",
+			status: "fail" as const,
+			policy_ref: "policy-unknown",
+			reason: v,
+		})) ??
+		[];
+
+	const rawRisk = (parsed.overall_risk ?? parsed.risk_level) as string | undefined;
+	const overallRisk = (rawRisk?.toLowerCase() as "low" | "medium" | "high" | undefined) ?? "medium";
+
+	const flagsCount =
+		(parsed.flags_count as number | undefined) ??
+		clauseResults.filter((r) => r.status === "fail" || r.status === "warn").length;
 
 	return {
 		contractId,
 		clauseResults,
-		overallRisk: (parsed.overall_risk as "low" | "medium" | "high") ?? "medium",
+		overallRisk,
 		flagsCount,
 		policyReferences: (parsed.policy_references as string[]) ?? [],
 		traceId,

@@ -78,12 +78,12 @@ const AGENT_DEFS: AgentDef[] = [
 			'Classify this agreement: "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc, effective January 1, 2025, for two years."',
 	},
 	{
-		key: "drafting",
-		name: "Contract Drafting Agent",
-		promptFile: "drafting-system.md",
+		key: "extraction",
+		name: "Contract Extraction Agent",
+		promptFile: "extraction-system.md",
 		tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
 		evalPrompt:
-			"Produce a first-pass draft package for a SaaS contract using approved fallback language for liability, data processing, and renewal terms.",
+			'Extract all key clauses, parties, dates, and monetary values from this agreement: "This Master Services Agreement between TechCorp and ClientCo is effective January 1, 2025, with a total contract value of $500,000 USD and auto-renewal every 12 months."',
 	},
 	{
 		key: "review",

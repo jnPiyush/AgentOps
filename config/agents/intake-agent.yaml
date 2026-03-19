@@ -11,7 +11,7 @@ created: 2026-03-07
 # Model Configuration (Declarative)
 model:
   provider: microsoft_foundry
-  name: gpt-5.1-2026-01-15  # Pinned version with date
+  name: gpt-5.4
   temperature: 0.0          # Deterministic for consistent classification
   max_tokens: 2048
   top_p: 1.0
@@ -52,7 +52,7 @@ behavior:
   
   # Quality Gates
   validation:
-    required_fields: [contract_type, confidence_score, parties]
+    required_fields: [contract_id, title, parties, contract_type, contract_category, source_channel, compliance_needs, confidence_score]
     confidence_threshold: 0.7
     max_parties: 10
     

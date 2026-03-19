@@ -53,6 +53,10 @@
 	],
 	"parties": ["GlobalTech Solutions LLC", "Meridian Enterprises Inc."],
 	"dates": ["February 1, 2026"],
-	"values": ["$2,000,000 (General Liability)", "$5,000,000 (Professional Liability)", "$3,000,000 (Cyber Liability)"],
+	"values": [
+		{"label": "General Liability Insurance", "value": 2000000},
+		{"label": "Professional Liability Insurance", "value": 5000000},
+		{"label": "Cyber Liability Insurance", "value": 3000000}
+	],
 	"confidence": 0.92
 }

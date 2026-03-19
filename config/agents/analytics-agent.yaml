@@ -7,7 +7,7 @@ created: 2026-03-12
 
 model:
   provider: microsoft_foundry
-  name: gpt-5.1-2026-01-15
+  name: gpt-5.4
   temperature: 0.0
   max_tokens: 2048
   top_p: 1.0
@@ -16,7 +16,7 @@ model:
 
 prompts:
   system_prompt: prompts/analytics-system.md
-  output_template: templates/approval-result.json
+  output_template: templates/analytics-result.json
 
 tools:
   - name: run_evaluation
@@ -35,7 +35,7 @@ behavior:
   boundary: "Analytics only - no workflow mutation or approval overrides"
   output_schema: config/schemas/analytics-result.json
   validation:
-    required_fields: [portfolio_summary, key_metrics, recommended_actions]
+    required_fields: [portfolio_summary, key_metrics, recommended_actions, confidence_score]
     confidence_threshold: 0.7
   retry_policy:
     max_attempts: 3

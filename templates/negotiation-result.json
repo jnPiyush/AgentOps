@@ -1,0 +1,6 @@
+{
+	"counterparty_positions": ["Counterparty requests a higher liability cap and mutual indemnity carve-out."],
+	"fallback_recommendations": ["Offer a cap tied to fees paid in the prior twelve months."],
+	"escalation_required": true,
+	"confidence_score": 0.9
+}

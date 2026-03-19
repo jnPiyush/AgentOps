@@ -21,9 +21,11 @@ describe("runIntakeAgent", () => {
 		const adapter = new StaticAdapter(
 			JSON.stringify({
 				contract_type: "License Agreement",
+				contract_category: "Commercial",
+				source_channel: "email",
 				confidence_score: 0.91,
 				parties: ["SoftwareCorp", "Licensee Inc"],
-				metadata: { jurisdiction: "Delaware" },
+				metadata: { jurisdiction: "Delaware", compliance_needs: ["ip_protection"], risk_level: "MEDIUM" },
 			}),
 		);
 
@@ -32,7 +34,11 @@ describe("runIntakeAgent", () => {
 		expect(result.type).toBe("License Agreement");
 		expect(result.confidence).toBe(0.91);
 		expect(result.parties).toEqual(["SoftwareCorp", "Licensee Inc"]);
-		expect(result.metadata).toEqual({ jurisdiction: "Delaware" });
+		expect(result.metadata).toEqual({
+			jurisdiction: "Delaware",
+			compliance_needs: ["ip_protection"],
+			risk_level: "MEDIUM",
+		});
 	});
 
 	it("still accepts the legacy runtime shape for backward compatibility", async () => {
@@ -49,6 +55,41 @@ describe("runIntakeAgent", () => {
 
 		expect(result.type).toBe("NDA");
 		expect(result.confidence).toBe(0.95);
+	});
+
+	it("builds enriched metadata from top-level schema fields when metadata is omitted", async () => {
+		const adapter = new StaticAdapter(
+			JSON.stringify({
+				contract_type: "Loan Agreement",
+				contract_category: "Corporate",
+				source_channel: "api",
+				confidence_score: 0.88,
+				parties: ["Lender LLC", "Borrower Inc"],
+				industry: "Financial Services",
+				counterparty_type: "lender-borrower",
+				risk_level: "HIGH",
+				compliance_needs: ["financial_regulatory"],
+				jurisdiction: "Delaware",
+			}),
+		);
+
+		const result = await runIntakeAgent(adapter, "loan text", "contract-999", "trace-999");
+
+		expect(result.metadata).toEqual({
+			title: undefined,
+			contract_category: "Corporate",
+			source_channel: "api",
+			industry: "Financial Services",
+			counterparty_type: "lender-borrower",
+			risk_level: "HIGH",
+			compliance_needs: ["financial_regulatory"],
+			effective_date: undefined,
+			expiry_date: undefined,
+			value: undefined,
+			currency: undefined,
+			jurisdiction: "Delaware",
+			source_system: undefined,
+		});
 	});
 
 	it("falls back to UNKNOWN when the model response is invalid JSON", async () => {

@@ -102,5 +102,5 @@ export async function loadSystemPrompt(agentKey: string): Promise<string> {
 }
 
 export function getAgentPipeline(): string[] {
-	return ["intake", "drafting", "review", "compliance", "negotiation", "approval"];
+	return ["intake", "extraction", "review", "compliance", "negotiation", "approval"];
 }

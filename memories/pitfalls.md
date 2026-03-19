@@ -9,3 +9,4 @@
 - 2026-03-11: Do not add OpenAI RBAC role assignments in Bicep without ensuring the deploying identity can write Azure role assignments. Managed-identity runtime auth will fail at provision time otherwise.
 - 2026-03-12: On Windows, moving workspace directories can fail with "file is being used by another process" if the local Node demo stack is still running. Stop workspace node processes before large repo moves.
 - 2026-03-16: Do not widen the intake prompt taxonomy without updating both the deterministic classifier and `agents/src/intakeAgent.ts`. The prompt/schema can drift ahead of runtime classification unless the adapter accepts both schema and legacy payload shapes.
+- 2026-03-18: Running the full test suite can rewrite tracked files under `data/runtime/` and create untracked package snapshots. Clean those generated artifacts before final status review so source changes stay isolated.

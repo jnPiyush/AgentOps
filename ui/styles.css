@@ -828,6 +828,7 @@ body {
 .designer-canvas-wrapper {
 	min-height: 260px;
 	position: relative;
+	overflow-x: auto;
 }
 
 /* Sequential layout */
@@ -844,36 +845,25 @@ body {
 	align-items: flex-start;
 	justify-content: flex-start;
 	gap: var(--space-md);
-	overflow-x: auto;
+	/* min-width prevents stages from wrapping; the wrapper scrolls instead */
+	min-width: max-content;
 	padding-bottom: var(--space-sm);
 }
 
 .designer-stage-flow-sequential,
 .designer-stage-flow-sequential-hitl,
 .designer-stage-flow-conditional {
-	flex-direction: column;
-	align-items: center;
-	overflow-x: visible;
-	overflow-y: auto;
+	/* Horizontal layout: stages flow left-to-right like all other types */
+	flex-direction: row;
+	align-items: flex-start;
+	overflow-x: auto;
+	overflow-y: visible;
 }
 
 .designer-stage-shell {
 	display: flex;
 	align-items: center;
 	gap: var(--space-md);
-}
-
-.designer-stage-flow-sequential .designer-stage-shell,
-.designer-stage-flow-sequential-hitl .designer-stage-shell,
-.designer-stage-flow-conditional .designer-stage-shell {
-	flex-direction: column;
-}
-
-.designer-stage-flow-sequential .designer-stage,
-.designer-stage-flow-sequential-hitl .designer-stage,
-.designer-stage-flow-conditional .designer-stage {
-	width: 100%;
-	max-width: 600px;
 }
 
 .designer-stage {
@@ -905,10 +895,11 @@ body {
 	margin-top: 60px;
 }
 
+/* Arrow alignment: all layouts are now horizontal, so align arrows vertically centered */
 .designer-stage-flow-sequential .designer-stage-arrow,
 .designer-stage-flow-sequential-hitl .designer-stage-arrow,
 .designer-stage-flow-conditional .designer-stage-arrow {
-	margin-top: 0;
+	margin-top: 60px;
 }
 
 /* Parallel layout */
@@ -1169,53 +1160,185 @@ body {
 	border-color: var(--color-accent);
 }
 
-/* Tool selection grid */
-.designer-tool-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-	gap: var(--space-md);
-	max-height: 220px;
+/* ─── Tool Catalogue (modal picker) ─────────────────────────────────────── */
+.designer-tool-catalogue {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	max-height: 360px;
 	overflow-y: auto;
-	padding: var(--space-sm);
+	padding: var(--space-sm) var(--space-md);
 	background: var(--color-bg-input);
 	border-radius: var(--radius-md);
 	border: 1px solid #3a3a3a;
 }
 
-.designer-tool-server {
+.designer-tool-category {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 2px;
 }
 
-.designer-tool-server-name {
-	font-size: 11px;
-	font-weight: 600;
+.designer-tool-category-name {
+	font-size: 10px;
+	font-weight: 700;
 	color: var(--color-accent);
 	text-transform: uppercase;
-	letter-spacing: 0.5px;
-	margin-bottom: 2px;
+	letter-spacing: 0.6px;
+	margin-bottom: 4px;
 	padding-bottom: 4px;
-	border-bottom: 1px solid #3a3a3a;
+	border-bottom: 1px solid rgba(80, 230, 255, 0.15);
 }
 
-.designer-tool-checkbox {
+.designer-tool-item {
 	display: flex;
-	align-items: center;
-	gap: 6px;
+	align-items: flex-start;
+	gap: 8px;
+	padding: 5px 6px;
+	border-radius: var(--radius-sm);
 	cursor: pointer;
-	padding: 2px 0;
+	transition: background 0.12s;
 }
 
-.designer-tool-checkbox input[type="checkbox"] {
+.designer-tool-item:hover {
+	background: rgba(80, 230, 255, 0.06);
+}
+
+.designer-tool-item.is-selected {
+	background: rgba(80, 230, 255, 0.1);
+}
+
+.designer-tool-item input[type="checkbox"] {
 	accent-color: var(--color-accent);
 	cursor: pointer;
+	margin-top: 3px;
+	flex-shrink: 0;
 }
 
-.designer-tool-label {
+.designer-tool-item-body {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.designer-tool-item-name {
 	font-size: 12px;
+	font-weight: 600;
+	color: var(--color-text-primary);
+}
+
+.designer-tool-item-desc {
+	font-size: 11px;
+	color: var(--color-text-tertiary);
+	line-height: 1.35;
+}
+
+.designer-tool-mcp-tag {
+	font-size: 10px;
+	color: var(--color-accent);
 	font-family: var(--font-mono);
+	opacity: 0.75;
+}
+
+/* Backwards-compat shim — old server-grid classes kept inert */
+.designer-tool-grid {
+	display: none; /* replaced by .designer-tool-catalogue */
+}
+.designer-tool-server,
+.designer-tool-server-name,
+.designer-tool-checkbox,
+.designer-tool-label {
+	display: none;
+}
+
+/* ─── Stage execution mode toggle ────────────────────────────────────────── */
+.designer-stage-label-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.designer-exec-mode-toggle {
+	font-size: 10px;
+	font-weight: 700;
+	padding: 2px 8px;
+	border-radius: 999px;
+	border: 1px solid;
+	cursor: pointer;
+	transition: all 0.15s;
+	letter-spacing: 0.3px;
+	white-space: nowrap;
+}
+
+.designer-exec-mode-toggle.is-parallel {
+	background: rgba(138, 92, 246, 0.15);
+	color: #a78bfa;
+	border-color: rgba(138, 92, 246, 0.35);
+}
+
+.designer-exec-mode-toggle.is-parallel:hover {
+	background: rgba(138, 92, 246, 0.28);
+}
+
+.designer-exec-mode-toggle.is-sequential {
+	background: rgba(80, 230, 255, 0.12);
+	color: var(--color-accent);
+	border-color: rgba(80, 230, 255, 0.25);
+}
+
+.designer-exec-mode-toggle.is-sequential:hover {
+	background: rgba(80, 230, 255, 0.22);
+}
+
+.designer-exec-mode-label {
+	font-size: 10px;
+	color: var(--color-text-tertiary);
+	font-style: italic;
+}
+
+/* ─── Sequential-within-stage stack ──────────────────────────────────────── */
+.designer-sequential-stack {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0;
+}
+
+.designer-intra-arrow {
+	font-size: 14px;
+	color: var(--color-text-tertiary);
+	line-height: 1;
+	margin: 2px 0;
+	user-select: none;
+}
+
+/* ─── Agent card extras ───────────────────────────────────────────────────── */
+.designer-agent-description {
+	font-size: 11px;
+	color: var(--color-text-tertiary);
+	line-height: 1.4;
+	font-style: italic;
+	margin: 3px 0 6px;
+}
+
+.designer-tool-name-inline {
+	font-size: 12px;
+	font-weight: 600;
 	color: var(--color-text-secondary);
+}
+
+.designer-tool-mcp-badge {
+	font-size: 9px;
+	background: rgba(80, 230, 255, 0.12);
+	color: var(--color-accent);
+	border-radius: 999px;
+	padding: 1px 5px;
+	border: 1px solid rgba(80, 230, 255, 0.2);
+	margin-left: 4px;
+	vertical-align: middle;
+	white-space: nowrap;
 }
 
 /* Color picker */

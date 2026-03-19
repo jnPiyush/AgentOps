@@ -7,7 +7,7 @@ created: 2026-03-12
 
 model:
   provider: microsoft_foundry
-  name: gpt-5.1-2026-01-15
+  name: gpt-5.4
   temperature: 0.1
   max_tokens: 2048
   top_p: 1.0
@@ -16,7 +16,7 @@ model:
 
 prompts:
   system_prompt: prompts/drafting-system.md
-  output_template: templates/extraction-result.json
+  output_template: templates/drafting-result.json
 
 tools:
   - name: extract_clauses
@@ -40,7 +40,7 @@ behavior:
   boundary: "Drafting support only - no compliance or approval decisions"
   output_schema: config/schemas/drafting-result.json
   validation:
-    required_fields: [draft_summary, recommended_clauses, open_questions]
+    required_fields: [draft_summary, recommended_clauses, open_questions, confidence_score]
     confidence_threshold: 0.7
   retry_policy:
     max_attempts: 3
@@ -48,6 +48,7 @@ behavior:
     base_delay: 1s
   performance:
     target_latency: 6s
+    max_latency: 15s
     max_latency: 15s
 
 workflow:

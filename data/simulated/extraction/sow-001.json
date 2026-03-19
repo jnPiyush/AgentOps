@@ -28,6 +28,12 @@
 	],
 	"parties": ["GlobalTech Solutions LLC", "Meridian Enterprises Inc."],
 	"dates": ["March 1, 2026", "March 15, 2026", "June 7, 2026"],
-	"values": ["$285,000", "$71,250", "$114,000", "$28,500", "$15,000"],
+	"values": [
+		{"label": "Total Project Fee", "value": 285000},
+		{"label": "Execution Payment (25%)", "value": 71250},
+		{"label": "Phase 3 Payment (40%)", "value": 114000},
+		{"label": "Final Acceptance Payment (10%)", "value": 28500},
+		{"label": "Travel and Expenses Allowance", "value": 15000}
+	],
 	"confidence": 0.95
 }

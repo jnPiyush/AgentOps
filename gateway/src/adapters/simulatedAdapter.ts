@@ -35,12 +35,16 @@ export class SimulatedAdapter implements ILlmAdapter {
 
 		if (lowerPrompt.includes("classify") || lowerPrompt.includes("intake")) {
 			stage = "intake";
-		} else if (lowerPrompt.includes("extract") || lowerPrompt.includes("clause")) {
-			stage = "extraction";
+		} else if (lowerPrompt.includes("review") || lowerPrompt.includes("redline") || lowerPrompt.includes("material change")) {
+			stage = "review";
+		} else if (lowerPrompt.includes("negotiat") || lowerPrompt.includes("counterparty") || lowerPrompt.includes("fallback language")) {
+			stage = "negotiation";
 		} else if (lowerPrompt.includes("compliance") || lowerPrompt.includes("policy")) {
 			stage = "compliance";
-		} else if (lowerPrompt.includes("approv") || lowerPrompt.includes("risk") || lowerPrompt.includes("route")) {
+		} else if (lowerPrompt.includes("approv") || lowerPrompt.includes("route")) {
 			stage = "approval";
+		} else if (lowerPrompt.includes("extract") || lowerPrompt.includes("clause")) {
+			stage = "extraction";
 		} else {
 			console.warn(
 				`[SimulatedAdapter] No keyword match for prompt, defaulting to intake. Prompt start: "${prompt.slice(0, 80)}..."`,

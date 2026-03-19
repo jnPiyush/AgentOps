@@ -23,6 +23,6 @@
 	],
 	"parties": ["Acme Corporation", "Beta Inc."],
 	"dates": ["January 15, 2026"],
-	"values": ["$500,000"],
+	"values": [{"label": "Liability Cap", "value": 500000}],
 	"confidence": 0.94
 }

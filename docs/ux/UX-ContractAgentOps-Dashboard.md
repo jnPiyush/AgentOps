@@ -123,9 +123,9 @@ flowchart TD
 **Detailed Steps**:
 
 1. **Act 1 -- Design Canvas**
-  - **Presenter Action**: Opens dashboard. Sees the 6 active Contract Lifecycle stages. Clicks one (e.g., "Compliance Check") to expand it.
+  - **Presenter Action**: Opens dashboard. Sees the 10 active Contract Lifecycle stages. Clicks one (e.g., "Compliance Check") to expand it.
    - **System Response**: Expanding a business stage reveals its mapped "Stage Execution Group" of runtime agents (e.g., Policy Mapping Agent + Regulatory Review Agent).
-  - **Talking Point**: "We don't structure our workflow around single agents. We start with the active pre-execution business stages of a contract, then map those stages to specialized groups of AI agents."
+  - **Talking Point**: "We don't structure our workflow around single agents. We start with the full contract lifecycle of a contract, then map those stages to specialized groups of AI agents."
 
 2. **Act 2 -- Workflow Test Lab**
   - **Presenter Action**: Clicks "Test" tab. Selects a scenario such as "High-Risk MSA" and clicks "Run Scenario."

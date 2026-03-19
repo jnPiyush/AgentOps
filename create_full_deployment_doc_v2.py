@@ -140,7 +140,7 @@ def create_doc():
         ("Resource Group", "A folder that holds all related resources together", "contract-agentops-eastus-rg"),
         ("App Service Plan", "The size of computer we are renting (like choosing a small/medium/large office)", "contract-agentops-eastus-plan (B1 tier)"),
         ("Web App", "The actual cloud computer running our code", "contract-agentops-eastus"),
-        ("AI Foundry", "Microsoft's AI brain that our app calls for intelligence", "kpmg-legal-ai-foundry (East US)"),
+        ("AI Foundry", "Microsoft's AI brain that our app calls for intelligence", "contract-agentops-ai-foundry (East US)"),
         ("AI Model", "The specific AI model we use (GPT-4o)", "gpt-4o (version 2024-11-20)"),
     ]
     for r, (a, b, c) in enumerate(rows_data, start=1):
@@ -350,7 +350,7 @@ def create_doc():
         '    --name contract-agentops-eastus \\\n'
         '    --resource-group contract-agentops-eastus-rg \\\n'
         '    --settings \\\n'
-        '        FOUNDRY_ENDPOINT=https://kpmg-legal-ai-foundry.openai.azure.com/ \\\n'
+        '        FOUNDRY_ENDPOINT=https://contract-agentops-ai-foundry.openai.azure.com/ \\\n'
         '        FOUNDRY_API_KEY=<secret-key-hidden> \\\n'
         '        FOUNDRY_MODEL=gpt-4o \\\n'
         '        GATEWAY_PORT=8080 \\\n'

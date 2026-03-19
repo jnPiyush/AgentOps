@@ -38,17 +38,48 @@ const WorkflowDesigner = (() => {
 
 	const MODEL_OPTIONS = ["GPT-5.4", "GPT-4o-mini", "GPT-4.1", "GPT-4.1-mini", "GPT-4.1-nano", "o3-mini", "o4-mini"];
 
-	// All available MCP tools organized by server
-	const AVAILABLE_TOOLS = {
-		"contract-intake-mcp": ["upload_contract", "classify_document", "extract_metadata"],
-		"contract-extraction-mcp": ["extract_clauses", "identify_parties", "extract_dates_values"],
-		"contract-compliance-mcp": ["check_policy", "flag_risk", "get_policy_rules"],
-		"contract-workflow-mcp": ["route_approval", "escalate_to_human", "notify_stakeholder"],
-		"contract-audit-mcp": ["get_audit_log", "create_audit_entry"],
-		"contract-eval-mcp": ["run_evaluation", "get_baseline"],
-		"contract-drift-mcp": ["detect_drift", "model_swap_analysis"],
-		"contract-feedback-mcp": ["submit_feedback", "optimize_feedback"],
-	};
+	// Tool Catalogue — each tool is a primary object; MCP is its transport mechanism.
+	// Tools are grouped by CATEGORY in the picker, not by server.
+	const TOOL_CATALOGUE = [
+		// Intake
+		{ id: "upload_contract",        name: "Upload Contract",       description: "Upload a contract document for processing",                          category: "Intake",      mcpServer: "contract-intake-mcp" },
+		{ id: "classify_document",      name: "Classify Document",     description: "Classify contract type (NDA, MSA, SOW, SLA, etc.)",                  category: "Intake",      mcpServer: "contract-intake-mcp" },
+		{ id: "extract_metadata",       name: "Extract Metadata",      description: "Extract parties, dates, and jurisdiction metadata",                  category: "Intake",      mcpServer: "contract-intake-mcp" },
+		// Extraction
+		{ id: "extract_clauses",        name: "Extract Clauses",       description: "Extract all key clauses from the contract body",                     category: "Extraction",  mcpServer: "contract-extraction-mcp" },
+		{ id: "identify_parties",       name: "Identify Parties",      description: "Identify all contract parties and signatories",                      category: "Extraction",  mcpServer: "contract-extraction-mcp" },
+		{ id: "extract_dates_values",   name: "Extract Dates & Values","description": "Extract dates, milestones, and monetary values",                   category: "Extraction",  mcpServer: "contract-extraction-mcp" },
+		// Compliance
+		{ id: "check_policy",           name: "Check Policy",          description: "Validate contract terms against company policies",                   category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		{ id: "flag_risk",              name: "Flag Risk",             description: "Identify and flag high-risk clauses or terms",                       category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		{ id: "get_policy_rules",       name: "Get Policy Rules",      description: "Retrieve the current policy ruleset for evaluation",                 category: "Compliance",  mcpServer: "contract-compliance-mcp" },
+		// Workflow
+		{ id: "route_approval",         name: "Route Approval",        description: "Route contract to the appropriate approval tier",                    category: "Workflow",    mcpServer: "contract-workflow-mcp" },
+		{ id: "escalate_to_human",      name: "Escalate to Human",     description: "Trigger a human-in-the-loop review checkpoint",                     category: "Workflow",    mcpServer: "contract-workflow-mcp" },
+		{ id: "notify_stakeholder",     name: "Notify Stakeholder",    description: "Send notifications to relevant stakeholders",                        category: "Workflow",    mcpServer: "contract-workflow-mcp" },
+		// Audit
+		{ id: "get_audit_log",          name: "Get Audit Log",         description: "Retrieve the full contract audit history",                           category: "Audit",       mcpServer: "contract-audit-mcp" },
+		{ id: "create_audit_entry",     name: "Create Audit Entry",    description: "Write a new timestamped audit event to the log",                    category: "Audit",       mcpServer: "contract-audit-mcp" },
+		// Analytics & Evaluation
+		{ id: "run_evaluation",         name: "Run Evaluation",        description: "Execute an evaluation suite on agent outputs",                       category: "Analytics",   mcpServer: "contract-eval-mcp" },
+		{ id: "get_baseline",           name: "Get Baseline",          description: "Retrieve evaluation baseline metrics for comparison",                category: "Analytics",   mcpServer: "contract-eval-mcp" },
+		// Monitoring
+		{ id: "detect_drift",           name: "Detect Drift",          description: "Analyse model output drift vs. baseline",                            category: "Monitoring",  mcpServer: "contract-drift-mcp" },
+		{ id: "model_swap_analysis",    name: "Model Swap Analysis",   description: "Compare agent outputs before and after a model version change",      category: "Monitoring",  mcpServer: "contract-drift-mcp" },
+		// Feedback
+		{ id: "submit_feedback",        name: "Submit Feedback",       description: "Submit human feedback for continuous improvement",                   category: "Feedback",    mcpServer: "contract-feedback-mcp" },
+		{ id: "optimize_feedback",      name: "Optimize Feedback",     description: "Apply feedback signals to refine agent prompts automatically",       category: "Feedback",    mcpServer: "contract-feedback-mcp" },
+	];
+
+	// Backwards-compatible server→tools map (used by validation and window.mcpTools)
+	const AVAILABLE_TOOLS = TOOL_CATALOGUE.reduce((acc, t) => {
+		if (!acc[t.mcpServer]) acc[t.mcpServer] = [];
+		acc[t.mcpServer].push(t.id);
+		return acc;
+	}, {});
+
+	// Fast id→catalogue entry lookup
+	const TOOL_BY_ID = Object.fromEntries(TOOL_CATALOGUE.map((t) => [t.id, t]));
 
 	// Current workflow state
 	let currentWorkflow = {
@@ -90,6 +121,8 @@ const WorkflowDesigner = (() => {
 			order: Number.isFinite(Number(agent.order)) ? Number(agent.order) : fallbackOrder,
 			boundary: agent.boundary || "",
 			output: agent.output || "",
+			description: agent.description || "",
+			instructions: agent.instructions || "",
 			tools: Array.isArray(agent.tools) ? [...agent.tools] : [],
 		};
 	}
@@ -385,7 +418,7 @@ const WorkflowDesigner = (() => {
 	}
 
 	function loadDefaultWorkflow() {
-		// Set the default workflow with the active 6-stage pre-execution lifecycle
+		// Set the default workflow with the active 10-stage CLM lifecycle
 		currentWorkflow = {
 			id: "default",
 			name: "Contract Lifecycle Pipeline",
@@ -481,12 +514,72 @@ const WorkflowDesigner = (() => {
 					lane: 0,
 					order: 5,
 				},
+				{
+					id: "agent-7",
+					name: "Signature Agent",
+					role: "Coordinate signature dispatch, reminders, and execution evidence",
+					icon: "S",
+					model: "GPT-5.4",
+					tools: ["notify_stakeholder", "get_audit_log", "create_audit_entry"],
+					boundary: "Signature workflow only",
+					output: "Signature completion status and audit evidence",
+					color: AGENT_COLORS[6],
+					kind: "agent",
+					stage: 6,
+					lane: 0,
+					order: 6,
+				},
+				{
+					id: "agent-8",
+					name: "Obligations Agent",
+					role: "Extract obligations, milestones, and owners from the executed contract",
+					icon: "O",
+					model: "GPT-5.4",
+					tools: ["extract_clauses", "extract_dates_values", "notify_stakeholder"],
+					boundary: "Post-execution obligations only",
+					output: "Structured obligation register and owner assignments",
+					color: AGENT_COLORS[7],
+					kind: "agent",
+					stage: 7,
+					lane: 0,
+					order: 7,
+				},
+				{
+					id: "agent-9",
+					name: "Renewal Agent",
+					role: "Monitor expiry windows, auto-renewal terms, and amendment triggers",
+					icon: "Y",
+					model: "GPT-5.4",
+					tools: ["extract_dates_values", "flag_risk", "notify_stakeholder"],
+					boundary: "Renewal and expiry monitoring only",
+					output: "Renewal alerts and recommended action windows",
+					color: AGENT_COLORS[8],
+					kind: "agent",
+					stage: 8,
+					lane: 0,
+					order: 8,
+				},
+				{
+					id: "agent-10",
+					name: "Analytics Agent",
+					role: "Summarize lifecycle throughput, risk concentration, and renewal exposure",
+					icon: "L",
+					model: "GPT-5.4",
+					tools: ["run_evaluation", "get_baseline", "detect_drift"],
+					boundary: "Portfolio analytics only",
+					output: "Lifecycle KPI summary and portfolio insights",
+					color: AGENT_COLORS[9],
+					kind: "agent",
+					stage: 9,
+					lane: 0,
+					order: 9,
+				},
 			],
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		};
 		currentWorkflow = normalizeWorkflow(currentWorkflow);
-		nextAgentId = 7;
+		nextAgentId = 11;
 	}
 
 	// --- Render ---
@@ -565,10 +658,8 @@ const WorkflowDesigner = (() => {
 	}
 
 	function renderStageLayout(stages) {
-		const isVertical = ["sequential", "sequential-hitl", "conditional"].includes(currentWorkflow.type);
-		const arrowHtml = isVertical
-			? '<div class="pipeline-arrow designer-arrow designer-stage-arrow" style="margin-top:0;font-size:24px">&darr;</div>'
-			: '<div class="pipeline-arrow designer-arrow designer-stage-arrow">&rarr;</div>';
+		// All workflow types now flow left-to-right — always use a rightward arrow
+		const arrowHtml = '<div class="pipeline-arrow designer-arrow designer-stage-arrow">&rarr;</div>';
 		return `<div class="designer-stage-flow designer-stage-flow-${escapeHtml(currentWorkflow.type)}">
       ${stages
 				.map(
@@ -584,22 +675,39 @@ const WorkflowDesigner = (() => {
 	}
 
 	function renderStage(stageInfo) {
-		const stageClass = stageInfo.isParallel
+		// Per-stage execution mode: "parallel" = agents run concurrently, "sequential" = one after another
+		const modes = currentWorkflow.stageExecutionModes || {};
+		const defaultMode = stageInfo.isParallel ? "parallel" : "sequential";
+		const execMode = stageInfo.agents.length > 1 ? (modes[stageInfo.stage] ?? defaultMode) : "sequential";
+		const isParallelLayout = stageInfo.agents.length > 1 && execMode === "parallel";
+
+		const stageClass = isParallelLayout
 			? "designer-stage designer-stage-parallel"
 			: "designer-stage designer-stage-sequential";
-		const stageLabel = stageInfo.isParallel
-			? `Stage ${stageInfo.stage + 1} • Parallel`
-			: `Stage ${stageInfo.stage + 1}`;
-		const layoutClass = stageInfo.isParallel ? "designer-parallel-grid" : "designer-sequential";
+		const stageLabel = `Stage ${stageInfo.stage + 1}`;
+		const layoutClass = isParallelLayout ? "designer-parallel-grid" : "designer-sequential-stack";
+
+		const execToggle = stageInfo.agents.length > 1
+			? `<button class="designer-exec-mode-toggle ${execMode === "parallel" ? "is-parallel" : "is-sequential"}"
+			         onclick="WorkflowDesigner.toggleStageExecMode(${stageInfo.stage})"
+			         title="Click to switch execution mode for this stage">
+			     ${execMode === "parallel" ? "&#9654;&#9654; Parallel" : "&#9654; Sequential"}
+			   </button>`
+			: `<span class="designer-exec-mode-label">Single</span>`;
 
 		return `<div class="${stageClass}">
-      <div class="designer-stage-label">${escapeHtml(stageLabel)}</div>
+      <div class="designer-stage-label-row">
+        <span class="designer-stage-label">${escapeHtml(stageLabel)}</span>
+        ${execToggle}
+      </div>
       <div class="${layoutClass}">
         ${stageInfo.agents
 					.map(
 						(agent, idx) => `
           ${renderAgentCard(agent)}
-          ${!stageInfo.isParallel && idx < stageInfo.agents.length - 1 ? '<div class="pipeline-arrow designer-arrow">&rarr;</div>' : ""}
+          ${!isParallelLayout && idx < stageInfo.agents.length - 1
+						? '<div class="pipeline-arrow designer-arrow designer-intra-arrow">&#9660;</div>'
+						: ""}
         `,
 					)
 					.join("")}
@@ -609,6 +717,15 @@ const WorkflowDesigner = (() => {
 
 	function renderAgentCard(agent) {
 		const kindLabel = AGENT_KINDS.find((kind) => kind.id === agent.kind)?.label || "Agent";
+		const toolItems = agent.tools.map((toolId) => {
+			const entry = TOOL_BY_ID[toolId];
+			return entry
+				? `<div class="agent-card-tool">
+            <span class="designer-tool-name-inline">${escapeHtml(entry.name)}</span>
+            <span class="designer-tool-mcp-badge" title="${escapeHtml(entry.mcpServer)}">MCP</span>
+          </div>`
+				: `<div class="agent-card-tool">- ${escapeHtml(toolId)}</div>`;
+		});
 		return `
       <div class="agent-card designer-agent-card" data-agent-id="${agent.id}"
            draggable="true" style="border-color: ${agent.color}">
@@ -619,6 +736,7 @@ const WorkflowDesigner = (() => {
         </div>
         <div class="agent-card-icon" style="background: ${agent.color}">${escapeHtml(agent.icon)}</div>
         <div class="agent-card-name">${escapeHtml(agent.name)}</div>
+        ${agent.description ? `<div class="designer-agent-description">${escapeHtml(agent.description)}</div>` : ""}
         <div class="designer-agent-meta-row">
           <span class="designer-agent-badge designer-agent-badge-kind">${escapeHtml(kindLabel)}</span>
           <span class="designer-agent-badge">S${Number(agent.stage) + 1}</span>
@@ -629,22 +747,18 @@ const WorkflowDesigner = (() => {
           <div class="agent-card-section-title">Role</div>
           <div class="agent-card-tool" style="font-family: var(--font-primary)">${escapeHtml(agent.role)}</div>
         </div>
-        <div class="agent-card-section">
+        ${agent.tools.length > 0 ? `<div class="agent-card-section">
           <div class="agent-card-section-title">Tools</div>
-          ${agent.tools.map((t) => `<div class="agent-card-tool">- ${escapeHtml(t)}</div>`).join("")}
-        </div>
-        <div class="agent-card-section">
+          ${toolItems.join("")}
+        </div>` : ""}
+        ${agent.boundary ? `<div class="agent-card-section">
           <div class="agent-card-section-title">Boundary</div>
           <div class="agent-card-boundary">${escapeHtml(agent.boundary)}</div>
-        </div>
-        ${
-					agent.output
-						? `<div class="agent-card-section">
+        </div>` : ""}
+        ${agent.output ? `<div class="agent-card-section">
           <div class="agent-card-section-title">Output</div>
           <div class="agent-card-tool" style="font-family: var(--font-primary); font-size: 11px; color: var(--color-text-tertiary)">${escapeHtml(agent.output)}</div>
-        </div>`
-						: ""
-				}
+        </div>` : ""}
       </div>
     `;
 	}
@@ -810,13 +924,38 @@ const WorkflowDesigner = (() => {
 		const modal = document.getElementById("designer-modal");
 		if (!modal) return;
 
-		// Group all tools flat for selection
-		const allTools = [];
-		for (const [server, tools] of Object.entries(AVAILABLE_TOOLS)) {
-			for (const tool of tools) {
-				allTools.push({ server, tool });
-			}
+		// Group tool catalogue by category for the picker
+		const categoriesMap = new Map();
+		for (const entry of TOOL_CATALOGUE) {
+			if (!categoriesMap.has(entry.category)) categoriesMap.set(entry.category, []);
+			categoriesMap.get(entry.category).push(entry);
 		}
+
+		const toolPickerHtml = [...categoriesMap.entries()]
+			.map(
+				([category, tools]) => `
+          <div class="designer-tool-category">
+            <div class="designer-tool-category-name">${escapeHtml(category)}</div>
+            ${tools
+							.map(
+								(entry) => `
+              <label class="designer-tool-item ${agent.tools.includes(entry.id) ? "is-selected" : ""}">
+                <input type="checkbox" value="${escapeHtml(entry.id)}" data-server="${escapeHtml(entry.mcpServer)}"
+                       ${agent.tools.includes(entry.id) ? "checked" : ""}
+                       onchange="this.closest('.designer-tool-item').classList.toggle('is-selected', this.checked)" />
+                <div class="designer-tool-item-body">
+                  <span class="designer-tool-item-name">${escapeHtml(entry.name)}</span>
+                  <span class="designer-tool-item-desc">${escapeHtml(entry.description)}</span>
+                  <span class="designer-tool-mcp-tag">MCP &middot; ${escapeHtml(entry.mcpServer)}</span>
+                </div>
+              </label>
+            `,
+							)
+							.join("")}
+          </div>
+        `,
+			)
+			.join("");
 
 		modal.innerHTML = `
       <div class="designer-modal-backdrop" onclick="WorkflowDesigner.closeModal()"></div>
@@ -826,6 +965,8 @@ const WorkflowDesigner = (() => {
           <button class="designer-card-btn" onclick="WorkflowDesigner.closeModal()">&times;</button>
         </div>
         <div class="designer-modal-body">
+
+          <!-- Row 1: Name, Icon, Model -->
           <div class="designer-form-row">
             <div class="designer-form-group" style="flex:2">
               <label class="designer-label">Agent Name *</label>
@@ -848,51 +989,50 @@ const WorkflowDesigner = (() => {
             </div>
           </div>
 
+          <!-- Description + Role -->
+          <div class="designer-form-group">
+            <label class="designer-label">Description</label>
+            <input type="text" class="input designer-input" id="modal-agent-description"
+                   value="${escapeHtml(agent.description || "")}"
+                   placeholder="One-line description of this agent's purpose..." />
+          </div>
+
           <div class="designer-form-group">
             <label class="designer-label">Role / Responsibility *</label>
             <textarea class="textarea designer-input" id="modal-agent-role" rows="2"
                       placeholder="Describe what this agent does...">${escapeHtml(agent.role)}</textarea>
           </div>
 
+          <!-- Instructions (system prompt) -->
           <div class="designer-form-group">
-            <label class="designer-label">Tools (select from available MCP tools)</label>
-            <div class="designer-tool-grid" id="modal-tool-grid">
-              ${Object.entries(AVAILABLE_TOOLS)
-								.map(
-									([server, tools]) => `
-                <div class="designer-tool-server">
-                  <div class="designer-tool-server-name">${escapeHtml(server)}</div>
-                  ${tools
-										.map(
-											(tool) => `
-                    <label class="designer-tool-checkbox">
-                      <input type="checkbox" value="${escapeHtml(tool)}" data-server="${escapeHtml(server)}"
-                             ${agent.tools.includes(tool) ? "checked" : ""} />
-                      <span class="designer-tool-label">${escapeHtml(tool)}</span>
-                    </label>
-                  `,
-										)
-										.join("")}
-                </div>
-              `,
-								)
-								.join("")}
+            <label class="designer-label">Instructions (System Prompt)</label>
+            <textarea class="textarea designer-input" id="modal-agent-instructions" rows="4"
+                      placeholder="Write the system-level instructions sent to the LLM for this agent. E.g.: You are a contract compliance specialist. Your job is to...">${escapeHtml(agent.instructions || "")}</textarea>
+          </div>
+
+          <!-- Tool Catalogue -->
+          <div class="designer-form-group">
+            <label class="designer-label">Tool Catalogue &mdash; select tools for this agent</label>
+            <div class="designer-tool-catalogue" id="modal-tool-grid">
+              ${toolPickerHtml}
             </div>
           </div>
 
+          <!-- Boundary + Output -->
           <div class="designer-form-row">
             <div class="designer-form-group" style="flex:1">
               <label class="designer-label">Boundary Constraint</label>
               <input type="text" class="input designer-input" id="modal-agent-boundary"
-                     value="${escapeHtml(agent.boundary)}" placeholder="e.g. Classify only" />
+                     value="${escapeHtml(agent.boundary)}" placeholder="e.g. Classify only — no extraction" />
             </div>
             <div class="designer-form-group" style="flex:1">
-              <label class="designer-label">Output Description</label>
+              <label class="designer-label">Defined Output</label>
               <input type="text" class="input designer-input" id="modal-agent-output"
-                     value="${escapeHtml(agent.output || "")}" placeholder="e.g. Classification and metadata" />
+                     value="${escapeHtml(agent.output || "")}" placeholder="e.g. JSON with type, parties, risk" />
             </div>
           </div>
 
+          <!-- Execution Role + Stage + Lane -->
           <div class="designer-form-row">
             <div class="designer-form-group" style="flex:1">
               <label class="designer-label">Execution Role</label>
@@ -910,12 +1050,13 @@ const WorkflowDesigner = (() => {
                      value="${Number.isFinite(Number(agent.stage)) ? Number(agent.stage) : 0}" min="0" step="1" />
             </div>
             <div class="designer-form-group" style="flex:1">
-              <label class="designer-label">Lane</label>
+              <label class="designer-label">Lane (within stage)</label>
               <input type="number" class="input designer-input" id="modal-agent-lane"
                      value="${Number.isFinite(Number(agent.lane)) ? Number(agent.lane) : 0}" min="0" step="1" />
             </div>
           </div>
 
+          <!-- Color -->
           <div class="designer-form-group">
             <label class="designer-label">Agent Color</label>
             <div class="designer-color-picker">
@@ -949,10 +1090,24 @@ const WorkflowDesigner = (() => {
 		document.getElementById("modal-agent-color").value = color;
 	}
 
+	// --- Stage Execution Mode Toggle ---
+	function toggleStageExecMode(stageIndex) {
+		if (!currentWorkflow.stageExecutionModes) currentWorkflow.stageExecutionModes = {};
+		const agentsInStage = currentWorkflow.agents.filter((a) => Number(a.stage) === Number(stageIndex));
+		if (agentsInStage.length <= 1) return; // single-agent stage — no toggle
+		const current = currentWorkflow.stageExecutionModes[stageIndex] ?? "parallel";
+		const next = current === "parallel" ? "sequential" : "parallel";
+		currentWorkflow.stageExecutionModes[stageIndex] = next;
+		render();
+		showToast(`Stage ${Number(stageIndex) + 1}: ${next.charAt(0).toUpperCase() + next.slice(1)}`);
+	}
+
 	function saveAgent(agentId, isNew) {
 		const name = document.getElementById("modal-agent-name").value.trim();
 		const icon = document.getElementById("modal-agent-icon").value.trim();
+		const description = document.getElementById("modal-agent-description")?.value.trim() || "";
 		const role = document.getElementById("modal-agent-role").value.trim();
+		const instructions = document.getElementById("modal-agent-instructions")?.value.trim() || "";
 		const model = document.getElementById("modal-agent-model").value;
 		const boundary = document.getElementById("modal-agent-boundary").value.trim();
 		const output = document.getElementById("modal-agent-output").value.trim();
@@ -979,7 +1134,7 @@ const WorkflowDesigner = (() => {
 			return;
 		}
 
-		const agentData = { id: agentId, name, icon, role, model, tools, boundary, output, color, kind, stage, lane };
+		const agentData = { id: agentId, name, icon, description, role, instructions, model, tools, boundary, output, color, kind, stage, lane };
 
 		if (isNew) {
 			agentData.order = currentWorkflow.agents.length;
@@ -1013,7 +1168,7 @@ const WorkflowDesigner = (() => {
 
 		currentWorkflow.updatedAt = new Date().toISOString();
 		if (!currentWorkflow.id || currentWorkflow.id === "default") {
-			currentWorkflow.id = "wf-" + Date.now().toString(36);
+			currentWorkflow.id = `wf-${Date.now().toString(36)}`;
 			currentWorkflow.createdAt = new Date().toISOString();
 		}
 
@@ -1087,7 +1242,7 @@ const WorkflowDesigner = (() => {
 		// Recalculate nextAgentId
 		const maxId = currentWorkflow.agents.reduce((max, a) => {
 			const num = Number.parseInt(a.id.replace("agent-", ""), 10);
-			return isNaN(num) ? max : Math.max(max, num);
+			return Number.isNaN(num) ? max : Math.max(max, num);
 		}, 0);
 		nextAgentId = maxId + 1;
 		closeModal();
@@ -1250,6 +1405,7 @@ const WorkflowDesigner = (() => {
 		resetToDefault,
 		closeModal,
 		selectColor,
+		toggleStageExecMode,
 		getCurrentWorkflow,
 		validateWorkflow,
 		exportJson,

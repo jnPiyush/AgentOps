@@ -90,7 +90,8 @@ export class DeclarativeAgentFactory {
 
 		try {
 			const yamlContent = await readFile(configPath, "utf-8");
-			// Note: js-yaml would be used here in full implementation
+			// TODO: Replace JSON.parse with a proper YAML parser (e.g., js-yaml) before activating
+			// this code path. YAML files are not valid JSON and JSON.parse will throw if called.
 			const config = JSON.parse(yamlContent) as DeclarativeAgentConfig;
 
 			return config;

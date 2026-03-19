@@ -1,0 +1,6 @@
+{
+	"renewal_window_days": 45,
+	"risk_level": "medium",
+	"recommended_actions": ["Notify contract owner", "Prepare renewal options for legal review"],
+	"confidence_score": 0.9
+}

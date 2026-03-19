@@ -179,7 +179,7 @@ graph TB
 |----------------|-------------|
 | Control-plane API | Expose workflow, contract, deploy, audit, evaluation, drift, and feedback APIs |
 | Workflow registry | Persist workflow definitions, track active workflow version, and publish runtime-ready workflow packages |
-| Contract stage catalog | Publish the active demo business-stage definitions and the stage-to-agent mapping used by the active workflow package |
+| Contract stage catalog | Publish the active demo business-stage definitions and the stage-to-agent mapping used by the active 10-stage workflow package |
 | Translation boundary | Normalize UI authoring state into a canonical workflow package that the MAF executor consumes |
 | Demo coordination | Manage simulated mode, deployment view, and operator status surfaces |
 
@@ -212,8 +212,10 @@ graph TB
 | Compliance Check | Policy mapping agent plus regulatory review agent | Compliance | Parallelizable pair | Produces policy exceptions and regulatory findings |
 | Negotiation and External Review | Counterparty change analysis agent plus fallback recommendation agent | Compliance, workflow | Sequential pair | First understand counterparty changes, then recommend fallback positions |
 | Approval Routing | Routing agent plus escalation agent | Workflow, audit | Sequential plus HITL | Finalizes approver path and pauses when material risk exists |
-
-The active MVP intentionally stops at Approval Routing. Signature, obligations, renewal, and analytics remain future lifecycle extensions, but they are not part of the default runtime baseline for this demo.
+| Execution and Signature | Signature orchestration agent plus reminder agent | Workflow, audit | Sequential plus reminders | Tracks signature progress and execution evidence |
+| Post-Execution Obligations | Obligation extraction agent plus task assignment agent | Extraction, workflow, audit | Parallelizable pair | Converts signed terms into tracked obligations |
+| Renewal and Expiry | Renewal detection agent plus alert prioritization agent | Workflow, audit | Sequential pair | Tracks renewal windows and amendment triggers |
+| Lifecycle Analytics | Reporting agent plus insight summarization agent | Audit, workflow | Single reporting group | Aggregates throughput, risk, backlog, and renewal exposure |
 
 ### 4.6 Lifecycle Separation Contract
 

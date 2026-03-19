@@ -1039,7 +1039,7 @@ def build_document():
             ["start.ts", "Application entry point; spawns MCP servers and gateway"],
             ["gateway/src/routes/contracts.ts", "Contract submission and HITL review endpoints"],
             ["gateway/src/routes/deploy.ts", "Deploy pipeline endpoint with admin auth gate"],
-            ["gateway/src/orchestrator/pipeline.ts", "Six-stage pipeline orchestrator with retry logic"],
+            ["gateway/src/orchestrator/pipeline.ts", "Contract workflow orchestrator with retry logic"],
             ["gateway/src/services/foundryDeploy.ts", "Foundry deployment: preflight, model check, agent registration, safety, eval, health"],
             ["gateway/src/adapters/trackingAdapter.ts", "LLM adapter wrapper that tracks token usage per call"],
             ["gateway/src/stores/contractStore.ts", "In-memory contract and audit data stores"],

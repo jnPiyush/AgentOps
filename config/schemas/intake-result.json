@@ -4,17 +4,33 @@
 	"title": "IntakeResult",
 	"type": "object",
 	"additionalProperties": false,
-	"required": ["contract_id", "title", "parties", "contract_type", "confidence_score"],
+	"required": [
+		"contract_id",
+		"title",
+		"parties",
+		"contract_type",
+		"contract_category",
+		"source_channel",
+		"compliance_needs",
+		"confidence_score"
+	],
 	"properties": {
 		"contract_id": { "type": "string" },
 		"title": { "type": "string" },
 		"parties": { "type": "array", "items": { "type": "string" } },
 		"contract_type": { "type": "string" },
+		"contract_category": { "type": "string", "enum": ["Commercial", "Corporate", "UNKNOWN"] },
+		"source_channel": { "type": "string", "enum": ["file", "db", "email", "api", "unknown"] },
+		"industry": { "type": ["string", "null"] },
+		"counterparty_type": { "type": ["string", "null"] },
+		"risk_level": { "type": ["string", "null"], "enum": ["LOW", "MEDIUM", "HIGH", null] },
+		"compliance_needs": { "type": "array", "items": { "type": "string" } },
 		"effective_date": { "type": ["string", "null"] },
 		"expiry_date": { "type": ["string", "null"] },
 		"value": { "type": ["number", "null"] },
 		"currency": { "type": ["string", "null"] },
 		"jurisdiction": { "type": ["string", "null"] },
+		"source_system": { "type": ["string", "null"] },
 		"confidence_score": { "type": "number", "minimum": 0, "maximum": 1 }
 	}
 }

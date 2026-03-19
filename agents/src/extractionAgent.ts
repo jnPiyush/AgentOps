@@ -5,8 +5,8 @@ export interface ExtractionAgentResult {
 	contractId: string;
 	clauses: ExtractedClause[];
 	parties: string[];
-	dates: Record<string, string>;
-	values: Record<string, string>;
+	dates: string[];
+	values: Array<{ label: string; value: number | string }> | string[];
 	traceId: string;
 }
 
@@ -37,8 +37,8 @@ export async function runExtractionAgent(
 		contractId,
 		clauses: (parsed.clauses as ExtractedClause[]) ?? [],
 		parties: (parsed.parties as string[]) ?? [],
-		dates: (parsed.dates as Record<string, string>) ?? {},
-		values: (parsed.values as Record<string, string>) ?? {},
+		dates: (parsed.dates as string[]) ?? [],
+		values: (parsed.values as Array<{ label: string; value: number | string }> | string[]) ?? [],
 		traceId,
 	};
 }

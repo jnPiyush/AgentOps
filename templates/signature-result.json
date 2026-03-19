@@ -1,0 +1,6 @@
+{
+	"signature_status": "pending",
+	"pending_signers": ["Legal", "Counterparty CFO"],
+	"next_action": "Send reminder to external signers within two business days.",
+	"confidence_score": 0.9
+}

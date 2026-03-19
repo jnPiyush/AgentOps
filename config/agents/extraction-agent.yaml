@@ -10,7 +10,7 @@ created: 2026-03-10
 
 model:
   provider: microsoft_foundry
-  name: gpt-5.1-2026-01-15
+  name: gpt-5.4
   temperature: 0.0
   max_tokens: 2048
   top_p: 1.0

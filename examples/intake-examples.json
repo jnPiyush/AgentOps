@@ -9,11 +9,18 @@
 			"title": "MASTER SERVICES AGREEMENT",
 			"parties": ["Acme Corp", "Beta Inc"],
 			"contract_type": "MSA",
+			"contract_category": "Commercial",
+			"source_channel": "file",
+			"industry": "Technology",
+			"counterparty_type": "vendor-customer",
+			"risk_level": "MEDIUM",
+			"compliance_needs": ["data_privacy", "procurement_controls"],
 			"effective_date": "2026-01-01",
 			"expiry_date": null,
 			"value": 250000,
 			"currency": "USD",
 			"jurisdiction": "New York",
+			"source_system": null,
 			"confidence_score": 0.95
 		}
 	},
@@ -27,11 +34,18 @@
 			"title": "SOFTWARE LICENSE AGREEMENT",
 			"parties": ["SoftwareCorp", "Licensee Inc"],
 			"contract_type": "License Agreement",
+			"contract_category": "Commercial",
+			"source_channel": "file",
+			"industry": "Technology",
+			"counterparty_type": "vendor-customer",
+			"risk_level": "MEDIUM",
+			"compliance_needs": ["data_privacy", "ip_protection"],
 			"effective_date": "2026-03-01",
 			"expiry_date": null,
 			"value": null,
 			"currency": null,
 			"jurisdiction": "Delaware",
+			"source_system": null,
 			"confidence_score": 0.92
 		}
 	}

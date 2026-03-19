@@ -16,9 +16,9 @@
 
 The Contract AgentOps Demo needs one clear architecture direction for enterprise discussions. The current repo already has a stable TypeScript gateway, static dashboard under `ui/`, eight MCP servers, a live Foundry deployment path, and an early Microsoft Agent Framework runtime track under `agents/microsoft-framework/`.
 
-The product direction now adds a second requirement beyond runtime standardization: the active demo contract business workflow must remain legible as a six-stage pre-execution lifecycle while also fitting naturally into the AgentOps lifecycle. That means the architecture must preserve two distinct state models:
+The product direction now adds a second requirement beyond runtime standardization: the active demo contract business workflow must remain legible as a 10-stage CLM lifecycle while also fitting naturally into the AgentOps lifecycle. That means the architecture must preserve two distinct state models:
 
-1. Contract Lifecycle state for business progress across request, drafting, review, compliance, negotiation, and approval.
+1. Contract Lifecycle state for business progress across request, drafting, review, compliance, negotiation, approval, signature, obligations, renewal, and analytics.
 2. AgentOps state for designing, validating, deploying, observing, evaluating, and improving the agents that implement those business stages.
 
 The architecture therefore must avoid two failure modes: collapsing business stages into AgentOps status, or forcing the contract workflow into a single flat agent chain that cannot represent stage-specific agent groups.
@@ -40,7 +40,7 @@ The architectural question is not whether the solution should use AI. The repo e
 | Microsoft Agent Framework documentation and repository | Supports agents, workflows, hosting, tools, middleware, OpenTelemetry, human-in-the-loop, Python and .NET, and migration from Semantic Kernel | Strong fit for enterprise agent runtime standardization. [Confidence: HIGH] |
 | Microsoft Foundry documentation | Provides model hosting, Agent Service, tracing, evaluation, monitoring, safety, and governance surfaces | Strong fit for enterprise AI control plane. [Confidence: HIGH] |
 | Foundry evaluation guidance | Supports model, agent, and dataset evaluations with AI-assisted quality, NLP, and safety metrics using CSV or JSONL datasets | Evaluation should be a formal release gate, not a smoke check. [Confidence: HIGH] |
-| Current product requirements and backlog for the contract lifecycle expansion | Require a six-stage active business workflow with explicit separation from AgentOps and allow each stage to map to one or more specialized agents | Architecture must support stage-to-agent mapping without merging business-state and AgentOps-state models. [Confidence: HIGH] |
+| Current product requirements and backlog for the contract lifecycle expansion | Require a 10-stage active business workflow with explicit separation from AgentOps and allow each stage to map to one or more specialized agents | Architecture must support stage-to-agent mapping without merging business-state and AgentOps-state models. [Confidence: HIGH] |
 | Multi-agent workflow guidance in Microsoft Agent Framework | Supports sequential, conditional, concurrent, HITL, and fan-out or fan-in workflow shapes | A rigid one-agent-per-stage or flat four-agent chain is unnecessarily limiting for contract lifecycle orchestration. [Confidence: HIGH] |
 
 ### Constraints
@@ -148,7 +148,7 @@ graph TB
 
 | Option | Summary | Assessment |
 |--------|---------|------------|
-| R1 | Flat four-agent pipeline for all contracts | Simple, but too coarse for the active six-stage lifecycle and weak at showing how business stages map to runtime responsibilities. [Confidence: HIGH] |
+| R1 | Flat four-agent pipeline for all contracts | Simple, but too coarse for the active 10-stage lifecycle and weak at showing how business stages map to runtime responsibilities. [Confidence: HIGH] |
 | R2 | Exactly one agent per contract stage | More legible than a flat pipeline, but too rigid for stages that naturally need parallel review, escalation, or sub-specialization. [Confidence: MEDIUM] |
 | R3 | Flexible stage-to-agent mapping where each contract stage can map to one or more agents | Best fit for business clarity, AgentOps packaging, and future evolution from simple to multi-agent stages. [Confidence: HIGH] |
 
@@ -226,8 +226,10 @@ graph TB
 | Compliance Check | Policy mapping agent plus regulatory review agent | Policy exceptions, compliance risk score, required approvals | [Confidence: HIGH] |
 | Negotiation and External Review | Counterparty change analysis agent plus fallback recommendation agent | Negotiation summary, fallback positions, unresolved issues | [Confidence: MEDIUM] |
 | Approval Routing | Routing agent plus escalation agent | Approver path, review package, HITL checkpoint state | [Confidence: HIGH] |
-
-The active MVP stops at Approval Routing. Signature, obligations, renewal, and analytics remain future lifecycle extensions rather than default runtime stages.
+| Execution and Signature | Signature orchestration agent plus reminder agent | Signature status, execution evidence, signer escalation | [Confidence: MEDIUM] |
+| Post-Execution Obligations | Obligation extraction agent plus task assignment agent | Obligation register, due dates, owners, milestone evidence | [Confidence: HIGH] |
+| Renewal and Expiry | Renewal detection agent plus alert prioritization agent | Renewal windows, notice deadlines, recommended actions | [Confidence: HIGH] |
+| Lifecycle Analytics | Reporting agent plus insight summarization agent | Portfolio KPIs, backlog, renewal exposure, and risk concentration | [Confidence: MEDIUM] |
 
 ### Lifecycle Separation Rule
 

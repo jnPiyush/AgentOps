@@ -1,3 +1,25 @@
+// =============================================================================
+// WARNING: ALTERNATIVE / INCOMPLETE INFRA TARGET - NOT ACTIVE
+// =============================================================================
+// This file is an ALTERNATIVE deployment target for Azure Container Apps.
+// It is NOT referenced by main.bicep or azure.yaml (which use App Service).
+//
+// Status: INCOMPLETE - the Microsoft.App/containerApps resource itself is not
+//   yet defined here. This file provisions supporting resources only:
+//   foundry account, log analytics, container registry, managed identity,
+//   role assignments, and the Container App Environment.
+//
+// Known fixme: The role assignment below uses the corrected 'existing' resource
+//   pattern (matching main.bicep) instead of 'scope: foundryAccount' (a module).
+//   'scope:' requires a resource reference, not a module deployment.
+//
+// To activate this file:
+//   1. Add the Microsoft.App/containerApps resource
+//   2. Add outputs: AZURE_CONTAINER_APP_FQDN
+//   3. Add an 'aca' service entry to azure.yaml
+//   4. Add azure.yaml postdeploy curl using AZURE_CONTAINER_APP_FQDN
+// =============================================================================
+
 targetScope = 'subscription'
 
 @minLength(1)
@@ -39,6 +61,13 @@ module foundryAccount './modules/foundry-account.bicep' = {
     location: location
     tags: tags
   }
+}
+
+// Existing resource reference is required for 'scope:' on role assignments.
+// Using module deployment as scope is a Bicep error (modules are not resources).
+resource foundryAccountResource 'Microsoft.CognitiveServices/accounts@2024-10-01' existing = {
+  scope: rg
+  name: foundryAccount.outputs.name
 }
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
@@ -86,7 +115,7 @@ resource acrPullAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' 
 }
 
 resource foundryOpenAiUserAssignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  scope: foundryAccount
+  scope: foundryAccountResource
   name: guid(foundryAccount.outputs.name, pullIdentity.id, 'CognitiveServicesOpenAIUser')
   properties: {
     principalId: pullIdentity.properties.principalId

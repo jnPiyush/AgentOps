@@ -145,6 +145,66 @@ const lifecycleWorkflow: WorkflowDefinition = {
 			lane: 0,
 			order: 5,
 		},
+		{
+			id: "signature-1",
+			name: "Signature Agent",
+			role: "Coordinate execution, signature reminders, and completion evidence",
+			icon: "S",
+			model: "gpt-5.4",
+			tools: ["notify_stakeholder", "get_audit_log", "create_audit_entry"],
+			boundary: "Execution only",
+			output: "Signature status",
+			color: "#0EA5E9",
+			kind: "agent",
+			stage: 6,
+			lane: 0,
+			order: 6,
+		},
+		{
+			id: "obligations-1",
+			name: "Obligations Agent",
+			role: "Extract obligations, milestones, and post-signature owners",
+			icon: "O",
+			model: "gpt-5.4",
+			tools: ["extract_clauses", "extract_dates_values", "notify_stakeholder"],
+			boundary: "Obligations only",
+			output: "Obligation register",
+			color: "#14B8A6",
+			kind: "agent",
+			stage: 7,
+			lane: 0,
+			order: 7,
+		},
+		{
+			id: "renewal-1",
+			name: "Renewal Agent",
+			role: "Detect renewal windows, expiry risk, and amendment triggers",
+			icon: "Y",
+			model: "gpt-5.4",
+			tools: ["extract_dates_values", "flag_risk", "notify_stakeholder"],
+			boundary: "Renewal only",
+			output: "Renewal alert package",
+			color: "#F97316",
+			kind: "agent",
+			stage: 8,
+			lane: 0,
+			order: 8,
+		},
+		{
+			id: "analytics-1",
+			name: "Analytics Agent",
+			role: "Summarize lifecycle metrics, backlog, and portfolio risk insights",
+			icon: "L",
+			model: "gpt-5.4",
+			tools: ["run_evaluation", "get_baseline", "detect_drift"],
+			boundary: "Analytics only",
+			output: "Portfolio insights",
+			color: "#8B5CF6",
+			kind: "agent",
+			stage: 9,
+			lane: 0,
+			order: 9,
+		},
 	],
 };
 
@@ -220,19 +280,19 @@ describe("workflow registry validation", () => {
 });
 
 describe("workflow package generation", () => {
-	it("exposes the active six-stage contract lifecycle catalog", () => {
+	it("exposes the active ten-stage contract lifecycle catalog", () => {
 		const catalog = getContractStageCatalog();
 
-		expect(catalog).toHaveLength(6);
+		expect(catalog).toHaveLength(10);
 		expect(catalog[0]).toMatchObject({
 			id: "request-initiation",
 			order: 1,
 			name: "Request and Initiation",
 		});
-		expect(catalog[5]).toMatchObject({
-			id: "approval-routing",
-			order: 6,
-			name: "Approval Routing",
+		expect(catalog[9]).toMatchObject({
+			id: "portfolio-analytics",
+			order: 10,
+			name: "Lifecycle Analytics",
 		});
 	});
 
@@ -248,7 +308,7 @@ describe("workflow package generation", () => {
 		expect(workflowPackage.manifest_references).toContain("config/schemas/workflow-package.json");
 		expect(workflowPackage.manifest_references).toContain("config/stages/contract-lifecycle.json");
 		expect(workflowPackage.contract_stage_map.catalog_reference).toBe("config/stages/contract-lifecycle.json");
-		expect(workflowPackage.contract_stage_map.stages).toHaveLength(6);
+		expect(workflowPackage.contract_stage_map.stages).toHaveLength(10);
 		expect(
 			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "request-initiation")?.execution_groups[0],
 		).toMatchObject({
@@ -266,13 +326,17 @@ describe("workflow package generation", () => {
 		expect(workflowPackage.contract_stage_map.unmapped_agent_ids).toHaveLength(0);
 	});
 
-	it("maps dedicated lifecycle agents to the active six-stage catalog", () => {
+	it("maps dedicated lifecycle agents to the active ten-stage catalog", () => {
 		const workflowPackage = buildWorkflowPackage(lifecycleWorkflow);
 
-		expect(workflowPackage.agents).toHaveLength(6);
+		expect(workflowPackage.agents).toHaveLength(10);
 		expect(workflowPackage.agents.find((agent) => agent.id === "drafting-1")?.runtime_role_key).toBe("drafting");
 		expect(workflowPackage.agents.find((agent) => agent.id === "review-1")?.runtime_role_key).toBe("review");
 		expect(workflowPackage.agents.find((agent) => agent.id === "negotiation-1")?.runtime_role_key).toBe("negotiation");
+		expect(workflowPackage.agents.find((agent) => agent.id === "signature-1")?.runtime_role_key).toBe("signature");
+		expect(workflowPackage.agents.find((agent) => agent.id === "obligations-1")?.runtime_role_key).toBe("obligations");
+		expect(workflowPackage.agents.find((agent) => agent.id === "renewal-1")?.runtime_role_key).toBe("renewal");
+		expect(workflowPackage.agents.find((agent) => agent.id === "analytics-1")?.runtime_role_key).toBe("analytics");
 		expect(
 			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "internal-review")?.execution_groups[0],
 		).toMatchObject({
@@ -280,11 +344,20 @@ describe("workflow package generation", () => {
 			runtime_role_keys: ["review"],
 		});
 		expect(
-			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "approval-routing")?.execution_groups[0],
+			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "execution-signature")
+				?.execution_groups[0],
 		).toMatchObject({
-			runtime_agent_ids: ["approval-1"],
-			runtime_role_keys: ["approval"],
+			runtime_agent_ids: ["signature-1"],
+			runtime_role_keys: ["signature"],
 		});
+		expect(
+			workflowPackage.contract_stage_map.stages.find((stage) => stage.id === "portfolio-analytics")
+				?.execution_groups[0],
+		).toMatchObject({
+			runtime_agent_ids: ["analytics-1"],
+			runtime_role_keys: ["analytics"],
+		});
+		expect(workflowPackage.hitl_policy.checkpoints).toEqual(["approval", "signature"]);
 		expect(workflowPackage.contract_stage_map.unmapped_agent_ids).toHaveLength(0);
 	});
 });

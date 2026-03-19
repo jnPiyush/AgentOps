@@ -1,0 +1,12 @@
+{
+	"obligations": [
+		{
+			"title": "Provide monthly service report",
+			"owner": "Service Delivery Lead",
+			"due_window": "monthly"
+		}
+	],
+	"owner_assignments": ["Service Delivery Lead"],
+	"follow_up_window_days": 30,
+	"confidence_score": 0.9
+}

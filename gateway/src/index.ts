@@ -59,10 +59,17 @@ export async function startGateway(): Promise<void> {
 	});
 
 	// Client config (returns non-secret UI settings)
+	// NOTE: deployAdminKey is intentionally NOT returned here — leaking it over a
+	// public GET endpoint would allow any browser user to call protected deploy
+	// routes in live mode.  The azd postdeploy hook supplies the key server-side.
+	// In simulated mode the deploy endpoint performs no key check, so the UI
+	// default key ("local-dev-key") continues to work without exposure.
 	app.get("/api/v1/client-config", async (_request, reply) => {
 		return reply.send({
-			deployAdminKey: appConfig.deployAdminKey || "",
 			mode: appConfig.demoMode,
+			// requiresAdminKey lets the UI show/hide deploy controls without
+			// exposing the actual secret.
+			requiresAdminKey: appConfig.demoMode === "live" && Boolean(appConfig.deployAdminKey),
 		});
 	});
 

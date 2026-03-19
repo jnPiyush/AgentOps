@@ -228,9 +228,28 @@ window.addEventListener("workflow-activated", (e) => {
 });
 
 function getActiveWorkflow() {
-	if (activeWorkflow) return activeWorkflow;
-	if (typeof WorkflowDesigner !== "undefined") return normalizeWorkflowShape(WorkflowDesigner.getCurrentWorkflow());
-	return null;
+	const designerWorkflow =
+		typeof WorkflowDesigner !== "undefined"
+			? normalizeWorkflowShape(WorkflowDesigner.getCurrentWorkflow())
+			: null;
+
+	// No designer workflow available — fall back to gateway cache
+	if (!designerWorkflow || !(designerWorkflow.agents?.length > 0)) {
+		return activeWorkflow || null;
+	}
+
+	// Designer is the source of truth for agents.
+	// Only augment with the gateway's contract_stage_map when the gateway
+	// package is current (same or more agents), preventing stale gateway
+	// data from replacing a newer/larger designer workflow.
+	if (
+		activeWorkflow?.contract_stage_map &&
+		(activeWorkflow.agents?.length ?? 0) >= (designerWorkflow.agents?.length ?? 0)
+	) {
+		return { ...designerWorkflow, contract_stage_map: activeWorkflow.contract_stage_map };
+	}
+
+	return designerWorkflow;
 }
 
 const mcpTools = {
@@ -639,7 +658,7 @@ async function evaluateWorkflowScenario(workflow, scenario) {
 
 		if (isReal) {
 			const registryStatus = getToolRegistryStatus(capabilityId);
-			if (registryStatus && registryStatus.online) {
+			if (registryStatus?.online) {
 				assertions.push({
 					status: hasCapability ? "pass" : "warn",
 					label: `${rule.label} coverage`,
@@ -746,11 +765,7 @@ async function evaluateWorkflowScenario(workflow, scenario) {
 
 function formatTestTimestamp() {
 	const now = new Date();
-	return (
-		now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }) +
-		" " +
-		now.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
-	);
+	return `${now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })} ${now.toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}`;
 }
 
 function renderSingleScenarioResult(result) {
@@ -1042,13 +1057,13 @@ function syncLiveTab() {
 				group.agents.forEach((agent) => {
 					html += renderLiveNode(agent, getColor(agent));
 				});
-				html += `</div>`;
+				html += "</div>";
 			});
-			html += `</div>`;
+			html += "</div>";
 		} else {
 			html += renderLiveNode(stageInfo.agents[0], getColor(stageInfo.agents[0]));
 		}
-		html += `</div>`;
+		html += "</div>";
 		if (idx < stages.length - 1) {
 			html += `<div class="workflow-arrow">&rarr;</div>`;
 		}
@@ -1075,6 +1090,10 @@ function getRoleDisplayName(roleKey) {
 	if (normalized === "compliance") return "Compliance";
 	if (normalized === "negotiation") return "Negotiation";
 	if (normalized === "approval") return "Approval";
+	if (normalized === "signature") return "Signature";
+	if (normalized === "obligations") return "Obligations";
+	if (normalized === "renewal") return "Renewal";
+	if (normalized === "analytics") return "Analytics";
 	if (normalized === "human") return "Human review";
 	return normalized
 		? normalized.replace(/(^.|[-_ ]+.)/g, (match) => match.replace(/[-_ ]/, "").toUpperCase())
@@ -1087,8 +1106,12 @@ const liveStageFallbacks = {
 	review: { stageName: "Internal Review", nextStageName: "Compliance Check" },
 	compliance: { stageName: "Compliance Check", nextStageName: "Negotiation" },
 	negotiation: { stageName: "Negotiation", nextStageName: "Approval and Routing" },
-	approval: { stageName: "Approval and Routing", nextStageName: null },
-	human: { stageName: "Approval and Routing", nextStageName: null },
+	approval: { stageName: "Approval and Routing", nextStageName: "Execution and Signature" },
+	signature: { stageName: "Execution and Signature", nextStageName: "Post-Execution Obligations" },
+	obligations: { stageName: "Post-Execution Obligations", nextStageName: "Renewal and Expiry" },
+	renewal: { stageName: "Renewal and Expiry", nextStageName: "Lifecycle Analytics" },
+	analytics: { stageName: "Lifecycle Analytics", nextStageName: null },
+	human: { stageName: "Approval and Routing", nextStageName: "Execution and Signature" },
 };
 
 function getLiveStageContextForRole(roleKey) {

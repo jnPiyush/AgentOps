@@ -6,8 +6,35 @@ export interface IntakeResult {
 	type: string;
 	confidence: number;
 	parties: string[];
-	metadata: Record<string, string>;
+	metadata: Record<string, string | number | string[] | null | undefined>;
 	traceId: string;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function buildMetadata(parsed: Record<string, unknown>): Record<string, string | number | string[] | null | undefined> {
+	const candidate = parsed.metadata;
+	if (isPlainObject(candidate)) {
+		return candidate as Record<string, string | number | string[] | null | undefined>;
+	}
+
+	return {
+		title: parsed.title as string,
+		contract_category: parsed.contract_category as string,
+		source_channel: parsed.source_channel as string,
+		industry: parsed.industry as string,
+		counterparty_type: parsed.counterparty_type as string,
+		risk_level: parsed.risk_level as string,
+		compliance_needs: Array.isArray(parsed.compliance_needs) ? (parsed.compliance_needs as string[]) : undefined,
+		effective_date: parsed.effective_date as string,
+		expiry_date: parsed.expiry_date as string,
+		value: typeof parsed.value === "number" ? parsed.value : parsed.value != null ? String(parsed.value) : undefined,
+		currency: parsed.currency as string,
+		jurisdiction: parsed.jurisdiction as string,
+		source_system: parsed.source_system as string,
+	};
 }
 
 export async function runIntakeAgent(
@@ -46,14 +73,7 @@ export async function runIntakeAgent(
 		type: (parsedType as string) ?? "UNKNOWN",
 		confidence: (parsedConfidence as number) ?? 0,
 		parties: (parsed.parties as string[]) ?? [],
-		metadata: (parsed.metadata as Record<string, string>) ?? {
-			title: parsed.title as string,
-			effective_date: parsed.effective_date as string,
-			expiry_date: parsed.expiry_date as string,
-			value: parsed.value != null ? String(parsed.value) : undefined,
-			currency: parsed.currency as string,
-			jurisdiction: parsed.jurisdiction as string,
-		},
+		metadata: buildMetadata(parsed),
 		traceId,
 	};
 }

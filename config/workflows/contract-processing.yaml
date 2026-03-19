@@ -1,13 +1,13 @@
 # Declarative Workflow Configuration - Contract Processing Pipeline
 # Purpose: End-to-end contract processing with AI agents
 # Framework: Microsoft Agent Framework + Custom Orchestration
-# Version: 1.2.0
+# Version: 1.3.0
 
 workflow_id: contract-processing-pipeline
 name: Contract Processing Pipeline
-version: 1.2.0
+version: 1.3.0
 created: 2026-03-07
-description: "Multi-agent workflow for contract intake, extraction, compliance, and approval"
+description: "Multi-agent CLM workflow for intake, drafting, review, compliance, negotiation, approval, signature, obligations, renewal, and analytics"
 
 # Workflow Topology Configuration
 topology:
@@ -37,7 +37,7 @@ config:
     
   # Human-in-the-Loop Configuration
   human_in_loop:
-    checkpoints: [compliance, approval]
+    checkpoints: [compliance, approval, signature]
     timeout: 24h
     escalation_email: "${LEGAL_REVIEW_EMAIL}"
     
@@ -79,11 +79,24 @@ pipeline:
     
     on_success:
       - action: continue
-        next_stage: compliance
+        next_stage: review
       - action: store_results
         location: "data/extraction/"
+
+  # Stage 3: Internal Review
+  - stage_name: review
+    agent_config: config/agents/review-agent.yaml
+    condition: "extraction.clauses.length > 0"
+    timeout: 45s
+    retry_count: 2
+
+    dependencies: [extraction]
+
+    on_success:
+      - action: continue
+        next_stage: compliance
         
-  # Stage 3: Compliance Check
+  # Stage 4: Compliance Check
   - stage_name: compliance
     agent_config: config/agents/compliance-agent.yaml
     condition: "extraction.clauses.length > 0"
@@ -101,12 +114,25 @@ pipeline:
     on_success:
       - action: continue
         condition: "compliance.risk_level != 'HIGH'"
-        next_stage: approval
+        next_stage: negotiation
       - action: escalate
         condition: "compliance.risk_level == 'HIGH'"
         target: legal_review
+
+  # Stage 5: Negotiation and External Review
+  - stage_name: negotiation
+    agent_config: config/agents/negotiation-agent.yaml
+    condition: "compliance.risk_level in ['LOW', 'MEDIUM', 'HIGH']"
+    timeout: 45s
+    retry_count: 2
+
+    dependencies: [compliance]
+
+    on_success:
+      - action: continue
+        next_stage: approval
         
-  # Stage 4: Final Approval
+  # Stage 6: Final Approval
   - stage_name: approval
     agent_config: config/agents/approval-agent.yaml
     condition: "compliance.risk_level in ['LOW', 'MEDIUM']"
@@ -116,10 +142,64 @@ pipeline:
     dependencies: [compliance]
     
     on_success:
-      - action: finalize
-        notification: "${APPROVAL_WEBHOOK}"
-      - action: archive
-        location: "data/approved/"
+          - action: continue
+            next_stage: signature
+
+      # Stage 7: Execution and Signature
+      - stage_name: signature
+        agent_config: config/agents/signature-agent.yaml
+        condition: "approval.decision != 'reject'"
+        timeout: 45s
+        retry_count: 1
+
+        dependencies: [approval]
+
+        on_success:
+          - action: continue
+            next_stage: obligations
+          - action: audit_log
+            data: "${stage.output}"
+
+      # Stage 8: Post-Execution Obligations
+      - stage_name: obligations
+        agent_config: config/agents/obligations-agent.yaml
+        condition: "signature.status == 'completed'"
+        timeout: 60s
+        retry_count: 2
+
+        dependencies: [signature]
+
+        on_success:
+          - action: continue
+            next_stage: renewal
+
+      # Stage 9: Renewal and Expiry
+      - stage_name: renewal
+        agent_config: config/agents/renewal-agent.yaml
+        condition: "obligations.total_obligations >= 0"
+        timeout: 45s
+        retry_count: 2
+
+        dependencies: [obligations]
+
+        on_success:
+          - action: continue
+            next_stage: analytics
+
+      # Stage 10: Lifecycle Analytics
+      - stage_name: analytics
+        agent_config: config/agents/analytics-agent.yaml
+        condition: "renewal.contracts_due >= 0"
+        timeout: 45s
+        retry_count: 1
+
+        dependencies: [renewal]
+
+        on_success:
+          - action: finalize
+            notification: "${APPROVAL_WEBHOOK}"
+          - action: archive
+            location: "data/approved/"
         
 # Quality Gates & Evaluation
 quality_gates:

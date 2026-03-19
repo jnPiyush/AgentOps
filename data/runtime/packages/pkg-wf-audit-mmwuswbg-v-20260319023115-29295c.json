@@ -1,0 +1,267 @@
+{
+  "id": "pkg-wf-audit-mmwuswbg-v-20260319023115-29295c",
+  "workflow_id": "wf-audit-mmwuswbg",
+  "workflow_name": "Audit Stage Flow",
+  "workflow_version": "v-20260319023115-29295c",
+  "activated_at": "2026-03-19T02:31:15.871Z",
+  "authoring_source": {
+    "workflow_definition_id": "wf-audit-mmwuswbg",
+    "updated_at": "2026-03-19T02:31:15.868Z"
+  },
+  "execution_topology": "sequential-hitl",
+  "mode_policy": {
+    "mode": "simulated",
+    "supported_modes": [
+      "simulated",
+      "live"
+    ]
+  },
+  "model_policy": {
+    "primary_model": "gpt-5.4",
+    "fallback_model": "gpt-4o-mini",
+    "emergency_model": "gpt-4o-mini"
+  },
+  "hitl_policy": {
+    "enabled": true,
+    "reviewer_role": "legal-reviewer",
+    "timeout_hours": 24,
+    "escalation_email": "legal-review@company.com",
+    "checkpoints": [
+      "approval"
+    ]
+  },
+  "manifest_references": [
+    "config/workflows/contract-processing.yaml",
+    "config/schemas/workflow-package.json",
+    "config/stages/contract-lifecycle.json"
+  ],
+  "policy_references": [
+    "data/policies/contract_policies.json",
+    "data/policies.json",
+    "data/clauses.json"
+  ],
+  "contract_stage_map": {
+    "catalog_reference": "config/stages/contract-lifecycle.json",
+    "stages": [
+      {
+        "id": "request-initiation",
+        "order": 1,
+        "name": "Request and Initiation",
+        "summary": "Establishes source context, contract category, completeness, and initial routing signals.",
+        "primary_mcp_affinity": [
+          "intake",
+          "workflow"
+        ],
+        "mvp_shape": "Single group with optional validation branch",
+        "notes": "Intake agent plus metadata validation agent.",
+        "default_execution_group_name": "Request Initiation Group",
+        "execution_groups": [
+          {
+            "id": "group-request-initiation",
+            "name": "Request Initiation Group",
+            "runtime_agent_ids": [
+              "intake-test"
+            ],
+            "runtime_role_keys": [
+              "intake"
+            ],
+            "primary_mcp_affinity": [
+              "intake",
+              "workflow"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "authoring-drafting",
+        "order": 2,
+        "name": "Authoring and Drafting",
+        "summary": "Creates the draft package and recommends approved clause language.",
+        "primary_mcp_affinity": [
+          "extraction",
+          "workflow"
+        ],
+        "mvp_shape": "Parallelizable pair",
+        "notes": "Drafting agent plus clause recommendation agent.",
+        "default_execution_group_name": "Drafting Group",
+        "execution_groups": []
+      },
+      {
+        "id": "internal-review",
+        "order": 3,
+        "name": "Internal Review",
+        "summary": "Summarizes changes and evaluates redlines before broader routing.",
+        "primary_mcp_affinity": [
+          "extraction",
+          "audit"
+        ],
+        "mvp_shape": "Parallelizable pair",
+        "notes": "Redline analysis agent plus version-diff agent.",
+        "default_execution_group_name": "Internal Review Group",
+        "execution_groups": []
+      },
+      {
+        "id": "compliance-check",
+        "order": 4,
+        "name": "Compliance Check",
+        "summary": "Produces policy exceptions, jurisdictional findings, and regulatory obligations.",
+        "primary_mcp_affinity": [
+          "compliance"
+        ],
+        "mvp_shape": "Parallelizable pair",
+        "notes": "Policy mapping agent plus regulatory review agent.",
+        "default_execution_group_name": "Compliance Group",
+        "execution_groups": []
+      },
+      {
+        "id": "negotiation-external-review",
+        "order": 5,
+        "name": "Negotiation and External Review",
+        "summary": "Analyzes counterparty changes and recommends fallback language.",
+        "primary_mcp_affinity": [
+          "compliance",
+          "workflow"
+        ],
+        "mvp_shape": "Sequential pair",
+        "notes": "Counterparty change analysis agent plus fallback recommendation agent.",
+        "default_execution_group_name": "Negotiation Group",
+        "execution_groups": []
+      },
+      {
+        "id": "approval-routing",
+        "order": 6,
+        "name": "Approval Routing",
+        "summary": "Finalizes the approver path and enforces HITL checkpoints.",
+        "primary_mcp_affinity": [
+          "workflow",
+          "audit"
+        ],
+        "mvp_shape": "Sequential plus HITL",
+        "notes": "Routing agent plus escalation agent.",
+        "default_execution_group_name": "Approval Routing Group",
+        "execution_groups": [
+          {
+            "id": "group-approval-routing",
+            "name": "Approval Routing Group",
+            "runtime_agent_ids": [
+              "approval-test"
+            ],
+            "runtime_role_keys": [
+              "approval"
+            ],
+            "primary_mcp_affinity": [
+              "workflow",
+              "audit"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "execution-signature",
+        "order": 7,
+        "name": "Execution and Signature",
+        "summary": "Coordinates signature dispatch, completion evidence, and signing exceptions.",
+        "primary_mcp_affinity": [
+          "workflow",
+          "audit"
+        ],
+        "mvp_shape": "Sequential plus reminders",
+        "notes": "Signature orchestration agent plus reminder agent.",
+        "default_execution_group_name": "Signature Group",
+        "execution_groups": []
+      },
+      {
+        "id": "obligation-management",
+        "order": 8,
+        "name": "Post-Execution Obligations",
+        "summary": "Extracts obligations, milestones, and ownership commitments after execution.",
+        "primary_mcp_affinity": [
+          "extraction",
+          "workflow",
+          "audit"
+        ],
+        "mvp_shape": "Parallelizable pair",
+        "notes": "Obligation extraction agent plus task assignment agent.",
+        "default_execution_group_name": "Obligations Group",
+        "execution_groups": []
+      },
+      {
+        "id": "renewal-expiry",
+        "order": 9,
+        "name": "Renewal and Expiry",
+        "summary": "Tracks notice windows, renewal exposure, and amendment or renegotiation triggers.",
+        "primary_mcp_affinity": [
+          "workflow",
+          "audit"
+        ],
+        "mvp_shape": "Sequential pair",
+        "notes": "Renewal detection agent plus alert prioritization agent.",
+        "default_execution_group_name": "Renewal Group",
+        "execution_groups": []
+      },
+      {
+        "id": "portfolio-analytics",
+        "order": 10,
+        "name": "Lifecycle Analytics",
+        "summary": "Aggregates business-stage outcomes, backlog, risk, and renewal analytics across the portfolio.",
+        "primary_mcp_affinity": [
+          "audit",
+          "workflow"
+        ],
+        "mvp_shape": "Single reporting group",
+        "notes": "Reporting agent plus insight summarization agent.",
+        "default_execution_group_name": "Analytics Group",
+        "execution_groups": []
+      }
+    ],
+    "unmapped_agent_ids": []
+  },
+  "agents": [
+    {
+      "id": "intake-test",
+      "name": "Intake Agent",
+      "role": "Classify and intake contracts",
+      "kind": "agent",
+      "stage": 0,
+      "lane": 0,
+      "order": 0,
+      "model": "gpt-5.4",
+      "tools": [
+        "upload_contract",
+        "classify_document",
+        "extract_metadata"
+      ],
+      "boundary": "Classify only",
+      "output": "Metadata",
+      "runtime_role_key": "intake",
+      "declarative": {
+        "agent_config": "config/agents/intake-agent.yaml",
+        "prompt": "prompts/intake-system.md",
+        "output_schema": "config/schemas/intake-result.json"
+      }
+    },
+    {
+      "id": "approval-test",
+      "name": "Approval Agent",
+      "role": "Route approvals and escalate to human review",
+      "kind": "agent",
+      "stage": 1,
+      "lane": 0,
+      "order": 1,
+      "model": "gpt-5.4",
+      "tools": [
+        "route_approval",
+        "escalate_to_human",
+        "notify_stakeholder"
+      ],
+      "boundary": "Approval only",
+      "output": "Decision",
+      "runtime_role_key": "approval",
+      "declarative": {
+        "agent_config": "config/agents/approval-agent.yaml",
+        "prompt": "prompts/approval-system.md",
+        "output_schema": "config/schemas/approval-result.json"
+      }
+    }
+  ]
+}

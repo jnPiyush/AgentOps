@@ -236,17 +236,18 @@ function inferRoleKey(agent: WorkflowAgent): string {
 		return "negotiation";
 	}
 
-	if (searchable.includes("signature") || searchable.includes("execution") || searchable.includes("signing")) {
-		return "signature";
-	}
-
 	if (
 		searchable.includes("obligation") ||
 		searchable.includes("task assignment") ||
 		searchable.includes("post-execution") ||
+		searchable.includes("post-signature") ||
 		searchable.includes("milestone")
 	) {
 		return "obligations";
+	}
+
+	if (searchable.includes("signature") || searchable.includes("execution") || searchable.includes("signing")) {
+		return "signature";
 	}
 
 	if (searchable.includes("renewal") || searchable.includes("expiry") || searchable.includes("expiration")) {
@@ -313,6 +314,10 @@ const stageIdByIndex = [
 	"compliance-check",
 	"negotiation-external-review",
 	"approval-routing",
+	"execution-signature",
+	"obligation-management",
+	"renewal-expiry",
+	"portfolio-analytics",
 ] as const;
 
 function inferContractStageId(agent: WorkflowAgent, runtimeRoleKey: string): string | null {
@@ -339,11 +344,40 @@ function inferContractStageId(agent: WorkflowAgent, runtimeRoleKey: string): str
 	if (runtimeRoleKey === "approval") {
 		return "approval-routing";
 	}
+	if (runtimeRoleKey === "signature") {
+		return "execution-signature";
+	}
+	if (runtimeRoleKey === "obligations") {
+		return "obligation-management";
+	}
+	if (runtimeRoleKey === "renewal") {
+		return "renewal-expiry";
+	}
+	if (runtimeRoleKey === "analytics") {
+		return "portfolio-analytics";
+	}
 	if (searchable.includes("review") || searchable.includes("redline") || searchable.includes("diff")) {
 		return "internal-review";
 	}
 	if (searchable.includes("negotiat") || searchable.includes("counterparty") || searchable.includes("fallback")) {
 		return "negotiation-external-review";
+	}
+	if (
+		searchable.includes("obligation") ||
+		searchable.includes("milestone") ||
+		searchable.includes("post-execution") ||
+		searchable.includes("post-signature")
+	) {
+		return "obligation-management";
+	}
+	if (searchable.includes("signature") || searchable.includes("execution") || searchable.includes("signing")) {
+		return "execution-signature";
+	}
+	if (searchable.includes("renewal") || searchable.includes("expiry") || searchable.includes("expiration")) {
+		return "renewal-expiry";
+	}
+	if (searchable.includes("analytic") || searchable.includes("insight") || searchable.includes("report")) {
+		return "portfolio-analytics";
 	}
 	if (typeof agent.stage === "number" && agent.stage >= 0 && agent.stage < stageIdByIndex.length) {
 		return stageIdByIndex[agent.stage];
@@ -524,7 +558,9 @@ export function buildWorkflowPackage(workflow: WorkflowDefinition): WorkflowPack
 		.sort((left, right) => left.order - right.order)
 		.map(buildRuntimeAgentBinding);
 	const contractStageMap = buildContractStageMap(bindings);
-	const hasApprovalAgent = bindings.some((binding) => binding.runtime_role_key === "approval");
+	const checkpoints = bindings
+		.filter((binding) => binding.runtime_role_key === "approval" || binding.runtime_role_key === "signature")
+		.map((binding) => binding.runtime_role_key);
 
 	return {
 		id: `pkg-${workflow.id}-${workflowVersion}`,
@@ -547,11 +583,11 @@ export function buildWorkflowPackage(workflow: WorkflowDefinition): WorkflowPack
 			emergency_model: "gpt-4o-mini",
 		},
 		hitl_policy: {
-			enabled: hasApprovalAgent || workflow.type.includes("hitl"),
+			enabled: checkpoints.length > 0 || workflow.type.includes("hitl"),
 			reviewer_role: "legal-reviewer",
 			timeout_hours: 24,
 			escalation_email: appConfig.legalReviewEmail,
-			checkpoints: hasApprovalAgent ? ["approval"] : [],
+			checkpoints,
 		},
 		manifest_references: [
 			"config/workflows/contract-processing.yaml",

@@ -1,11 +1,11 @@
 {
-	"catalog_version": "2026-03-12",
+	"catalog_version": "2026-03-19",
 	"stages": [
 		{
 			"id": "request-initiation",
 			"order": 1,
 			"name": "Request and Initiation",
-			"summary": "Establishes contract type, completeness, and routing context.",
+			"summary": "Establishes source context, contract category, completeness, and initial routing signals.",
 			"primary_mcp_affinity": ["intake", "workflow"],
 			"mvp_shape": "Single group with optional validation branch",
 			"notes": "Intake agent plus metadata validation agent.",
@@ -35,7 +35,7 @@
 			"id": "compliance-check",
 			"order": 4,
 			"name": "Compliance Check",
-			"summary": "Produces policy exceptions and regulatory findings.",
+			"summary": "Produces policy exceptions, jurisdictional findings, and regulatory obligations.",
 			"primary_mcp_affinity": ["compliance"],
 			"mvp_shape": "Parallelizable pair",
 			"notes": "Policy mapping agent plus regulatory review agent.",
@@ -58,8 +58,48 @@
 			"summary": "Finalizes the approver path and enforces HITL checkpoints.",
 			"primary_mcp_affinity": ["workflow", "audit"],
 			"mvp_shape": "Sequential plus HITL",
-			"notes": "Routing agent plus escalation agent. This is the endpoint of the active demo workflow.",
+			"notes": "Routing agent plus escalation agent.",
 			"default_execution_group_name": "Approval Routing Group"
+		},
+		{
+			"id": "execution-signature",
+			"order": 7,
+			"name": "Execution and Signature",
+			"summary": "Coordinates signature dispatch, completion evidence, and signing exceptions.",
+			"primary_mcp_affinity": ["workflow", "audit"],
+			"mvp_shape": "Sequential plus reminders",
+			"notes": "Signature orchestration agent plus reminder agent.",
+			"default_execution_group_name": "Signature Group"
+		},
+		{
+			"id": "obligation-management",
+			"order": 8,
+			"name": "Post-Execution Obligations",
+			"summary": "Extracts obligations, milestones, and ownership commitments after execution.",
+			"primary_mcp_affinity": ["extraction", "workflow", "audit"],
+			"mvp_shape": "Parallelizable pair",
+			"notes": "Obligation extraction agent plus task assignment agent.",
+			"default_execution_group_name": "Obligations Group"
+		},
+		{
+			"id": "renewal-expiry",
+			"order": 9,
+			"name": "Renewal and Expiry",
+			"summary": "Tracks notice windows, renewal exposure, and amendment or renegotiation triggers.",
+			"primary_mcp_affinity": ["workflow", "audit"],
+			"mvp_shape": "Sequential pair",
+			"notes": "Renewal detection agent plus alert prioritization agent.",
+			"default_execution_group_name": "Renewal Group"
+		},
+		{
+			"id": "portfolio-analytics",
+			"order": 10,
+			"name": "Lifecycle Analytics",
+			"summary": "Aggregates business-stage outcomes, backlog, risk, and renewal analytics across the portfolio.",
+			"primary_mcp_affinity": ["audit", "workflow"],
+			"mvp_shape": "Single reporting group",
+			"notes": "Reporting agent plus insight summarization agent.",
+			"default_execution_group_name": "Analytics Group"
 		}
 	]
 }

@@ -2872,8 +2872,1070 @@
         "order": 1
       }
     ],
-    "active": true,
+    "active": false,
     "createdAt": "2026-03-18T17:34:46.030Z",
     "updatedAt": "2026-03-18T17:34:46.030Z"
+  },
+  {
+    "id": "wf-audit-mmwel95e",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-18T18:57:25.394Z",
+    "updatedAt": "2026-03-18T18:57:25.394Z"
+  },
+  {
+    "id": "wf-audit-mmwepaoh",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-18T19:00:34.001Z",
+    "updatedAt": "2026-03-18T19:00:34.001Z"
+  },
+  {
+    "id": "wf-audit-mmweq6mb",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-18T19:01:15.396Z",
+    "updatedAt": "2026-03-18T19:01:15.396Z"
+  },
+  {
+    "id": "wf-audit-mmweqx0m",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-18T19:01:49.607Z",
+    "updatedAt": "2026-03-18T19:01:49.607Z"
+  },
+  {
+    "id": "wf-audit-mmwuswbg",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T02:31:15.868Z",
+    "updatedAt": "2026-03-19T02:31:15.868Z"
+  },
+  {
+    "id": "wf-audit-mmwutqo2",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T02:31:55.202Z",
+    "updatedAt": "2026-03-19T02:31:55.202Z"
+  },
+  {
+    "id": "wf-audit-mmwv2he4",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T02:38:43.085Z",
+    "updatedAt": "2026-03-19T02:38:43.085Z"
+  },
+  {
+    "id": "wf-audit-mmwv5x61",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T02:41:23.497Z",
+    "updatedAt": "2026-03-19T02:41:23.497Z"
+  },
+  {
+    "id": "wf-audit-mmwvb4wt",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T02:45:26.813Z",
+    "updatedAt": "2026-03-19T02:45:26.813Z"
+  },
+  {
+    "id": "wf-audit-mmwvnkc4",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T02:55:06.676Z",
+    "updatedAt": "2026-03-19T02:55:06.676Z"
+  },
+  {
+    "id": "default",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0ea5e9",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package",
+        "color": "#8b5cf6",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary",
+        "color": "#f59e0b",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags",
+        "color": "#ef4444",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary",
+        "color": "#f97316",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision",
+        "color": "#10b981",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5
+      },
+      {
+        "id": "agent-7",
+        "name": "Signature Agent",
+        "role": "Coordinate signature dispatch, reminders, and execution evidence",
+        "icon": "S",
+        "model": "GPT-5.4",
+        "tools": [
+          "notify_stakeholder",
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Signature workflow only",
+        "output": "Signature completion status",
+        "color": "#06b6d4",
+        "kind": "agent",
+        "stage": 6,
+        "lane": 0,
+        "order": 6
+      },
+      {
+        "id": "agent-8",
+        "name": "Obligations Agent",
+        "role": "Extract obligations, milestones, and owners from the executed contract",
+        "icon": "O",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "extract_dates_values",
+          "notify_stakeholder"
+        ],
+        "boundary": "Post-execution obligations only",
+        "output": "Obligation register",
+        "color": "#84cc16",
+        "kind": "agent",
+        "stage": 7,
+        "lane": 0,
+        "order": 7
+      },
+      {
+        "id": "agent-9",
+        "name": "Renewal Agent",
+        "role": "Monitor expiry windows, auto-renewal terms, and amendment triggers",
+        "icon": "Y",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_dates_values",
+          "flag_risk",
+          "notify_stakeholder"
+        ],
+        "boundary": "Renewal and expiry monitoring only",
+        "output": "Renewal alerts",
+        "color": "#a78bfa",
+        "kind": "agent",
+        "stage": 8,
+        "lane": 0,
+        "order": 8
+      },
+      {
+        "id": "agent-10",
+        "name": "Analytics Agent",
+        "role": "Summarize lifecycle throughput, risk concentration, and renewal exposure",
+        "icon": "L",
+        "model": "GPT-5.4",
+        "tools": [
+          "run_evaluation",
+          "get_baseline",
+          "detect_drift"
+        ],
+        "boundary": "Portfolio analytics only",
+        "output": "Lifecycle KPI summary",
+        "color": "#fb7185",
+        "kind": "agent",
+        "stage": 9,
+        "lane": 0,
+        "order": 9
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T03:15:42.870Z",
+    "updatedAt": "2026-03-19T03:15:42.870Z"
+  },
+  {
+    "id": "wf-audit-mmwwpib8",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T03:24:36.981Z",
+    "updatedAt": "2026-03-19T03:24:36.981Z"
+  },
+  {
+    "id": "wf-audit-mmwwv56j",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T03:28:59.899Z",
+    "updatedAt": "2026-03-19T03:28:59.899Z"
+  },
+  {
+    "id": "wf-audit-mmwwyuul",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T03:31:53.134Z",
+    "updatedAt": "2026-03-19T03:31:53.134Z"
+  },
+  {
+    "id": "wf-audit-mmwx8bwv",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T03:39:15.152Z",
+    "updatedAt": "2026-03-19T03:39:15.152Z"
+  },
+  {
+    "id": "wf-audit-mmxfd2oo",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T12:06:49.560Z",
+    "updatedAt": "2026-03-19T12:06:49.560Z"
+  },
+  {
+    "id": "wf-audit-mmxg4bmf",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T12:28:00.855Z",
+    "updatedAt": "2026-03-19T12:28:00.855Z"
+  },
+  {
+    "id": "wf-audit-mmxg8ujr",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": false,
+    "createdAt": "2026-03-19T12:31:32.007Z",
+    "updatedAt": "2026-03-19T12:31:32.007Z"
+  },
+  {
+    "id": "wf-audit-mmxgb0vv",
+    "name": "Audit Stage Flow",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "intake-test",
+        "name": "Intake Agent",
+        "role": "Classify and intake contracts",
+        "icon": "I",
+        "model": "gpt-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Metadata",
+        "color": "#3B82F6",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0
+      },
+      {
+        "id": "approval-test",
+        "name": "Approval Agent",
+        "role": "Route approvals and escalate to human review",
+        "icon": "A",
+        "model": "gpt-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Approval only",
+        "output": "Decision",
+        "color": "#10B981",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1
+      }
+    ],
+    "active": true,
+    "createdAt": "2026-03-19T12:33:13.532Z",
+    "updatedAt": "2026-03-19T12:33:13.532Z"
   }
 ]

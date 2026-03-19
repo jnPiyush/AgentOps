@@ -1,0 +1,12 @@
+{
+	"draft_summary": "Initial draft package prepared with fallback language for key commercial and legal terms.",
+	"recommended_clauses": [
+		{
+			"topic": "liability",
+			"recommended_text": "Each party's aggregate liability will not exceed the fees paid under this agreement in the prior twelve months.",
+			"rationale": "Uses approved fallback language for balanced liability allocation."
+		}
+	],
+	"open_questions": ["Confirm governing law and signature authority for each party."],
+	"confidence_score": 0.9
+}
