@@ -7,7 +7,7 @@ console.log("\n=== TESTING CONTRACT AGENTOPS DEPLOYMENT ===\n");
 async function testDeployment() {
 	try {
 		console.log("1. Testing simulated deployment pipeline...");
-		const result = deploySimulated();
+		const result = await deploySimulated();
 
 		console.log("\n✅ Deployment completed successfully!");
 		console.log(`   Pipeline ID: ${result.pipeline_id}`);

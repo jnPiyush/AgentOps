@@ -32,8 +32,8 @@ async function testSuite() {
 	console.log("\n🔍 Running automated test suite...");
 
 	// Test 1: Azure AI Foundry Deployment Pipeline
-	await runTest("Azure AI Foundry Deployment Pipeline", () => {
-		const result = deploySimulated();
+	await runTest("Azure AI Foundry Deployment Pipeline", async () => {
+		const result = await deploySimulated();
 		return (
 			result.pipeline_id.startsWith("deploy-") &&
 			result.mode === "simulated" &&
@@ -46,8 +46,8 @@ async function testSuite() {
 	});
 
 	// Test 2: Agent Registration Validation
-	await runTest("Agent Registration System", () => {
-		const result = deploySimulated();
+	await runTest("Agent Registration System", async () => {
+		const result = await deploySimulated();
 		const expectedAgents = [
 			"Contract Intake Agent",
 			"Contract Drafting Agent",
@@ -64,8 +64,8 @@ async function testSuite() {
 	});
 
 	// Test 3: Security Configuration
-	await runTest("Security Configuration Validation", () => {
-		const result = deploySimulated();
+	await runTest("Security Configuration Validation", async () => {
+		const result = await deploySimulated();
 		const requiredSecurityChecks = ["API Key authentication", "RBAC roles configured", "Data residency verified"];
 		const requiredSafetyChecks = ["Content filters enabled", "Jailbreak protection ON", "PII redaction configured"];
 		return (
@@ -79,8 +79,8 @@ async function testSuite() {
 	});
 
 	// Test 4: Pipeline Performance
-	await runTest("Pipeline Performance Metrics", () => {
-		const result = deploySimulated();
+	await runTest("Pipeline Performance Metrics", async () => {
+		const result = await deploySimulated();
 		return (
 			result.summary.total_duration_ms > 0 &&
 			result.summary.total_duration_ms < 15000 && // Under 15 seconds
@@ -89,8 +89,8 @@ async function testSuite() {
 	});
 
 	// Test 5: Evaluation System
-	await runTest("Evaluation System Integrity", () => {
-		const result = deploySimulated();
+	await runTest("Evaluation System Integrity", async () => {
+		const result = await deploySimulated();
 		return Boolean(
 			result.evaluation &&
 				result.evaluation.test_count > 0 &&
@@ -101,9 +101,9 @@ async function testSuite() {
 	});
 
 	// Test 6: Error Handling
-	await runTest("Error Handling Robustness", () => {
+	await runTest("Error Handling Robustness", async () => {
 		try {
-			const result = deploySimulated();
+			const result = await deploySimulated();
 			// Verify error handling fields exist and are properly initialized
 			return (
 				typeof result.summary.errors === "number" &&
@@ -119,8 +119,8 @@ async function testSuite() {
 	});
 
 	// Test 7: Data Structure Integrity
-	await runTest("API Response Data Structure", () => {
-		const result = deploySimulated();
+	await runTest("API Response Data Structure", async () => {
+		const result = await deploySimulated();
 		const hasRequiredFields =
 			typeof result.pipeline_id === "string" &&
 			typeof result.mode === "string" &&

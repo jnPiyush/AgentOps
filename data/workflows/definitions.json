@@ -3982,8 +3982,226 @@
         "order": 1
       }
     ],
-    "active": true,
+    "active": false,
     "createdAt": "2026-03-19T12:56:14.454Z",
     "updatedAt": "2026-03-19T12:56:14.454Z"
+  },
+  {
+    "id": "wf-mmytcdya",
+    "name": "Contract Lifecycle Pipeline",
+    "type": "sequential-hitl",
+    "agents": [
+      {
+        "id": "agent-1",
+        "name": "Intake Agent",
+        "role": "Classify contracts by type and extract initial metadata",
+        "icon": "I",
+        "model": "GPT-5.4",
+        "tools": [
+          "upload_contract",
+          "classify_document",
+          "extract_metadata"
+        ],
+        "boundary": "Classify only",
+        "output": "Contract classification and metadata",
+        "color": "#0078d4",
+        "kind": "agent",
+        "stage": 0,
+        "lane": 0,
+        "order": 0,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-2",
+        "name": "Drafting Agent",
+        "role": "Assemble the initial draft package and recommend approved clause language",
+        "icon": "D",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "identify_parties",
+          "extract_dates_values"
+        ],
+        "boundary": "Draft package only",
+        "output": "Draft-ready clause package and fallback language recommendations",
+        "color": "#00b294",
+        "kind": "agent",
+        "stage": 1,
+        "lane": 0,
+        "order": 1,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-3",
+        "name": "Internal Review Agent",
+        "role": "Summarize redlines, review comments, and internal decision points",
+        "icon": "R",
+        "model": "GPT-5.4",
+        "tools": [
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Internal review only",
+        "output": "Redline summary and internal review disposition",
+        "color": "#8861c4",
+        "kind": "agent",
+        "stage": 2,
+        "lane": 0,
+        "order": 2,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-4",
+        "name": "Compliance Agent",
+        "role": "Check extracted terms against company policies and flag risks",
+        "icon": "C",
+        "model": "GPT-5.4",
+        "tools": [
+          "check_policy",
+          "flag_risk",
+          "get_policy_rules"
+        ],
+        "boundary": "Flag only",
+        "output": "Policy compliance flags and risk assessment",
+        "color": "#ff8c00",
+        "kind": "agent",
+        "stage": 3,
+        "lane": 0,
+        "order": 3,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-5",
+        "name": "Negotiation Agent",
+        "role": "Assess counterparty markup and recommend fallback negotiation positions",
+        "icon": "N",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "notify_stakeholder"
+        ],
+        "boundary": "Negotiation support only",
+        "output": "Negotiation summary with fallback recommendations",
+        "color": "#e74c3c",
+        "kind": "agent",
+        "stage": 4,
+        "lane": 0,
+        "order": 4,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-6",
+        "name": "Approval Agent",
+        "role": "Route contracts for approval or escalate to human review",
+        "icon": "A",
+        "model": "GPT-5.4",
+        "tools": [
+          "route_approval",
+          "escalate_to_human",
+          "notify_stakeholder"
+        ],
+        "boundary": "Route only",
+        "output": "Routing decision and stakeholder notification",
+        "color": "#3498db",
+        "kind": "human",
+        "stage": 5,
+        "lane": 0,
+        "order": 5,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-7",
+        "name": "Signature Agent",
+        "role": "Coordinate signature dispatch, reminders, and execution evidence",
+        "icon": "S",
+        "model": "GPT-5.4",
+        "tools": [
+          "notify_stakeholder",
+          "get_audit_log",
+          "create_audit_entry"
+        ],
+        "boundary": "Signature workflow only",
+        "output": "Signature completion status and audit evidence",
+        "color": "#2ecc71",
+        "kind": "agent",
+        "stage": 6,
+        "lane": 0,
+        "order": 6,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-8",
+        "name": "Obligations Agent",
+        "role": "Extract obligations, milestones, and owners from the executed contract",
+        "icon": "O",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_clauses",
+          "extract_dates_values",
+          "notify_stakeholder"
+        ],
+        "boundary": "Post-execution obligations only",
+        "output": "Structured obligation register and owner assignments",
+        "color": "#9b59b6",
+        "kind": "agent",
+        "stage": 7,
+        "lane": 0,
+        "order": 7,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-9",
+        "name": "Renewal Agent",
+        "role": "Monitor expiry windows, auto-renewal terms, and amendment triggers",
+        "icon": "Y",
+        "model": "GPT-5.4",
+        "tools": [
+          "extract_dates_values",
+          "flag_risk",
+          "notify_stakeholder"
+        ],
+        "boundary": "Renewal and expiry monitoring only",
+        "output": "Renewal alerts and recommended action windows",
+        "color": "#1abc9c",
+        "kind": "agent",
+        "stage": 8,
+        "lane": 0,
+        "order": 8,
+        "description": "",
+        "instructions": ""
+      },
+      {
+        "id": "agent-10",
+        "name": "Analytics Agent",
+        "role": "Summarize lifecycle throughput, risk concentration, and renewal exposure",
+        "icon": "L",
+        "model": "GPT-5.4",
+        "tools": [
+          "run_evaluation",
+          "get_baseline",
+          "detect_drift"
+        ],
+        "boundary": "Portfolio analytics only",
+        "output": "Lifecycle KPI summary and portfolio insights",
+        "color": "#e67e22",
+        "kind": "agent",
+        "stage": 9,
+        "lane": 0,
+        "order": 9,
+        "description": "",
+        "instructions": ""
+      }
+    ],
+    "active": true,
+    "createdAt": "2026-03-20T11:25:58.319Z",
+    "updatedAt": "2026-03-20T11:25:58.319Z"
   }
 ]

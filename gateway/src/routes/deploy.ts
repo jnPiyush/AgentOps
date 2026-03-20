@@ -80,7 +80,7 @@ export async function deployRoutes(app: FastifyInstance): Promise<void> {
 		}
 
 		// Simulated mode
-		const result = deploySimulated();
+		const result = await deploySimulated();
 		lastDeployment = result;
 		return reply.status(201).send(result);
 	});

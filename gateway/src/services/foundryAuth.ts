@@ -9,6 +9,7 @@ export interface FoundryAuthConfig {
 }
 
 const COGNITIVE_SERVICES_SCOPE = "https://cognitiveservices.azure.com/.default";
+const AI_FOUNDRY_SCOPE = "https://ai.azure.com/.default";
 
 let cachedCredential: DefaultAzureCredential | null = null;
 let cachedCredentialClientId: string | null = null;
@@ -52,12 +53,20 @@ export function getFoundryConfigurationError(config: FoundryAuthConfig & { endpo
 	return "";
 }
 
-export async function withFoundryAuthHeaders(config: FoundryAuthConfig, headersInit?: HeadersInit): Promise<Headers> {
+export function getTokenScope(endpoint: string): string {
+	if (endpoint.includes("services.ai.azure.com")) {
+		return AI_FOUNDRY_SCOPE;
+	}
+	return COGNITIVE_SERVICES_SCOPE;
+}
+
+export async function withFoundryAuthHeaders(config: FoundryAuthConfig, headersInit?: HeadersInit, endpoint?: string): Promise<Headers> {
 	const headers = new Headers(headersInit);
 
 	if (config.authMode === "managed-identity") {
+		const scope = endpoint ? getTokenScope(endpoint) : COGNITIVE_SERVICES_SCOPE;
 		const credential = getCredential(config.managedIdentityClientId);
-		const token = await credential.getToken(COGNITIVE_SERVICES_SCOPE);
+		const token = await credential.getToken(scope);
 		if (!token?.token) {
 			throw new Error("Unable to acquire a Microsoft Entra token for Azure OpenAI");
 		}

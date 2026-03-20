@@ -1,23 +1,23 @@
 {
-  "id": "pkg-wf-audit-mmxh4meu-v-20260319125614-d5d8d3",
-  "workflow_id": "wf-audit-mmxh4meu",
-  "workflow_name": "Audit Stage Flow",
-  "workflow_version": "v-20260319125614-d5d8d3",
-  "activated_at": "2026-03-19T12:56:14.460Z",
+  "id": "pkg-wf-mmytcdya-v-20260320112558-40d7d3",
+  "workflow_id": "wf-mmytcdya",
+  "workflow_name": "Contract Lifecycle Pipeline",
+  "workflow_version": "v-20260320112558-40d7d3",
+  "activated_at": "2026-03-20T11:25:58.376Z",
   "authoring_source": {
-    "workflow_definition_id": "wf-audit-mmxh4meu",
-    "updated_at": "2026-03-19T12:56:14.454Z"
+    "workflow_definition_id": "wf-mmytcdya",
+    "updated_at": "2026-03-20T11:25:58.319Z"
   },
   "execution_topology": "sequential-hitl",
   "mode_policy": {
-    "mode": "simulated",
+    "mode": "live",
     "supported_modes": [
       "simulated",
       "live"
     ]
   },
   "model_policy": {
-    "primary_model": "gpt-5.4",
+    "primary_model": "gpt-4o",
     "fallback_model": "gpt-4o-mini",
     "emergency_model": "gpt-4o-mini"
   },
@@ -27,7 +27,8 @@
     "timeout_hours": 24,
     "escalation_email": "legal-review@company.com",
     "checkpoints": [
-      "approval"
+      "approval",
+      "signature"
     ]
   },
   "manifest_references": [
@@ -60,7 +61,7 @@
             "id": "group-request-initiation",
             "name": "Request Initiation Group",
             "runtime_agent_ids": [
-              "intake-test"
+              "agent-1"
             ],
             "runtime_role_keys": [
               "intake"
@@ -84,7 +85,22 @@
         "mvp_shape": "Parallelizable pair",
         "notes": "Drafting agent plus clause recommendation agent.",
         "default_execution_group_name": "Drafting Group",
-        "execution_groups": []
+        "execution_groups": [
+          {
+            "id": "group-authoring-drafting",
+            "name": "Drafting Group",
+            "runtime_agent_ids": [
+              "agent-2"
+            ],
+            "runtime_role_keys": [
+              "drafting"
+            ],
+            "primary_mcp_affinity": [
+              "extraction",
+              "workflow"
+            ]
+          }
+        ]
       },
       {
         "id": "internal-review",
@@ -98,7 +114,22 @@
         "mvp_shape": "Parallelizable pair",
         "notes": "Redline analysis agent plus version-diff agent.",
         "default_execution_group_name": "Internal Review Group",
-        "execution_groups": []
+        "execution_groups": [
+          {
+            "id": "group-internal-review",
+            "name": "Internal Review Group",
+            "runtime_agent_ids": [
+              "agent-3"
+            ],
+            "runtime_role_keys": [
+              "review"
+            ],
+            "primary_mcp_affinity": [
+              "extraction",
+              "audit"
+            ]
+          }
+        ]
       },
       {
         "id": "compliance-check",
@@ -111,7 +142,21 @@
         "mvp_shape": "Parallelizable pair",
         "notes": "Policy mapping agent plus regulatory review agent.",
         "default_execution_group_name": "Compliance Group",
-        "execution_groups": []
+        "execution_groups": [
+          {
+            "id": "group-compliance-check",
+            "name": "Compliance Group",
+            "runtime_agent_ids": [
+              "agent-4"
+            ],
+            "runtime_role_keys": [
+              "compliance"
+            ],
+            "primary_mcp_affinity": [
+              "compliance"
+            ]
+          }
+        ]
       },
       {
         "id": "negotiation-external-review",
@@ -125,7 +170,22 @@
         "mvp_shape": "Sequential pair",
         "notes": "Counterparty change analysis agent plus fallback recommendation agent.",
         "default_execution_group_name": "Negotiation Group",
-        "execution_groups": []
+        "execution_groups": [
+          {
+            "id": "group-negotiation-external-review",
+            "name": "Negotiation Group",
+            "runtime_agent_ids": [
+              "agent-5"
+            ],
+            "runtime_role_keys": [
+              "negotiation"
+            ],
+            "primary_mcp_affinity": [
+              "compliance",
+              "workflow"
+            ]
+          }
+        ]
       },
       {
         "id": "approval-routing",
@@ -144,7 +204,7 @@
             "id": "group-approval-routing",
             "name": "Approval Routing Group",
             "runtime_agent_ids": [
-              "approval-test"
+              "agent-6"
             ],
             "runtime_role_keys": [
               "approval"
@@ -168,7 +228,22 @@
         "mvp_shape": "Sequential plus reminders",
         "notes": "Signature orchestration agent plus reminder agent.",
         "default_execution_group_name": "Signature Group",
-        "execution_groups": []
+        "execution_groups": [
+          {
+            "id": "group-execution-signature",
+            "name": "Signature Group",
+            "runtime_agent_ids": [
+              "agent-7"
+            ],
+            "runtime_role_keys": [
+              "signature"
+            ],
+            "primary_mcp_affinity": [
+              "workflow",
+              "audit"
+            ]
+          }
+        ]
       },
       {
         "id": "obligation-management",
@@ -183,7 +258,23 @@
         "mvp_shape": "Parallelizable pair",
         "notes": "Obligation extraction agent plus task assignment agent.",
         "default_execution_group_name": "Obligations Group",
-        "execution_groups": []
+        "execution_groups": [
+          {
+            "id": "group-obligation-management",
+            "name": "Obligations Group",
+            "runtime_agent_ids": [
+              "agent-8"
+            ],
+            "runtime_role_keys": [
+              "obligations"
+            ],
+            "primary_mcp_affinity": [
+              "extraction",
+              "workflow",
+              "audit"
+            ]
+          }
+        ]
       },
       {
         "id": "renewal-expiry",
@@ -197,7 +288,24 @@
         "mvp_shape": "Sequential pair",
         "notes": "Renewal detection agent plus alert prioritization agent.",
         "default_execution_group_name": "Renewal Group",
-        "execution_groups": []
+        "execution_groups": [
+          {
+            "id": "group-renewal-expiry",
+            "name": "Renewal Group",
+            "runtime_agent_ids": [
+              "agent-9",
+              "agent-10"
+            ],
+            "runtime_role_keys": [
+              "renewal",
+              "renewal"
+            ],
+            "primary_mcp_affinity": [
+              "workflow",
+              "audit"
+            ]
+          }
+        ]
       },
       {
         "id": "portfolio-analytics",
@@ -218,21 +326,21 @@
   },
   "agents": [
     {
-      "id": "intake-test",
+      "id": "agent-1",
       "name": "Intake Agent",
-      "role": "Classify and intake contracts",
+      "role": "Classify contracts by type and extract initial metadata",
       "kind": "agent",
       "stage": 0,
       "lane": 0,
       "order": 0,
-      "model": "gpt-5.4",
+      "model": "GPT-5.4",
       "tools": [
         "upload_contract",
         "classify_document",
         "extract_metadata"
       ],
       "boundary": "Classify only",
-      "output": "Metadata",
+      "output": "Contract classification and metadata",
       "runtime_role_key": "intake",
       "declarative": {
         "agent_config": "config/agents/intake-agent.yaml",
@@ -241,26 +349,208 @@
       }
     },
     {
-      "id": "approval-test",
-      "name": "Approval Agent",
-      "role": "Route approvals and escalate to human review",
+      "id": "agent-2",
+      "name": "Drafting Agent",
+      "role": "Assemble the initial draft package and recommend approved clause language",
       "kind": "agent",
       "stage": 1,
       "lane": 0,
       "order": 1,
-      "model": "gpt-5.4",
+      "model": "GPT-5.4",
+      "tools": [
+        "extract_clauses",
+        "identify_parties",
+        "extract_dates_values"
+      ],
+      "boundary": "Draft package only",
+      "output": "Draft-ready clause package and fallback language recommendations",
+      "runtime_role_key": "drafting",
+      "declarative": {
+        "agent_config": "config/agents/drafting-agent.yaml",
+        "prompt": "prompts/drafting-system.md",
+        "output_schema": "config/schemas/drafting-result.json"
+      }
+    },
+    {
+      "id": "agent-3",
+      "name": "Internal Review Agent",
+      "role": "Summarize redlines, review comments, and internal decision points",
+      "kind": "agent",
+      "stage": 2,
+      "lane": 0,
+      "order": 2,
+      "model": "GPT-5.4",
+      "tools": [
+        "get_audit_log",
+        "create_audit_entry"
+      ],
+      "boundary": "Internal review only",
+      "output": "Redline summary and internal review disposition",
+      "runtime_role_key": "review",
+      "declarative": {
+        "agent_config": "config/agents/review-agent.yaml",
+        "prompt": "prompts/review-system.md",
+        "output_schema": "config/schemas/review-result.json"
+      }
+    },
+    {
+      "id": "agent-4",
+      "name": "Compliance Agent",
+      "role": "Check extracted terms against company policies and flag risks",
+      "kind": "agent",
+      "stage": 3,
+      "lane": 0,
+      "order": 3,
+      "model": "GPT-5.4",
+      "tools": [
+        "check_policy",
+        "flag_risk",
+        "get_policy_rules"
+      ],
+      "boundary": "Flag only",
+      "output": "Policy compliance flags and risk assessment",
+      "runtime_role_key": "compliance",
+      "declarative": {
+        "agent_config": "config/agents/compliance-agent.yaml",
+        "prompt": "prompts/compliance-system.md",
+        "output_schema": "config/schemas/compliance-result.json"
+      }
+    },
+    {
+      "id": "agent-5",
+      "name": "Negotiation Agent",
+      "role": "Assess counterparty markup and recommend fallback negotiation positions",
+      "kind": "agent",
+      "stage": 4,
+      "lane": 0,
+      "order": 4,
+      "model": "GPT-5.4",
+      "tools": [
+        "route_approval",
+        "notify_stakeholder"
+      ],
+      "boundary": "Negotiation support only",
+      "output": "Negotiation summary with fallback recommendations",
+      "runtime_role_key": "negotiation",
+      "declarative": {
+        "agent_config": "config/agents/negotiation-agent.yaml",
+        "prompt": "prompts/negotiation-system.md",
+        "output_schema": "config/schemas/negotiation-result.json"
+      }
+    },
+    {
+      "id": "agent-6",
+      "name": "Approval Agent",
+      "role": "Route contracts for approval or escalate to human review",
+      "kind": "human",
+      "stage": 5,
+      "lane": 0,
+      "order": 5,
+      "model": "GPT-5.4",
       "tools": [
         "route_approval",
         "escalate_to_human",
         "notify_stakeholder"
       ],
-      "boundary": "Approval only",
-      "output": "Decision",
+      "boundary": "Route only",
+      "output": "Routing decision and stakeholder notification",
       "runtime_role_key": "approval",
       "declarative": {
         "agent_config": "config/agents/approval-agent.yaml",
         "prompt": "prompts/approval-system.md",
         "output_schema": "config/schemas/approval-result.json"
+      }
+    },
+    {
+      "id": "agent-7",
+      "name": "Signature Agent",
+      "role": "Coordinate signature dispatch, reminders, and execution evidence",
+      "kind": "agent",
+      "stage": 6,
+      "lane": 0,
+      "order": 6,
+      "model": "GPT-5.4",
+      "tools": [
+        "notify_stakeholder",
+        "get_audit_log",
+        "create_audit_entry"
+      ],
+      "boundary": "Signature workflow only",
+      "output": "Signature completion status and audit evidence",
+      "runtime_role_key": "signature",
+      "declarative": {
+        "agent_config": "config/agents/signature-agent.yaml",
+        "prompt": "prompts/signature-system.md",
+        "output_schema": "config/schemas/signature-result.json"
+      }
+    },
+    {
+      "id": "agent-8",
+      "name": "Obligations Agent",
+      "role": "Extract obligations, milestones, and owners from the executed contract",
+      "kind": "agent",
+      "stage": 7,
+      "lane": 0,
+      "order": 7,
+      "model": "GPT-5.4",
+      "tools": [
+        "extract_clauses",
+        "extract_dates_values",
+        "notify_stakeholder"
+      ],
+      "boundary": "Post-execution obligations only",
+      "output": "Structured obligation register and owner assignments",
+      "runtime_role_key": "obligations",
+      "declarative": {
+        "agent_config": "config/agents/obligations-agent.yaml",
+        "prompt": "prompts/obligations-system.md",
+        "output_schema": "config/schemas/obligations-result.json"
+      }
+    },
+    {
+      "id": "agent-9",
+      "name": "Renewal Agent",
+      "role": "Monitor expiry windows, auto-renewal terms, and amendment triggers",
+      "kind": "agent",
+      "stage": 8,
+      "lane": 0,
+      "order": 8,
+      "model": "GPT-5.4",
+      "tools": [
+        "extract_dates_values",
+        "flag_risk",
+        "notify_stakeholder"
+      ],
+      "boundary": "Renewal and expiry monitoring only",
+      "output": "Renewal alerts and recommended action windows",
+      "runtime_role_key": "renewal",
+      "declarative": {
+        "agent_config": "config/agents/renewal-agent.yaml",
+        "prompt": "prompts/renewal-system.md",
+        "output_schema": "config/schemas/renewal-result.json"
+      }
+    },
+    {
+      "id": "agent-10",
+      "name": "Analytics Agent",
+      "role": "Summarize lifecycle throughput, risk concentration, and renewal exposure",
+      "kind": "agent",
+      "stage": 9,
+      "lane": 0,
+      "order": 9,
+      "model": "GPT-5.4",
+      "tools": [
+        "run_evaluation",
+        "get_baseline",
+        "detect_drift"
+      ],
+      "boundary": "Portfolio analytics only",
+      "output": "Lifecycle KPI summary and portfolio insights",
+      "runtime_role_key": "renewal",
+      "declarative": {
+        "agent_config": "config/agents/renewal-agent.yaml",
+        "prompt": "prompts/renewal-system.md",
+        "output_schema": "config/schemas/renewal-result.json"
       }
     }
   ]

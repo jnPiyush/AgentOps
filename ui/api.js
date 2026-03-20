@@ -150,7 +150,7 @@ function runDeployPipelineReal() {
 
 	const stages = ["stage-build", "stage-test", "stage-deploy", "stage-register"];
 
-	apiCall("POST", "/api/v1/deploy/pipeline", null, { "x-admin-key": DEPLOY_ADMIN_KEY }, 180000)
+	apiCall("POST", "/api/v1/deploy/pipeline", null, { "x-admin-key": DEPLOY_ADMIN_KEY }, 600000)
 		.then((data) => {
 			// Map backend stage names to UI stage element IDs
 			const pipelineStages = data.stages || [];

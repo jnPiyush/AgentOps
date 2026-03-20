@@ -1,11 +1,13 @@
 import { randomUUID } from "node:crypto";
-import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
+import { readdir, readFile } from "node:fs/promises";
+import { basename, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parse as parseYaml } from "yaml";
 import { type FoundryAuthMode, withFoundryAuthHeaders } from "./foundryAuth.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROMPTS_DIR = resolve(__dirname, "../../../prompts");
+const AGENTS_CONFIG_DIR = resolve(__dirname, "../../../config/agents");
 
 // --- Types ---
 
@@ -58,7 +60,8 @@ export interface FoundryDeployConfig {
 	model: string;
 }
 
-// --- Agent Definitions ---
+// --- Agent Definitions (loaded dynamically from config/agents/*.yaml) ---
+// Reads the declarative YAML configs used by agents/microsoft-framework/agents.py
 
 interface AgentDef {
 	key: string;
@@ -68,56 +71,75 @@ interface AgentDef {
 	evalPrompt: string;
 }
 
-const AGENT_DEFS: AgentDef[] = [
-	{
-		key: "intake",
-		name: "Contract Intake Agent",
-		promptFile: "intake-system.md",
-		tools: ["upload_contract", "classify_document", "extract_metadata"],
-		evalPrompt:
-			'Classify this agreement: "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc, effective January 1, 2025, for two years."',
-	},
-	{
-		key: "extraction",
-		name: "Contract Extraction Agent",
-		promptFile: "extraction-system.md",
-		tools: ["extract_clauses", "identify_parties", "extract_dates_values"],
-		evalPrompt:
-			'Extract all key clauses, parties, dates, and monetary values from this agreement: "This Master Services Agreement between TechCorp and ClientCo is effective January 1, 2025, with a total contract value of $500,000 USD and auto-renewal every 12 months."',
-	},
-	{
-		key: "review",
-		name: "Contract Internal Review Agent",
-		promptFile: "review-system.md",
-		tools: ["get_audit_log", "create_audit_entry"],
-		evalPrompt:
-			"Summarize the internal redlines for a vendor contract and identify the top three items that need legal review before compliance routing.",
-	},
-	{
-		key: "compliance",
-		name: "Contract Compliance Agent",
-		promptFile: "compliance-system.md",
-		tools: ["check_policy", "flag_risk", "get_policy_rules"],
-		evalPrompt:
-			'Assess this clause for policy risk: "Vendor liability is capped at $10,000,000 and personal data may be transferred outside approved jurisdictions."',
-	},
-	{
-		key: "negotiation",
-		name: "Contract Negotiation Agent",
-		promptFile: "negotiation-system.md",
-		tools: ["route_approval", "notify_stakeholder"],
-		evalPrompt:
-			"Assess counterparty markup that removes audit rights and increases termination notice periods, then recommend fallback language for the negotiator.",
-	},
-	{
-		key: "approval",
-		name: "Contract Approval Agent",
-		promptFile: "approval-system.md",
-		tools: ["route_approval", "escalate_to_human", "notify_stakeholder"],
-		evalPrompt:
-			'Route this contract for approval: "The contract includes a data transfer exception, a high liability cap, and two unresolved compliance warnings."',
-	},
-];
+/** Default eval prompts keyed by agent_id (used by the quick-evaluation stage). */
+const DEFAULT_EVAL_PROMPTS: Record<string, string> = {
+	intake:
+		'Classify this agreement: "This Non-Disclosure Agreement is entered into between Acme Corp and Beta Inc, effective January 1, 2025, for two years."',
+	drafting:
+		"Assemble a first-pass draft package for this vendor services contract and recommend approved clause language for the indemnification section.",
+	extraction:
+		'Extract all key clauses, parties, dates, and monetary values from this agreement: "This Master Services Agreement between TechCorp and ClientCo is effective January 1, 2025, with a total contract value of $500,000 USD and auto-renewal every 12 months."',
+	review:
+		"Summarize the internal redlines for a vendor contract and identify the top three items that need legal review before compliance routing.",
+	compliance:
+		'Assess this clause for policy risk: "Vendor liability is capped at $10,000,000 and personal data may be transferred outside approved jurisdictions."',
+	negotiation:
+		"Assess counterparty markup that removes audit rights and increases termination notice periods, then recommend fallback language for the negotiator.",
+	approval:
+		'Route this contract for approval: "The contract includes a data transfer exception, a high liability cap, and two unresolved compliance warnings."',
+	signature:
+		"Track the signature status for the NDA between Acme Corp and Beta Inc and send a reminder to the missing signatory.",
+	obligations:
+		"Convert the final NDA commitments into tracked obligations with owners and due dates.",
+	renewal:
+		"Analyze the upcoming renewal for Service Agreement SA-2025 and flag any drift from the original baseline.",
+	analytics:
+		"Run a baseline evaluation on the intake agent and compare it with the last known accuracy benchmark.",
+};
+
+/** Lazy-cached agent definitions loaded from config/agents/*.yaml */
+let _cachedAgentDefs: AgentDef[] | null = null;
+
+async function loadAgentDefsFromYaml(): Promise<AgentDef[]> {
+	let files: string[];
+	try {
+		files = (await readdir(AGENTS_CONFIG_DIR)).filter((f) => f.endsWith(".yaml") || f.endsWith(".yml"));
+	} catch {
+		return [];
+	}
+
+	const defs: AgentDef[] = [];
+	for (const file of files) {
+		const raw = await readFile(resolve(AGENTS_CONFIG_DIR, file), "utf-8");
+		const yaml = parseYaml(raw) as Record<string, unknown> | null;
+		if (!yaml?.agent_id) continue;
+
+		const key = String(yaml.agent_id);
+		const name = String(yaml.name ?? key);
+
+		// Derive prompt filename from prompts.system_prompt path
+		// e.g. "prompts/intake-system.md" -> "intake-system.md"
+		const prompts = yaml.prompts as Record<string, string> | undefined;
+		let promptFile = `${key.replace(/_/g, "-")}-system.md`;
+		if (prompts?.system_prompt) {
+			promptFile = basename(prompts.system_prompt);
+		}
+
+		const toolBindings = (yaml.tools ?? []) as Array<Record<string, unknown>>;
+		const tools = toolBindings.map((t) => String(t.name));
+		const evalPrompt =
+			DEFAULT_EVAL_PROMPTS[key] ?? `Evaluate the ${name} with a representative contract scenario.`;
+
+		defs.push({ key, name, promptFile, tools, evalPrompt });
+	}
+	return defs;
+}
+
+async function getAgentDefs(): Promise<AgentDef[]> {
+	if (_cachedAgentDefs) return _cachedAgentDefs;
+	_cachedAgentDefs = await loadAgentDefsFromYaml();
+	return _cachedAgentDefs;
+}
 
 interface AssistantFunctionTool {
 	type: "function";
@@ -128,7 +150,6 @@ interface AssistantFunctionTool {
 			type: "object";
 			properties: Record<string, never>;
 			required: string[];
-			additionalProperties: boolean;
 		};
 	};
 }
@@ -143,7 +164,6 @@ function buildAssistantTools(def: AgentDef): AssistantFunctionTool[] {
 				type: "object",
 				properties: {},
 				required: [],
-				additionalProperties: true,
 			},
 		},
 	}));
@@ -151,9 +171,9 @@ function buildAssistantTools(def: AgentDef): AssistantFunctionTool[] {
 
 // --- API Constants ---
 
-const AGENT_API_VERSION = "2024-05-01-preview";
+const AGENT_API_VERSION = "2025-05-15-preview";
 const DEPLOY_API_VERSION = "2024-10-21";
-const REQUEST_TIMEOUT_MS = 30_000;
+const REQUEST_TIMEOUT_MS = 300_000;
 
 // --- Foundry HTTP Client ---
 
@@ -174,6 +194,7 @@ async function foundryFetch(
 			"Content-Type": "application/json",
 			...(init.headers as Record<string, string> | undefined),
 		},
+		endpoint,
 	);
 
 	return fetch(`${base}${path}`, {
@@ -193,6 +214,7 @@ async function preflight(cfg: FoundryDeployConfig): Promise<StageResult> {
 		const res = await foundryFetch(cfg, cfg.endpoint, `/openai/models?api-version=${DEPLOY_API_VERSION}`);
 		if (!res.ok) {
 			const text = await res.text();
+			console.error(`[deploy] Preflight FAILED (${res.status}): ${text.slice(0, 500)}`);
 			return {
 				name: "Preflight",
 				status: "failed",
@@ -211,6 +233,7 @@ async function preflight(cfg: FoundryDeployConfig): Promise<StageResult> {
 			},
 		};
 	} catch (err) {
+		console.error(`[deploy] Preflight EXCEPTION:`, err);
 		return {
 			name: "Preflight",
 			status: "failed",
@@ -257,6 +280,7 @@ async function verifyModel(cfg: FoundryDeployConfig): Promise<StageResult> {
 		}
 
 		if (res.status === 404) {
+			console.error(`[deploy] Model Deployment FAILED: deployment '${cfg.model}' not found`);
 			return {
 				name: "Model Deployment",
 				status: "failed",
@@ -265,6 +289,7 @@ async function verifyModel(cfg: FoundryDeployConfig): Promise<StageResult> {
 			};
 		}
 
+		console.error(`[deploy] Model Deployment FAILED (${res.status})`);
 		return {
 			name: "Model Deployment",
 			status: "failed",
@@ -272,6 +297,7 @@ async function verifyModel(cfg: FoundryDeployConfig): Promise<StageResult> {
 			error: `Model check failed (${res.status}). Verify API permissions.`,
 		};
 	} catch (err) {
+		console.error(`[deploy] Model Deployment EXCEPTION:`, err);
 		return {
 			name: "Model Deployment",
 			status: "failed",
@@ -295,12 +321,23 @@ interface ExistingAssistant {
 	id: string;
 	name: string;
 	metadata?: Record<string, string>;
+	versions?: {
+		latest?: {
+			definition?: {
+				metadata?: Record<string, string>;
+			};
+		};
+	};
+}
+
+function getAgentMetadata(agent: ExistingAssistant): Record<string, string> | undefined {
+	return agent.versions?.latest?.definition?.metadata ?? agent.metadata;
 }
 
 async function listExistingAgents(cfg: FoundryDeployConfig): Promise<ExistingAssistant[]> {
 	const agentEndpoint = cfg.projectEndpoint || cfg.endpoint;
 	try {
-		const res = await foundryFetch(cfg, agentEndpoint, `/openai/assistants?api-version=${AGENT_API_VERSION}&limit=100`);
+		const res = await foundryFetch(cfg, agentEndpoint, `/assistants?api-version=${AGENT_API_VERSION}&limit=100`);
 		if (!res.ok) return [];
 		const data = (await res.json()) as { data?: ExistingAssistant[] };
 		return Array.isArray(data.data) ? data.data : [];
@@ -315,19 +352,23 @@ async function registerAgents(cfg: FoundryDeployConfig): Promise<{ stage: StageR
 	const errors: string[] = [];
 
 	const agentEndpoint = cfg.projectEndpoint || cfg.endpoint;
+	console.log(`[deploy] Register: using endpoint ${agentEndpoint}`);
 
 	// List existing agents to avoid duplicates
 	const existing = await listExistingAgents(cfg);
+	console.log(`[deploy] Register: found ${existing.length} existing agents`);
 	const existingByName = new Map(
-		existing.filter((a) => a.metadata?.domain === "contract-management").map((a) => [a.name, a]),
+		existing.filter((a) => getAgentMetadata(a)?.domain === "contract-management").map((a) => [a.name, a]),
 	);
 
+	const AGENT_DEFS = await getAgentDefs();
 	for (const def of AGENT_DEFS) {
 		try {
 			const existingAgent = existingByName.get(def.name);
 
 			// Re-use existing agent if already registered
 			if (existingAgent) {
+				console.log(`[deploy] REUSED ${def.name} -> id=${existingAgent.id} (name=${existingAgent.name})`);
 				agents.push({
 					agent_name: def.name,
 					foundry_agent_id: existingAgent.id,
@@ -340,7 +381,7 @@ async function registerAgents(cfg: FoundryDeployConfig): Promise<{ stage: StageR
 
 			const instructions = await loadPrompt(def.promptFile);
 
-			const res = await foundryFetch(cfg, agentEndpoint, `/openai/assistants?api-version=${AGENT_API_VERSION}`, {
+			const res = await foundryFetch(cfg, agentEndpoint, `/assistants?api-version=${AGENT_API_VERSION}`, {
 				method: "POST",
 				body: JSON.stringify({
 					model: cfg.model,
@@ -360,6 +401,7 @@ async function registerAgents(cfg: FoundryDeployConfig): Promise<{ stage: StageR
 
 			if (!res.ok) {
 				const errText = await res.text();
+				console.error(`[deploy] Register ${def.name} FAILED (${res.status}): ${errText.slice(0, 500)}`);
 				errors.push(`${def.name}: ${res.status} - ${errText.slice(0, 150)}`);
 				agents.push({
 					agent_name: def.name,
@@ -372,6 +414,7 @@ async function registerAgents(cfg: FoundryDeployConfig): Promise<{ stage: StageR
 			}
 
 			const data = (await res.json()) as { id: string };
+			console.log(`[deploy] CREATED ${def.name} -> id=${data.id}`);
 			agents.push({
 				agent_name: def.name,
 				foundry_agent_id: data.id,
@@ -381,6 +424,7 @@ async function registerAgents(cfg: FoundryDeployConfig): Promise<{ stage: StageR
 			});
 		} catch (err) {
 			const msg = err instanceof Error ? err.message : "Unknown error";
+			console.error(`[deploy] Register ${def.name} EXCEPTION:`, err);
 			errors.push(`${def.name}: ${msg}`);
 			agents.push({
 				agent_name: def.name,
@@ -404,7 +448,7 @@ async function registerAgents(cfg: FoundryDeployConfig): Promise<{ stage: StageR
 				total: agents.length,
 				reused,
 				created: registered - reused,
-				tool_definitions_registered: AGENT_DEFS.reduce((sum, def) => sum + def.tools.length, 0),
+				tool_definitions_registered: AGENT_DEFS.reduce((sum, d) => sum + d.tools.length, 0),
 			},
 			error: errors.length > 0 ? errors.join("; ") : undefined,
 		},
@@ -587,6 +631,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 		let passed = 0;
 		const failures: string[] = [];
 
+		const AGENT_DEFS = await getAgentDefs();
 		for (const agent of registeredAgents) {
 			const agentDef = AGENT_DEFS.find((definition) => definition.name === agent.agent_name);
 			if (!agentDef) {
@@ -594,7 +639,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 				continue;
 			}
 
-			const threadRes = await foundryFetch(cfg, agentEndpoint, `/openai/threads?api-version=${AGENT_API_VERSION}`, {
+			const threadRes = await foundryFetch(cfg, agentEndpoint, `/threads?api-version=${AGENT_API_VERSION}`, {
 				method: "POST",
 				body: JSON.stringify({}),
 			});
@@ -607,7 +652,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 			const msgRes = await foundryFetch(
 				cfg,
 				agentEndpoint,
-				`/openai/threads/${thread.id}/messages?api-version=${AGENT_API_VERSION}`,
+				`/threads/${thread.id}/messages?api-version=${AGENT_API_VERSION}`,
 				{
 					method: "POST",
 					body: JSON.stringify({
@@ -618,7 +663,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 			);
 			if (!msgRes.ok) {
 				failures.push(`${agent.agent_name}: message creation failed (${msgRes.status})`);
-				foundryFetch(cfg, agentEndpoint, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
+				foundryFetch(cfg, agentEndpoint, `/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
 					method: "DELETE",
 				}).catch(() => {});
 				continue;
@@ -627,7 +672,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 			const runRes = await foundryFetch(
 				cfg,
 				agentEndpoint,
-				`/openai/threads/${thread.id}/runs?api-version=${AGENT_API_VERSION}`,
+				`/threads/${thread.id}/runs?api-version=${AGENT_API_VERSION}`,
 				{
 					method: "POST",
 					body: JSON.stringify({ assistant_id: agent.foundry_agent_id }),
@@ -635,7 +680,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 			);
 			if (!runRes.ok) {
 				failures.push(`${agent.agent_name}: run creation failed (${runRes.status})`);
-				foundryFetch(cfg, agentEndpoint, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
+				foundryFetch(cfg, agentEndpoint, `/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
 					method: "DELETE",
 				}).catch(() => {});
 				continue;
@@ -649,7 +694,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 				const pollRes = await foundryFetch(
 					cfg,
 					agentEndpoint,
-					`/openai/threads/${thread.id}/runs/${run.id}?api-version=${AGENT_API_VERSION}`,
+					`/threads/${thread.id}/runs/${run.id}?api-version=${AGENT_API_VERSION}`,
 				);
 				if (pollRes.ok) {
 					const data = (await pollRes.json()) as { status: string };
@@ -658,7 +703,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 				polls++;
 			}
 
-			foundryFetch(cfg, agentEndpoint, `/openai/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
+			foundryFetch(cfg, agentEndpoint, `/threads/${thread.id}?api-version=${AGENT_API_VERSION}`, {
 				method: "DELETE",
 			}).catch(() => {});
 
@@ -714,7 +759,7 @@ async function healthCheck(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[])
 			const res = await foundryFetch(
 				cfg,
 				agentEndpoint,
-				`/openai/assistants/${agent.foundry_agent_id}?api-version=${AGENT_API_VERSION}`,
+				`/assistants/${agent.foundry_agent_id}?api-version=${AGENT_API_VERSION}`,
 			);
 			if (res.ok) healthy++;
 		} catch {
@@ -732,7 +777,8 @@ async function healthCheck(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[])
 
 // --- Simulation Fallback ---
 
-function simulatedDeploy(): DeployPipelineResult {
+async function simulatedDeploy(): Promise<DeployPipelineResult> {
+	const AGENT_DEFS = await getAgentDefs();
 	const stages: StageResult[] = [
 		{
 			name: "Preflight",
@@ -788,7 +834,7 @@ function simulatedDeploy(): DeployPipelineResult {
 
 	const agents: FoundryAgentInfo[] = AGENT_DEFS.map((def) => ({
 		agent_name: def.name,
-		foundry_agent_id: `asst_sim_${randomUUID().slice(0, 12)}`,
+		foundry_agent_id: `agent_sim_${randomUUID().slice(0, 12)}`,
 		model: "gpt-5.4",
 		status: "registered" as const,
 		tools_count: def.tools.length,
@@ -837,6 +883,7 @@ export async function deployToFoundry(
 	const s1 = await preflight(cfg);
 	stages.push(s1);
 	onProgress?.(s1);
+	console.log(`[deploy] Stage 1 Preflight: ${s1.status}${s1.error ? ` - ${s1.error}` : ""}`);
 	if (s1.status === "failed") {
 		return buildResult(pipelineId, "live", stages, agents);
 	}
@@ -845,6 +892,7 @@ export async function deployToFoundry(
 	const s2 = await verifyModel(cfg);
 	stages.push(s2);
 	onProgress?.(s2);
+	console.log(`[deploy] Stage 2 Model: ${s2.status}${s2.error ? ` - ${s2.error}` : ""}`);
 	if (s2.status === "failed") {
 		return buildResult(pipelineId, "live", stages, agents);
 	}
@@ -854,26 +902,30 @@ export async function deployToFoundry(
 	stages.push(reg.stage);
 	agents = reg.agents;
 	onProgress?.(reg.stage);
+	console.log(`[deploy] Stage 3 Register: ${reg.stage.status}${reg.stage.error ? ` - ${reg.stage.error}` : ""}`);
 
 	// Stage 4: Content Safety
 	const s4 = await verifySafety(cfg);
 	stages.push(s4);
 	onProgress?.(s4);
+	console.log(`[deploy] Stage 4 Safety: ${s4.status}${s4.error ? ` - ${s4.error}` : ""}`);
 
 	// Stage 5: Evaluation
 	const s5 = await runEvaluation(cfg, agents);
 	stages.push(s5);
 	onProgress?.(s5);
+	console.log(`[deploy] Stage 5 Eval: ${s5.status}${s5.error ? ` - ${s5.error}` : ""}`);
 
 	// Stage 6: Health Check
 	const s6 = await healthCheck(cfg, agents);
 	stages.push(s6);
 	onProgress?.(s6);
+	console.log(`[deploy] Stage 6 Health: ${s6.status}${s6.error ? ` - ${s6.error}` : ""}`);
 
 	return buildResult(pipelineId, "live", stages, agents);
 }
 
-export function deploySimulated(): DeployPipelineResult {
+export async function deploySimulated(): Promise<DeployPipelineResult> {
 	return simulatedDeploy();
 }
 
@@ -887,7 +939,7 @@ export async function cleanupAgents(
 
 	for (const id of agentIds) {
 		try {
-			const res = await foundryFetch(cfg, agentEndpoint, `/openai/assistants/${id}?api-version=${AGENT_API_VERSION}`, {
+			const res = await foundryFetch(cfg, agentEndpoint, `/assistants/${id}?api-version=${AGENT_API_VERSION}`, {
 				method: "DELETE",
 			});
 			if (res.ok || res.status === 404) {
