@@ -12,6 +12,7 @@
 		"start": "tsx start.ts",
 		"start:prod": "node dist/start.js",
 		"start:gateway": "npm run start -w gateway",
+		"eval:gate": "tsx scripts/run-canonical-eval.ts",
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"lint": "biome check .",

@@ -38,4 +38,5 @@
 - 2026-03-19: The active business workflow is again the full 10-stage CLM baseline: Intake, Drafting, Review, Compliance, Negotiation, Approval, Signature, Obligations, Renewal, Analytics. Keep Contract Lifecycle separate from AgentOps in docs, tests, and UI.
 - 2026-03-19: Intake outputs must include `contract_category`, `source_channel`, and `compliance_needs` in addition to contract type and confidence. When intake schemas widen, update the agent YAML `validation.required_fields`, template, examples, prompt, deterministic engine, and intake adapter together.
 - 2026-03-19: Root README claims must distinguish current integrated runtime behavior from target architecture. For this repo, the integrated runtime is the TypeScript gateway plus MCP stack; the Python MAF executor is a documented implementation track, not the root app's primary execution path yet.
+- 2026-03-20: Treat `scripts/run-canonical-eval.ts` and the eval MCP engine as the only release gate for AI quality. Route-level or deployment-level smoke tests can supplement it, but they must not define their own accuracy corpus or weaker pass criteria.
 

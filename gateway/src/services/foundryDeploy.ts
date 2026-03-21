@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { evaluateVersion } from "../../../mcp-servers/contract-eval-mcp/src/engine.js";
 import { type FoundryAuthMode, withFoundryAuthHeaders } from "./foundryAuth.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,6 +41,10 @@ export interface DeployPipelineResult {
 		test_count: number;
 		passed: number;
 		accuracy: number;
+		quality_gate?: "PASS" | "FAIL";
+		relevance?: number;
+		groundedness?: number;
+		coherence?: number;
 	};
 	summary: {
 		agents_deployed: number;
@@ -584,7 +589,7 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 	}
 
 	try {
-		let passed = 0;
+		let smokePassed = 0;
 		const failures: string[] = [];
 
 		for (const agent of registeredAgents) {
@@ -663,22 +668,38 @@ async function runEvaluation(cfg: FoundryDeployConfig, agents: FoundryAgentInfo[
 			}).catch(() => {});
 
 			if (runStatus === "completed") {
-				passed++;
+				smokePassed++;
 			} else {
 				failures.push(`${agent.agent_name}: run ended with status ${runStatus}`);
 			}
 		}
 
-		const total = registeredAgents.length;
+		const smokeTotal = registeredAgents.length;
+		const canonicalEval = evaluateVersion(cfg.model);
+		const smokeComplete = smokePassed === smokeTotal;
+		const canonicalPassed = canonicalEval.quality_gate === "PASS";
+		if (!canonicalPassed) {
+			failures.push(
+				`canonical evaluation failed for ${cfg.model}: ${canonicalEval.passed}/${canonicalEval.total_cases} cases passed (${canonicalEval.accuracy}%), relevance ${canonicalEval.judge_scores.relevance}, groundedness ${canonicalEval.judge_scores.groundedness}`,
+			);
+		}
+
 		return {
 			name: "Evaluation",
-			status: passed === total ? "passed" : passed > 0 ? "passed" : "failed",
+			status: smokeComplete && canonicalPassed ? "passed" : "failed",
 			duration_ms: Date.now() - t0,
 			details: {
-				test_count: total,
-				passed,
-				accuracy: total === 0 ? 0 : Math.round((passed / total) * 100),
-				agents_tested: total,
+				test_count: canonicalEval.total_cases,
+				passed: canonicalEval.passed,
+				accuracy: canonicalEval.accuracy,
+				agents_tested: smokeTotal,
+				smoke_test_count: smokeTotal,
+				smoke_passed: smokePassed,
+				smoke_accuracy: smokeTotal === 0 ? 0 : Math.round((smokePassed / smokeTotal) * 100),
+				quality_gate: canonicalEval.quality_gate,
+				relevance: canonicalEval.judge_scores.relevance,
+				groundedness: canonicalEval.judge_scores.groundedness,
+				coherence: canonicalEval.judge_scores.coherence,
 			},
 			error: failures.length > 0 ? failures.join("; ") : undefined,
 		};
@@ -811,7 +832,15 @@ function simulatedDeploy(): DeployPipelineResult {
 				{ check: "PII redaction configured", status: "passed" },
 			],
 		},
-		evaluation: { test_count: 4, passed: 4, accuracy: 100 },
+		evaluation: {
+			test_count: 57,
+			passed: 57,
+			accuracy: 100,
+			quality_gate: "PASS",
+			relevance: 4.6,
+			groundedness: 4.4,
+			coherence: 4.7,
+		},
 		summary: {
 			agents_deployed: AGENT_DEFS.length,
 			tools_registered: AGENT_DEFS.reduce((sum, agent) => sum + agent.tools.length, 0),
@@ -948,11 +977,19 @@ function buildResult(
 			],
 		},
 		evaluation:
-			stages.find((s) => s.name === "Evaluation")?.status === "passed"
+			stages.find((s) => s.name === "Evaluation")?.details
 				? {
-						test_count: (stages.find((s) => s.name === "Evaluation")?.details?.test_count as number) ?? 1,
-						passed: (stages.find((s) => s.name === "Evaluation")?.details?.passed as number) ?? 1,
-						accuracy: (stages.find((s) => s.name === "Evaluation")?.details?.accuracy as number) ?? 100,
+						test_count: (stages.find((s) => s.name === "Evaluation")?.details?.test_count as number) ?? 0,
+						passed: (stages.find((s) => s.name === "Evaluation")?.details?.passed as number) ?? 0,
+						accuracy: (stages.find((s) => s.name === "Evaluation")?.details?.accuracy as number) ?? 0,
+						quality_gate: stages.find((s) => s.name === "Evaluation")?.details?.quality_gate as
+							| "PASS"
+							| "FAIL"
+							| undefined,
+						relevance: (stages.find((s) => s.name === "Evaluation")?.details?.relevance as number) ?? undefined,
+						groundedness:
+							(stages.find((s) => s.name === "Evaluation")?.details?.groundedness as number) ?? undefined,
+						coherence: (stages.find((s) => s.name === "Evaluation")?.details?.coherence as number) ?? undefined,
 					}
 				: undefined,
 		summary: {

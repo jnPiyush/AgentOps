@@ -102,6 +102,16 @@ if ($status.summary.errors -gt 0) {
     throw "Deployment pipeline reported $($status.summary.errors) error(s)."
 }
 
+if ($mode.mode -eq "live") {
+    if (-not $status.evaluation) {
+        throw "Live deployment did not return canonical evaluation results."
+    }
+
+    if ($status.evaluation.quality_gate -ne "PASS") {
+        throw "Canonical evaluation quality gate failed for live deployment."
+    }
+}
+
 if (-not $status.stages -or $status.stages.Count -lt 4) {
     throw "Deployment pipeline did not report the expected stages."
 }

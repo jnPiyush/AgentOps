@@ -39,3 +39,4 @@
 - 2026-03-18: Added automated asset-governance checks in `tests/ai-assets.test.ts` so agent YAML `output_template` bindings and prompt metadata headers are validated by the test suite instead of relying on manual review.
 - 2026-03-19: Replaced the active 6-stage pre-execution business baseline with the full 10-stage CLM baseline in the declarative stage catalog, workflow registry tests, canonical docs, and default UI workflow seed.
 - 2026-03-19: Enriched intake classification to return contract category, source channel, industry, counterparty type, intake risk, and compliance-needs signals so commercial and corporate contracts can route cleanly from DB, email, API, or file sources.
+- 2026-03-20: Canonical evaluation now comes only from `mcp-servers/contract-eval-mcp/src/engine.ts`. Gateway evaluation routes, live deployment verification, and CI/deploy workflows must use that shared gate instead of synthetic 20-case checks.

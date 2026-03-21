@@ -530,7 +530,7 @@ function simulateEvaluation(version: string): EvalResult {
 }
 
 export async function runEvalSuite(version: string): Promise<EvalResult> {
-	const result = simulateEvaluation(version);
+	const result = evaluateVersion(version);
 
 	// Persist result
 	const evalPath = resolve(DATA_DIR, "evaluations.json");
@@ -557,10 +557,14 @@ export async function getEvalResults(): Promise<EvalResult[]> {
 	}
 }
 
+export function evaluateVersion(version: string): EvalResult {
+	return simulateEvaluation(version);
+}
+
 export function getGroundTruth(): GroundTruth[] {
 	return GROUND_TRUTH;
 }
 
 export function getBaseline(): EvalResult {
-	return simulateEvaluation("v1.2");
+	return evaluateVersion("v1.2");
 }

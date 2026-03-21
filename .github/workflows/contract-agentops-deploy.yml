@@ -75,6 +75,9 @@ jobs:
       - name: Test
         run: npm test
 
+      - name: Canonical evaluation gate
+        run: npm run eval:gate
+
       - name: Build
         run: npm run build
 
