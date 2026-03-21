@@ -1,12 +1,12 @@
 {
-  "id": "pkg-wf-audit-mmxh4meu-v-20260319125614-d5d8d3",
-  "workflow_id": "wf-audit-mmxh4meu",
+  "id": "pkg-wf-audit-mmzqgj0x-v-20260321025258-1a2d33",
+  "workflow_id": "wf-audit-mmzqgj0x",
   "workflow_name": "Audit Stage Flow",
-  "workflow_version": "v-20260319125614-d5d8d3",
-  "activated_at": "2026-03-19T12:56:14.460Z",
+  "workflow_version": "v-20260321025258-1a2d33",
+  "activated_at": "2026-03-21T02:52:58.846Z",
   "authoring_source": {
-    "workflow_definition_id": "wf-audit-mmxh4meu",
-    "updated_at": "2026-03-19T12:56:14.454Z"
+    "workflow_definition_id": "wf-audit-mmzqgj0x",
+    "updated_at": "2026-03-21T02:52:58.834Z"
   },
   "execution_topology": "sequential-hitl",
   "mode_policy": {

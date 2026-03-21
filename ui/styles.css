@@ -90,7 +90,7 @@ body {
 	align-items: center;
 	justify-content: space-between;
 	padding: 0 var(--space-lg);
-	height: 56px;
+	min-height: 64px;
 	background: var(--color-bg-card);
 	border-bottom: 1px solid #3a3a3a;
 	flex-shrink: 0;
@@ -100,9 +100,29 @@ body {
 	display: flex;
 	align-items: center;
 	gap: var(--space-sm);
+	color: var(--color-text-primary);
+}
+
+.nav-logo-text {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	justify-content: center;
+	line-height: 1.1;
+}
+
+.nav-logo-title {
 	font-size: 18px;
 	font-weight: 700;
-	color: var(--color-text-primary);
+	white-space: nowrap;
+}
+
+.nav-logo-subtitle {
+	margin-top: 2px;
+	font-size: 11px;
+	font-weight: 500;
+	color: var(--color-text-tertiary);
+	white-space: nowrap;
 }
 
 .nav-logo-icon {
