@@ -1,0 +1,19 @@
+{
+	"counterparty_positions": [
+		{
+			"clause": "payment_schedule",
+			"counterparty_position": "20/30/50 milestone split",
+			"our_position": "30/40/30 standard split",
+			"risk": "medium"
+		}
+	],
+	"fallback_recommendations": [
+		{
+			"clause": "payment_schedule",
+			"recommendation": "Accept 25/35/40 as compromise with performance holdback clause",
+			"rationale": "Reduces back-loaded payment risk while accommodating counterparty cash flow"
+		}
+	],
+	"escalation_required": false,
+	"confidence_score": 0.80
+}

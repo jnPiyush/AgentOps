@@ -1,0 +1,19 @@
+{
+	"counterparty_positions": [
+		{
+			"clause": "sub_processor_approval",
+			"counterparty_position": "15-day notice period for new sub-processors",
+			"our_position": "30-day notice period",
+			"risk": "low"
+		}
+	],
+	"fallback_recommendations": [
+		{
+			"clause": "sub_processor_approval",
+			"recommendation": "Accept 20-day notice with expedited review for pre-approved sub-processor list",
+			"rationale": "Balances operational agility with data protection oversight"
+		}
+	],
+	"escalation_required": false,
+	"confidence_score": 0.85
+}

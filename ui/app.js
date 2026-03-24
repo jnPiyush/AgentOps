@@ -147,20 +147,20 @@ function deriveAgentRoleKey(agent) {
 		return "negotiation";
 	}
 
-	if (text.includes("signature") || text.includes("execution") || text.includes("signing")) {
-		return "signature";
+	if (text.includes("analytic") || text.includes("insight") || text.includes("reporting")) {
+		return "analytics";
 	}
 
 	if (text.includes("obligation") || text.includes("post-execution") || text.includes("milestone")) {
 		return "obligations";
 	}
 
-	if (text.includes("renewal") || text.includes("expiry") || text.includes("expiration")) {
-		return "renewal";
+	if (text.includes("signature") || text.includes("execution") || text.includes("signing")) {
+		return "signature";
 	}
 
-	if (text.includes("analytic") || text.includes("insight") || text.includes("reporting")) {
-		return "analytics";
+	if (text.includes("renewal") || text.includes("expiry") || text.includes("expiration")) {
+		return "renewal";
 	}
 
 	if (
@@ -199,7 +199,7 @@ function deriveAgentRoleKey(agent) {
 
 function getAgentNodeId(agent) {
 	const roleKey = deriveAgentRoleKey(agent);
-	if (["intake", "drafting", "extraction", "review", "compliance", "negotiation", "approval"].includes(roleKey)) {
+	if (["intake", "drafting", "extraction", "review", "compliance", "negotiation", "approval", "signature", "obligations", "renewal", "analytics"].includes(roleKey)) {
 		return `wf-${roleKey}`;
 	}
 	return `wf-${String(agent?.id || roleKey)
@@ -209,7 +209,7 @@ function getAgentNodeId(agent) {
 
 window.getWorkflowNodeIdForAgentName = function getWorkflowNodeIdForAgentName(agentName) {
 	const normalized = normalizeRoleKey(agentName);
-	if (["intake", "drafting", "extraction", "review", "compliance", "negotiation", "approval"].includes(normalized)) {
+	if (["intake", "drafting", "extraction", "review", "compliance", "negotiation", "approval", "signature", "obligations", "renewal", "analytics"].includes(normalized)) {
 		return `wf-${normalized}`;
 	}
 	return `wf-${normalized.replace(/[^a-z0-9_-]/gi, "-")}`;
@@ -1033,6 +1033,10 @@ function syncLiveTab() {
 		negotiation: "#b45309",
 		approval: "var(--color-approval)",
 		human: "var(--color-approval)",
+		signature: "#0d9488",
+		obligations: "#7c3aed",
+		renewal: "#059669",
+		analytics: "#2563eb",
 	};
 
 	function getColor(agent) {

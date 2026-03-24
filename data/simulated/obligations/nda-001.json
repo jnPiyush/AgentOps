@@ -1,0 +1,18 @@
+{
+	"obligations": [
+		{
+			"title": "Maintain confidentiality of disclosed information",
+			"owner": "Both Parties",
+			"due_window": "duration of agreement + 3 years"
+		},
+		{
+			"title": "Return or destroy confidential materials upon termination",
+			"owner": "Receiving Party",
+			"due_window": "30 days post-termination"
+		}
+	],
+	"owner_assignments": ["Both Parties", "Receiving Party"],
+	"total_obligations": 2,
+	"follow_up_window_days": 30,
+	"confidence_score": 0.93
+}

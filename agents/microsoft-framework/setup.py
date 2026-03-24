@@ -31,7 +31,13 @@ class MicrosoftAgentFrameworkSetup:
         self.env_file = self.project_root / ".env"
     
     def check_python_version(self):
-        """Check Python version compatibility"""
+        """Check Python version compatibility.
+
+        Verifies that the current Python interpreter is version 3.9 or higher,
+        which is the minimum required by the framework's dependencies (pydantic v2,
+        opentelemetry, azure-identity). Logs the detected version and returns
+        False if the requirement is not met.
+        """
         logger.info("Checking Python version...")
         
         version_info = sys.version_info
@@ -43,7 +49,12 @@ class MicrosoftAgentFrameworkSetup:
         return True
     
     def create_virtual_environment(self):
-        """Create Python virtual environment"""
+        """Create a dedicated Python virtual environment for the framework.
+
+        Creates a venv/ directory inside agents/microsoft-framework/ to isolate
+        the framework's dependencies from the system Python. Skips creation if
+        the venv already exists so this method is safe to call repeatedly.
+        """
         logger.info("Creating virtual environment...")
         
         if self.venv_path.exists():
@@ -60,14 +71,23 @@ class MicrosoftAgentFrameworkSetup:
             return False
     
     def get_pip_executable(self):
-        """Get pip executable path for the virtual environment"""
+        """Return the platform-specific path to the pip binary inside the venv.
+
+        On Windows the executable lives at venv/Scripts/pip.exe; on Unix-like
+        systems it is at venv/bin/pip.
+        """
         if os.name == 'nt':  # Windows
             return self.venv_path / "Scripts" / "pip.exe"
         else:  # Unix/Linux/macOS
             return self.venv_path / "bin" / "pip"
     
     def install_dependencies(self):
-        """Install Python dependencies"""
+        """Install all Python packages listed in requirements.txt.
+
+        First upgrades pip itself, then installs requirements with the --pre
+        flag enabled so that preview/alpha packages (e.g. agent-framework-azure-ai)
+        can be resolved. Logs stdout/stderr on failure to aid debugging.
+        """
         logger.info("Installing dependencies...")
         
         if not self.requirements_file.exists():
@@ -95,7 +115,12 @@ class MicrosoftAgentFrameworkSetup:
             return False
     
     def setup_environment_file(self):
-        """Set up environment configuration file"""
+        """Copy the .env.template to .env if it does not already exist.
+
+        The .env file holds secrets (FOUNDRY_API_KEY) and local overrides that
+        config.py reads via pydantic-settings. Skips the copy when .env is
+        already present so user edits are never overwritten.
+        """
         logger.info("Setting up environment configuration...")
         
         if self.env_file.exists():
@@ -116,7 +141,14 @@ class MicrosoftAgentFrameworkSetup:
             return False
     
     def verify_installation(self):
-        """Verify the installation by importing modules"""
+        """Smoke-test the venv by importing core dependencies.
+
+        Spawns a subprocess using the venv's Python interpreter and attempts to
+        import pydantic, yaml, and opentelemetry. Also tries the Microsoft Agent
+        Framework SDK import, but treats its absence as a warning (the SDK is
+        still in preview and may not be published yet). Returns False only if
+        core dependencies are missing.
+        """
         logger.info("Verifying installation...")
         
         python_exe = self.venv_path / ("Scripts/python.exe" if os.name == 'nt' else "bin/python")
@@ -164,7 +196,11 @@ except ImportError as e:
             return False
     
     def print_next_steps(self):
-        """Print next steps for the user"""
+        """Print post-setup instructions to the console.
+
+        Shows the user how to activate the venv, edit credentials in .env,
+        start the MCP servers, and run the demo script.
+        """
         print("\n" + "="*60)
         print("Microsoft Agent Framework Setup Complete!")
         print("="*60)
@@ -190,7 +226,12 @@ except ImportError as e:
         print()
     
     def run_setup(self):
-        """Run complete setup process"""
+        """Execute all five setup steps in sequence.
+
+        Steps: Python version check -> venv creation -> dependency install ->
+        .env configuration -> import verification. Stops on the first failure
+        and reports which step failed. On success, prints next-step guidance.
+        """
         logger.info("Starting Microsoft Agent Framework setup...")
         
         steps = [
@@ -212,7 +253,10 @@ except ImportError as e:
 
 
 def main():
-    """Main entry point"""
+    """Main entry point -- instantiate setup and run all steps.
+
+    Exits with code 0 on success, 1 on failure or keyboard interrupt.
+    """
     try:
         setup = MicrosoftAgentFrameworkSetup()
         success = setup.run_setup()

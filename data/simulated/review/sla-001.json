@@ -1,0 +1,12 @@
+{
+	"review_summary": "Service Level Agreement with 99.9% uptime commitment. Credit structure is reasonable but escalation procedures lack specificity for P1 incidents.",
+	"material_changes": [],
+	"unresolved_items": [
+		{
+			"item": "P1 escalation timeline",
+			"description": "No defined response time for Priority 1 incidents beyond initial acknowledgment",
+			"priority": "medium"
+		}
+	],
+	"confidence_score": 0.90
+}

@@ -1,0 +1,25 @@
+{
+	"counterparty_positions": [
+		{
+			"clause": "indemnification",
+			"counterparty_position": "Unlimited indemnification for IP infringement",
+			"our_position": "Cap at 2x annual contract value",
+			"risk": "medium"
+		},
+		{
+			"clause": "termination_for_convenience",
+			"counterparty_position": "90-day notice period",
+			"our_position": "30-day notice period",
+			"risk": "low"
+		}
+	],
+	"fallback_recommendations": [
+		{
+			"clause": "indemnification",
+			"recommendation": "Accept mutual cap at 3x annual contract value as compromise",
+			"rationale": "Industry standard for MSAs of this scope"
+		}
+	],
+	"escalation_required": false,
+	"confidence_score": 0.82
+}

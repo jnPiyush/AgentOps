@@ -3,7 +3,6 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"build": "tsc -p tsconfig.json --noEmit false"
 	},
 	"dependencies": {
 		"yaml": "^2.8.2"

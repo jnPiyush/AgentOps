@@ -1,0 +1,28 @@
+{
+	"obligations": [
+		{
+			"title": "Deliver monthly service reports",
+			"owner": "Service Delivery Lead",
+			"due_window": "monthly"
+		},
+		{
+			"title": "Maintain professional liability insurance ($5M minimum)",
+			"owner": "Vendor Risk Management",
+			"due_window": "annual renewal"
+		},
+		{
+			"title": "Conduct quarterly business reviews",
+			"owner": "Account Manager",
+			"due_window": "quarterly"
+		},
+		{
+			"title": "Comply with data protection addendum",
+			"owner": "Data Protection Officer",
+			"due_window": "continuous"
+		}
+	],
+	"owner_assignments": ["Service Delivery Lead", "Vendor Risk Management", "Account Manager", "Data Protection Officer"],
+	"total_obligations": 4,
+	"follow_up_window_days": 30,
+	"confidence_score": 0.88
+}

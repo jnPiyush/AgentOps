@@ -1,0 +1,8 @@
+{
+	"signature_status": "pending",
+	"pending_signers": ["Counterparty CFO"],
+	"completed_signers": ["Acme Corporation - CEO", "Acme Corporation - Legal"],
+	"next_action": "Send reminder to counterparty CFO - 5 business days remaining",
+	"execution_date": null,
+	"confidence_score": 0.88
+}

@@ -1,0 +1,28 @@
+{
+	"obligations": [
+		{
+			"title": "Complete Phase 1 assessment and planning",
+			"owner": "Project Manager",
+			"due_window": "60 days from execution"
+		},
+		{
+			"title": "Deliver Phase 2 data migration",
+			"owner": "Technical Lead",
+			"due_window": "120 days from execution"
+		},
+		{
+			"title": "Complete Phase 3 go-live and hypercare",
+			"owner": "Delivery Director",
+			"due_window": "180 days from execution"
+		},
+		{
+			"title": "Submit milestone payment invoices per schedule",
+			"owner": "Finance Team",
+			"due_window": "within 10 business days of milestone acceptance"
+		}
+	],
+	"owner_assignments": ["Project Manager", "Technical Lead", "Delivery Director", "Finance Team"],
+	"total_obligations": 4,
+	"follow_up_window_days": 14,
+	"confidence_score": 0.85
+}

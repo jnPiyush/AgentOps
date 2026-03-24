@@ -1,0 +1,9 @@
+{
+	"renewal_window_days": 60,
+	"risk_level": "medium",
+	"contracts_due": 1,
+	"recommended_actions": ["Review SLA performance metrics before renewal", "Negotiate improved credit terms based on historical performance", "Evaluate alternative providers as leverage"],
+	"expiry_date": "2027-03-21",
+	"auto_renewal": true,
+	"confidence_score": 0.88
+}

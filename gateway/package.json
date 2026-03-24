@@ -3,10 +3,6 @@
 	"version": "1.0.0",
 	"type": "module",
 	"scripts": {
-		"build": "tsc -p tsconfig.json --noEmit false",
-		"start": "tsx src/index.ts",
-		"start:prod": "node dist/gateway/src/index.js",
-		"dev": "tsx watch src/index.ts"
 	},
 	"dependencies": {
 		"@azure/identity": "^4.13.0",

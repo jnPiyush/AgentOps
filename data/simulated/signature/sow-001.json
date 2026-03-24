@@ -1,0 +1,8 @@
+{
+	"signature_status": "pending",
+	"pending_signers": ["Project Sponsor", "Counterparty PM"],
+	"completed_signers": ["Acme Corporation - Delivery Lead"],
+	"next_action": "Escalate to project sponsor for expedited signing",
+	"execution_date": null,
+	"confidence_score": 0.82
+}

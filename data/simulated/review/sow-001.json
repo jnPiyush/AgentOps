@@ -1,0 +1,19 @@
+{
+	"review_summary": "Statement of Work for cloud migration project. Milestone payment schedule deviates from standard 30/40/30 split. Resource commitments appear understaffed for Phase 2.",
+	"material_changes": [
+		{
+			"clause": "payment_schedule",
+			"section": "5.1",
+			"description": "Payment schedule changed to 20/30/50 from standard 30/40/30",
+			"severity": "medium"
+		}
+	],
+	"unresolved_items": [
+		{
+			"item": "Phase 2 staffing",
+			"description": "Only 3 FTEs allocated for data migration phase; typical projects require 5+",
+			"priority": "medium"
+		}
+	],
+	"confidence_score": 0.85
+}

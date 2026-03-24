@@ -1,0 +1,9 @@
+{
+	"renewal_window_days": 45,
+	"risk_level": "low",
+	"contracts_due": 1,
+	"recommended_actions": ["Verify amendment is linked to parent contract renewal schedule", "Update data processing records in compliance register"],
+	"expiry_date": "2027-06-30",
+	"auto_renewal": false,
+	"confidence_score": 0.89
+}

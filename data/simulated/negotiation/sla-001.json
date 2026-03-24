@@ -1,0 +1,19 @@
+{
+	"counterparty_positions": [
+		{
+			"clause": "uptime_commitment",
+			"counterparty_position": "99.5% uptime with service credits",
+			"our_position": "99.9% uptime with service credits and termination right",
+			"risk": "medium"
+		}
+	],
+	"fallback_recommendations": [
+		{
+			"clause": "uptime_commitment",
+			"recommendation": "Accept 99.9% with tiered credit structure: 10% credit at 99.5%, 25% at 99.0%",
+			"rationale": "Protects against sustained outages while maintaining relationship"
+		}
+	],
+	"escalation_required": false,
+	"confidence_score": 0.86
+}

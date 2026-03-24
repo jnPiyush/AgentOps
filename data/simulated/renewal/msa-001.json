@@ -1,0 +1,9 @@
+{
+	"renewal_window_days": 60,
+	"risk_level": "medium",
+	"contracts_due": 1,
+	"recommended_actions": ["Notify account manager of upcoming renewal", "Prepare renewal options with updated pricing", "Schedule QBR to discuss renewal terms"],
+	"expiry_date": "2027-03-15",
+	"auto_renewal": true,
+	"confidence_score": 0.87
+}

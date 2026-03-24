@@ -1,0 +1,7 @@
+{
+	"portfolio_summary": "Medium-complexity MSA with one material deviation in indemnification. Counterparty negotiation resolved with compromise position. Pending external signature.",
+	"key_metrics": ["Processing time: 6.8 seconds", "Compliance flags: 1", "Risk level: Medium", "Material changes: 1", "Negotiation positions: 2"],
+	"total_contracts_analyzed": 1,
+	"recommended_actions": ["Standardize indemnification caps for MSAs in this revenue tier", "Create playbook for recurring counterparty negotiation patterns"],
+	"confidence_score": 0.86
+}

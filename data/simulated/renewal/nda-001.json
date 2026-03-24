@@ -1,0 +1,9 @@
+{
+	"renewal_window_days": 90,
+	"risk_level": "low",
+	"contracts_due": 1,
+	"recommended_actions": ["Set calendar reminder 60 days before expiry", "Review if renewal or termination is preferred"],
+	"expiry_date": "2029-01-15",
+	"auto_renewal": false,
+	"confidence_score": 0.93
+}

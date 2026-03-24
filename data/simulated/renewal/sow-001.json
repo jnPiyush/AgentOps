@@ -1,0 +1,9 @@
+{
+	"renewal_window_days": 30,
+	"risk_level": "low",
+	"contracts_due": 1,
+	"recommended_actions": ["Track milestone completion against timeline", "Prepare change order if scope adjustments needed"],
+	"expiry_date": "2026-09-15",
+	"auto_renewal": false,
+	"confidence_score": 0.85
+}

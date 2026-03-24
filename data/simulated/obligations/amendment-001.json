@@ -1,0 +1,23 @@
+{
+	"obligations": [
+		{
+			"title": "Update data processing records to reflect amendment",
+			"owner": "Data Protection Officer",
+			"due_window": "14 days from execution"
+		},
+		{
+			"title": "Notify affected sub-processors of updated terms",
+			"owner": "Procurement Lead",
+			"due_window": "30 days from execution"
+		},
+		{
+			"title": "Implement technical measures for cross-border transfers",
+			"owner": "Security Engineering",
+			"due_window": "60 days from execution"
+		}
+	],
+	"owner_assignments": ["Data Protection Officer", "Procurement Lead", "Security Engineering"],
+	"total_obligations": 3,
+	"follow_up_window_days": 14,
+	"confidence_score": 0.87
+}

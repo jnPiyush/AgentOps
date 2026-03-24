@@ -70,6 +70,7 @@ class AgentFrameworkConfig(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"
 
 
 # Global configuration instance

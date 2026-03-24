@@ -1,0 +1,19 @@
+{
+	"review_summary": "Amendment to add data processing addendum. New GDPR compliance clauses are well-structured. Cross-border transfer mechanism needs explicit specification.",
+	"material_changes": [
+		{
+			"clause": "data_processing",
+			"section": "2.1",
+			"description": "New sub-processor approval workflow added requiring 30-day notice",
+			"severity": "low"
+		}
+	],
+	"unresolved_items": [
+		{
+			"item": "Transfer mechanism",
+			"description": "Standard Contractual Clauses vs Binding Corporate Rules not specified for EU-US transfers",
+			"priority": "medium"
+		}
+	],
+	"confidence_score": 0.87
+}

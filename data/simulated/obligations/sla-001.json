@@ -1,0 +1,23 @@
+{
+	"obligations": [
+		{
+			"title": "Monitor uptime against 99.9% SLA threshold",
+			"owner": "SRE Team",
+			"due_window": "continuous"
+		},
+		{
+			"title": "Submit monthly availability reports",
+			"owner": "Service Provider",
+			"due_window": "monthly"
+		},
+		{
+			"title": "Process service credits within billing cycle",
+			"owner": "Finance Team",
+			"due_window": "within 30 days of SLA breach confirmation"
+		}
+	],
+	"owner_assignments": ["SRE Team", "Service Provider", "Finance Team"],
+	"total_obligations": 3,
+	"follow_up_window_days": 30,
+	"confidence_score": 0.91
+}

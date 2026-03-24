@@ -337,6 +337,10 @@ function handleWorkflowEvent(msg) {
 		compliance: "compliance",
 		negotiation: "negotiation",
 		approval: "approval",
+		signature: "signature",
+		obligations: "obligations",
+		renewal: "renewal",
+		analytics: "analytics",
 	};
 	const designRole = pipelineToDesignRole[agentName.toLowerCase()] || agentName.toLowerCase();
 
@@ -498,6 +502,34 @@ function renderStageOutput(containerId, role, result) {
 		if (result.contractId) {
 			addToolOutput(container, "Contract", result.contractId);
 		}
+	} else if (role === "signature") {
+		addToolOutput(container, "Status", result.signatureStatus || result.signature_status || "--");
+		addToolOutput(container, "Method", result.signatureMethod || result.signature_method || "--");
+		if (result.pendingSigners || result.pending_signers) {
+			var signers = result.pendingSigners || result.pending_signers || [];
+			addToolOutput(container, "Pending", signers.length + " signers");
+		}
+	} else if (role === "obligations") {
+		addToolOutput(container, "Total", result.totalObligations || result.total_obligations || 0);
+		addToolOutput(container, "Critical", result.criticalCount || result.critical_count || 0);
+		if (result.upcomingDeadlines || result.upcoming_deadlines) {
+			var deadlines = result.upcomingDeadlines || result.upcoming_deadlines || [];
+			addToolOutput(container, "Deadlines", deadlines.length + " upcoming");
+		}
+	} else if (role === "renewal") {
+		addToolOutput(container, "Risk", result.riskLevel || result.risk_level || "--");
+		addToolOutput(container, "Window", (result.renewalWindowDays || result.renewal_window_days || "--") + " days");
+		addToolOutput(container, "Action", result.recommendedAction || result.recommended_action || "--");
+	} else if (role === "analytics") {
+		if (result.keyMetrics || result.key_metrics) {
+			var metrics = result.keyMetrics || result.key_metrics || [];
+			addToolOutput(container, "Metrics", metrics.length + " tracked");
+		}
+		if (result.recommendedActions || result.recommended_actions) {
+			var actions = result.recommendedActions || result.recommended_actions || [];
+			addToolOutput(container, "Actions", actions.length + " recommended");
+		}
+		addToolOutput(container, "Score", result.overallScore || result.overall_score || "--");
 	} else {
 		// Generic: display up to 4 keys
 		var keys = Object.keys(result).slice(0, 4);
@@ -548,6 +580,15 @@ function logStageOutput(time, actor, role, result) {
 		addLog(time, actor, `Negotiation: ${positions.length} positions, escalation=${esc ? "yes" : "no"}`);
 	} else if (role === "approval") {
 		addLog(time, actor, `Action: ${result.action || "?"}${result.reasoning ? " - " + result.reasoning : ""}`);
+	} else if (role === "signature") {
+		addLog(time, actor, `Signature: ${result.signatureStatus || result.signature_status || "?"}, method: ${result.signatureMethod || result.signature_method || "?"}`);
+	} else if (role === "obligations") {
+		addLog(time, actor, `Obligations: ${result.totalObligations || result.total_obligations || 0} total, ${result.criticalCount || result.critical_count || 0} critical`);
+	} else if (role === "renewal") {
+		addLog(time, actor, `Renewal risk: ${result.riskLevel || result.risk_level || "?"}, window: ${result.renewalWindowDays || result.renewal_window_days || "?"} days`);
+	} else if (role === "analytics") {
+		var metricCount = (result.keyMetrics || result.key_metrics || []).length;
+		addLog(time, actor, `Analytics: ${metricCount} metrics, score: ${result.overallScore || result.overall_score || "?"}`);
 	}
 }
 

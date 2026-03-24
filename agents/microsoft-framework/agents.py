@@ -44,11 +44,17 @@ class Agent:
         self.client = client
         self.tools = tools
         self.system_prompt = system_prompt
+        self._simulated_response: Optional[Dict[str, Any]] = None
+    
+    def set_simulated_response(self, response: Dict[str, Any]) -> None:
+        """Inject a pre-recorded response for simulated mode."""
+        self._simulated_response = response
     
     async def run(self, input_data: Dict[str, Any], structured_output: Optional[BaseModel] = None) -> Dict[str, Any]:
-        """Mock run method - returns simulated response"""
-        # structured_output parameter reserved for future use
-        _ = structured_output  # Suppress unused parameter warning
+        """Run the agent. Uses injected simulated response when available."""
+        _ = structured_output  # Reserved for future use
+        if self._simulated_response is not None:
+            return self._simulated_response
         return {"status": "completed", "data": input_data, "agent": self.config.name}
 
 # Initialize tracing
@@ -109,6 +115,61 @@ class ExtractionResult(BaseModel):
     dates: List[str] = Field(description="Relevant contract dates")
     values: List[ExtractedValue] = Field(description="Extracted values such as fees or caps")
     confidence: float = Field(description="Extraction confidence (0.0-1.0)")
+
+
+class ReviewResult(BaseModel):
+    """Structured output for contract review."""
+    review_summary: str = Field(description="Overall review summary")
+    material_changes: List[str] = Field(description="Material changes found")
+    unresolved_items: List[str] = Field(description="Unresolved items requiring attention")
+    confidence_score: float = Field(description="Review confidence (0.0-1.0)")
+
+
+class NegotiationResult(BaseModel):
+    """Structured output for negotiation assessment."""
+    counterparty_positions: List[str] = Field(description="Counterparty positions identified")
+    fallback_recommendations: List[str] = Field(description="Recommended fallback language")
+    escalation_required: bool = Field(description="Whether escalation is needed")
+    confidence_score: float = Field(description="Assessment confidence (0.0-1.0)")
+
+
+class SignatureResult(BaseModel):
+    """Structured output for signature tracking."""
+    signature_status: str = Field(description="Current signature status")
+    pending_signers: List[str] = Field(description="Signers who have not yet signed")
+    completed_signers: List[str] = Field(description="Signers who have completed signing")
+    next_action: str = Field(description="Next action to take")
+    execution_date: Optional[str] = Field(None, description="Contract execution date (ISO format)")
+    confidence_score: float = Field(description="Tracking confidence (0.0-1.0)")
+
+
+class ObligationsResult(BaseModel):
+    """Structured output for obligation extraction."""
+    obligations: List[Dict[str, Any]] = Field(description="Extracted obligations")
+    owner_assignments: List[Dict[str, Any]] = Field(description="Obligation owner assignments")
+    total_obligations: int = Field(description="Total number of obligations")
+    follow_up_window_days: int = Field(description="Days for follow-up window")
+    confidence_score: float = Field(description="Extraction confidence (0.0-1.0)")
+
+
+class RenewalResult(BaseModel):
+    """Structured output for renewal analysis."""
+    renewal_window_days: int = Field(description="Days until renewal window")
+    risk_level: str = Field(description="Renewal risk level: low, medium, high")
+    contracts_due: int = Field(description="Number of contracts due")
+    recommended_actions: List[str] = Field(description="Recommended renewal actions")
+    expiry_date: Optional[str] = Field(None, description="Contract expiry date (ISO format)")
+    auto_renewal: bool = Field(description="Whether auto-renewal is enabled")
+    confidence_score: float = Field(description="Analysis confidence (0.0-1.0)")
+
+
+class AnalyticsResult(BaseModel):
+    """Structured output for lifecycle analytics."""
+    portfolio_summary: str = Field(description="Portfolio performance summary")
+    key_metrics: List[Dict[str, Any]] = Field(description="Key performance metrics")
+    total_contracts_analyzed: int = Field(description="Number of contracts analyzed")
+    recommended_actions: List[str] = Field(description="Recommended improvements")
+    confidence_score: float = Field(description="Analytics confidence (0.0-1.0)")
 
 
 # Agent Base Class with Framework Integration
@@ -184,12 +245,19 @@ class DeclarativeContractAgent:
     
     def _load_system_prompt(self) -> str:
         """Load system prompt from file"""
-        prompt_file = config.prompts_dir / f"{self.agent_name.replace('_', '-')}-system.md"
+        name = self.agent_name.replace('_', '-')
+        prompt_file = config.prompts_dir / f"{name}-system.md"
         if prompt_file.exists():
             return prompt_file.read_text(encoding="utf-8")
         
+        # Try short name (strip 'contract-' prefix)
+        short_name = name.removeprefix("contract-")
+        short_file = config.prompts_dir / f"{short_name}-system.md"
+        if short_file.exists():
+            return short_file.read_text(encoding="utf-8")
+        
         # Fallback to legacy naming
-        legacy_file = config.prompts_dir / f"{self.agent_name.replace('_', '-')}.md"
+        legacy_file = config.prompts_dir / f"{name}.md"
         if legacy_file.exists():
             return legacy_file.read_text(encoding="utf-8")
             
@@ -304,6 +372,102 @@ class ContractApprovalAgent(DeclarativeContractAgent):
         return ApprovalDecision
 
 
+class ContractReviewAgent(DeclarativeContractAgent):
+    """Contract review and redline agent"""
+
+    def __init__(self, model_type: str = "primary"):
+        super().__init__("contract_review", model_type)
+
+    def _load_tools(self) -> List[Tool]:
+        return [
+            Tool(name="clause_comparison", description="Tool for clause comparison"),
+            Tool(name="redline_tracking", description="Tool for redline tracking"),
+        ]
+
+    def _get_output_schema(self) -> BaseModel:
+        return ReviewResult
+
+
+class ContractNegotiationAgent(DeclarativeContractAgent):
+    """Contract negotiation assessment agent"""
+
+    def __init__(self, model_type: str = "primary"):
+        super().__init__("contract_negotiation", model_type)
+
+    def _load_tools(self) -> List[Tool]:
+        return [
+            Tool(name="position_analysis", description="Tool for counterparty position analysis"),
+            Tool(name="fallback_language", description="Tool for fallback language generation"),
+        ]
+
+    def _get_output_schema(self) -> BaseModel:
+        return NegotiationResult
+
+
+class ContractSignatureAgent(DeclarativeContractAgent):
+    """Contract signature tracking agent"""
+
+    def __init__(self, model_type: str = "primary"):
+        super().__init__("contract_signature", model_type)
+
+    def _load_tools(self) -> List[Tool]:
+        return [
+            Tool(name="notify_stakeholder", description="Tool for signature notifications"),
+            Tool(name="create_audit_entry", description="Tool for audit trail recording"),
+        ]
+
+    def _get_output_schema(self) -> BaseModel:
+        return SignatureResult
+
+
+class ContractObligationsAgent(DeclarativeContractAgent):
+    """Contract obligation extraction agent"""
+
+    def __init__(self, model_type: str = "primary"):
+        super().__init__("contract_obligations", model_type)
+
+    def _load_tools(self) -> List[Tool]:
+        return [
+            Tool(name="obligation_extraction", description="Tool for obligation extraction"),
+            Tool(name="owner_assignment", description="Tool for owner assignment"),
+        ]
+
+    def _get_output_schema(self) -> BaseModel:
+        return ObligationsResult
+
+
+class ContractRenewalAgent(DeclarativeContractAgent):
+    """Contract renewal and expiry analysis agent"""
+
+    def __init__(self, model_type: str = "primary"):
+        super().__init__("contract_renewal", model_type)
+
+    def _load_tools(self) -> List[Tool]:
+        return [
+            Tool(name="renewal_detection", description="Tool for renewal clause detection"),
+            Tool(name="expiry_tracking", description="Tool for expiry date tracking"),
+        ]
+
+    def _get_output_schema(self) -> BaseModel:
+        return RenewalResult
+
+
+class ContractAnalyticsAgent(DeclarativeContractAgent):
+    """Contract lifecycle analytics agent"""
+
+    def __init__(self, model_type: str = "primary"):
+        super().__init__("contract_analytics", model_type)
+
+    def _load_tools(self) -> List[Tool]:
+        return [
+            Tool(name="performance_metrics", description="Tool for performance metrics"),
+            Tool(name="trend_analysis", description="Tool for contract trend analysis"),
+        ]
+
+    def _get_output_schema(self) -> BaseModel:
+        return AnalyticsResult
+
+
 # Agent Factory for Dynamic Creation
 class AgentFactory:
     """Factory for creating declarative contract agents"""
@@ -311,8 +475,14 @@ class AgentFactory:
     _agent_registry = {
         "intake": ContractIntakeAgent,
         "extraction": ContractExtractionAgent,
+        "review": ContractReviewAgent,
         "compliance": ContractComplianceAgent,
-        "approval": ContractApprovalAgent
+        "negotiation": ContractNegotiationAgent,
+        "approval": ContractApprovalAgent,
+        "signature": ContractSignatureAgent,
+        "obligations": ContractObligationsAgent,
+        "renewal": ContractRenewalAgent,
+        "analytics": ContractAnalyticsAgent,
     }
     
     @classmethod

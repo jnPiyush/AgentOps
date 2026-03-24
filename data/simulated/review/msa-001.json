@@ -1,0 +1,19 @@
+{
+	"review_summary": "Master Service Agreement contains one material deviation in the indemnification clause. SLA attachment requires clarification on uptime measurement methodology.",
+	"material_changes": [
+		{
+			"clause": "indemnification",
+			"section": "8.2",
+			"description": "Indemnification cap raised from $1M to $2.5M by counterparty",
+			"severity": "medium"
+		}
+	],
+	"unresolved_items": [
+		{
+			"item": "SLA uptime measurement",
+			"description": "Uptime calculation methodology not specified - monthly vs rolling 30-day",
+			"priority": "low"
+		}
+	],
+	"confidence_score": 0.88
+}
